@@ -1,0 +1,55 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Redirect to https in production
+    RewriteCond %{HTTPS} off
+    RewriteCond %{ENV:APP_ENV} production
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteCond %{HTTPS} ^([s]?)\$
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization},E=HTTPS:%{ENV:HTTPS}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)/$ /$1 [L,R=301]
+
+    # Send Front Controller All Requests
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+
+    # Security: block access to dotfiles & sensitive files
+    <FilesMatch "^\.(env|git|gitignore|gitattributes)">
+        Require all denied
+    </FilesMatch>
+
+    # Block access to common sensitive paths
+    <FilesMatch "(composer\.(json|lock)|package(-lock)?\.json|yarn\.lock|phpunit\.xml.*|README\.md|install\.php)$">
+        Require all denied
+    </FilesMatch>
+
+    # Cache static assets aggressively
+    <IfModule mod_expires.c>
+        ExpiresActive On
+        ExpiresByType text/css "access plus 1 year"
+        ExpiresByType application/javascript "access plus 1 year"
+        ExpiresByType image/jpeg "access plus 6 months"
+        ExpiresByType image/png "access plus 6 months"
+        ExpiresByType image/webp "access plus 6 months"
+        ExpiresByType image/avif "access plus 6 months"
+        ExpiresByType image/svg+xml "access plus 6 months"
+        ExpiresByType font/woff2 "access plus 1 year"
+    </IfModule>
+
+    <IfModule mod_headers.c>
+        Header set X-Content-Type-Options "nosniff"
+        Header set X-Frame-Options "SAMEORIGIN"
+        Header set Referrer-Policy "strict-origin-when-cross-origin"
+    </IfModule>
+</IfModule>

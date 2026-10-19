@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@theme {
+    --color-ivory: #FBF8F2;
+    --color-ivory-alt: #F4EEE2;
+    --color-porcelain: #FFFFFF;
+    --color-charcoal: #1F1B16;
+    --color-charcoal-soft: #3A3530;
+    --color-muted: #6F6A63;
+    --color-champagne: #C8A968;
+    --color-champagne-dark: #A8854A;
+    --color-rose: #B47B5A;
+    --color-plum: #3E2B33;
+    --color-success: #3F8E5C;
+    --color-danger: #B23A48;
+    --color-warning: #D79C3F;
+
+    --font-serif: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+    --font-sans: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+
+    --radius-pill: 9999px;
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    body {
+        @apply bg-ivory text-charcoal font-sans antialiased;
+        font-feature-settings: 'cv01', 'cv02', 'kern';
+    }
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-serif text-charcoal;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+    }
+    a {
+        @apply transition-colors duration-200;
+    }
+    :focus-visible {
+        outline: 2px solid var(--color-champagne);
+        outline-offset: 2px;
+    }
+    ::selection {
+        background: var(--color-champagne);
+        color: white;
+    }
+    /* Form controls */
+    input, select, textarea {
+        @apply font-sans;
+    }
+    input[type="text"], input[type="email"], input[type="password"],
+    input[type="tel"], input[type="number"], input[type="search"],
+    select, textarea {
+        @apply w-full bg-porcelain border border-charcoal/10 rounded-md
+               px-4 py-2.5 text-charcoal placeholder-muted/60
+               focus:border-champagne focus:ring-1 focus:ring-champagne
+               transition-colors duration-200;
+    }
+    label {
+        @apply block text-sm font-medium text-charcoal-soft mb-1.5;
+    }
+    /* Button base */
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 px-5 py-2.5
+               rounded-md font-sans font-medium tracking-wide transition-all duration-200
+               disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+    .btn-primary {
+        @apply btn bg-charcoal text-ivory hover:bg-plum hover:shadow-md;
+    }
+    .btn-gold {
+        @apply btn bg-champagne text-charcoal hover:bg-champagne-dark hover:text-ivory hover:shadow-md;
+    }
+    .btn-outline {
+        @apply btn border border-charcoal/20 text-charcoal hover:border-charcoal hover:bg-ivory-alt;
+    }
+    .btn-ghost {
+        @apply btn text-charcoal-soft hover:bg-ivory-alt;
+    }
+    .btn-danger {
+        @apply btn bg-danger text-ivory hover:bg-danger/90;
+    }
+    /* Cards */
+    .card {
+        @apply bg-porcelain rounded-xl border border-charcoal/5 overflow-hidden
+               transition-all duration-300;
+    }
+    .card-hover {
+        @apply hover:shadow-[0_8px_40px_rgba(31,27,22,0.08)] hover:-translate-y-0.5;
+    }
+    /* Badges */
+    .badge {
+        @apply inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full;
+    }
+    /* Container */
+    .container-haars {
+        @apply max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8;
+    }
+    /* Section spacing */
+    .section {
+        @apply py-14 md:py-20;
+    }
+    /* Champagne divider */
+    .divider-gold {
+        @apply h-px bg-gradient-to-r from-transparent via-champagne to-transparent;
+    }
+    /* Truncate to 2 lines */
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+}
+
+@layer utilities {
+    .text-balance { text-wrap: balance; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    /* Hide number arrows */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type="number"] { -moz-appearance: textfield; }
+}

@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /account
+Disallow: /cart
+Disallow: /checkout
+Disallow: /payments/
+Disallow: /webhooks/
+Disallow: /track-order
+Disallow: /login
+Disallow: /register
+
+Sitemap: https://shop.haarsingharr.pk/sitemap.xml

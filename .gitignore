@@ -1,0 +1,40 @@
+# Haarsingharr Jewellery — .gitignore
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+.env.testing
+
+# Composer & npm
+/vendor
+/node_modules
+/public/build
+/public/hot
+
+# Laravel
+storage/app/private/*
+storage/app/public/*
+!storage/app/public/.gitkeep
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/logs/*
+!storage/logs/.gitkeep
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Tests
+.phpunit.cache/
+.phpunit.result.cache
+
+# Pint
+.pint.cache
+
+# Docker / local
+docker-compose.override.yml

@@ -1,0 +1,40 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Haarsingharr Jewellery Store — Laravel Artisan Bootstrap
+ * For local development: php artisan <command>
+ * On cPanel without terminal: use the documented migration SQL file instead.
+ */
+
+use Illuminate\Foundation\Application;
+
+define('LARAVEL_START', microtime(true));
+
+// Find the Composer autoloader
+$autoloadPaths = [
+    __DIR__.'/vendor/autoload.php',
+    __DIR__.'/../vendor/autoload.php',
+];
+
+$autoload = null;
+foreach ($autoloadPaths as $path) {
+    if (file_exists($path)) {
+        $autoload = $path;
+        break;
+    }
+}
+
+if (! $autoload) {
+    echo "Composer autoloader not found. Run 'composer install' in the project root.\n";
+    exit(1);
+}
+
+require $autoload;
+
+// Bootstrap Laravel
+$app = require_once __DIR__.'/bootstrap/app.php';
+
+$status = (int) (require $app->bootstrapPath('artisan.php'))(...array_slice($argv, 1));
+
+exit($status);

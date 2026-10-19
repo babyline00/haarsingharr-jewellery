@@ -1,0 +1,24 @@
+{
+    "name": "haarsingharr-jewellery",
+    "version": "1.0.0",
+    "description": "Haarsingharr — premium jewellery e-commerce platform built on Laravel",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "alpinejs": "^3.14.0",
+        "@alpinejs/collapse": "^3.14.0",
+        "@alpinejs/persist": "^3.14.0"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.0.0",
+        "axios": "^1.7.0",
+        "laravel-vite-plugin": "^1.0.0",
+        "tailwindcss": "^4.0.0",
+        "vite": "^5.4.0"
+    }
+}

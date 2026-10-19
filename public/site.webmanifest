@@ -1,0 +1,63 @@
+{
+    "name": "Haarsingharr.pk — Jewelry For Every You",
+    "short_name": "Haarsingharr",
+    "description": "Premium jewellery crafted for the modern Pakistani bride and connoisseur.",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#FBF8F2",
+    "theme_color": "#1F1B16",
+    "lang": "en-PK",
+    "dir": "ltr",
+    "categories": ["shopping", "lifestyle"],
+    "icons": [
+        {
+            "src": "/images/favicon-16x16.png",
+            "sizes": "16x16",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/favicon-32x32.png",
+            "sizes": "32x32",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/favicon-96x96.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Shop All",
+            "url": "/shop",
+            "icons": [{"src": "/images/favicon-96x96.png", "sizes": "96x96", "type": "image/png"}]
+        },
+        {
+            "name": "Bridal Edit",
+            "url": "/shop/bridal",
+            "icons": [{"src": "/images/favicon-96x96.png", "sizes": "96x96", "type": "image/png"}]
+        },
+        {
+            "name": "Track Order",
+            "url": "/track-order",
+            "icons": [{"src": "/images/favicon-96x96.png", "sizes": "96x96", "type": "image/png"}]
+        }
+    ]
+}
