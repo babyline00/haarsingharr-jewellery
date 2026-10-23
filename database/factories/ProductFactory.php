@@ -23,7 +23,9 @@ class ProductFactory extends Factory
             'Platinum V-Band',
             'Gold Signet Ring',
         ];
-        $name = $this->faker->unique()->randomElement($names);
+        // Only ten base names exist, so a unique design number is appended to
+        // keep names (and the slugs generated from them) unique in large batches.
+        $name = $this->faker->randomElement($names).' — Design No. '.$this->faker->unique()->numberBetween(1000, 9999);
         $regularPrice = $this->faker->randomElement([15000, 25000, 45000, 75000, 125000, 250000, 480000]);
 
         return [

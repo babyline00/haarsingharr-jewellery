@@ -65,7 +65,7 @@ class Payment extends Model
         ]);
     }
 
-    public function markFailed(string $reason = null): void
+    public function markFailed(?string $reason = null): void
     {
         $this->update([
             'status'    => 'failed',

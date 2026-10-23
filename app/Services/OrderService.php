@@ -30,8 +30,7 @@ class OrderService
 
         $billingAddress = $data['billing_address'] ?? $shippingAddress;
 
-        $order = Order::create([
-            'uuid'             => $idempotencyKey,
+        $order = new Order([
             'number'           => Order::nextOrderNumber(),
             'user_id'          => $user?->id,
             'guest_email'      => $user ? null : $data['email'],
@@ -60,6 +59,11 @@ class OrderService
             'order_channel'      => 'web',
             'tracking_token'     => hash_hmac('sha256', $cart->uuid, config('app.key')),
         ]);
+
+        // uuid is guarded from mass assignment, so the idempotency key must be
+        // set explicitly before the HasUuid creating hook runs.
+        $order->uuid = $idempotencyKey;
+        $order->save();
 
         // Snapshot each item — including price, SKU and variant attributes so
         // historical orders stay correct after products change.

@@ -49,7 +49,7 @@ class OrderController extends Controller
             return back()->with('error', "Cannot transition from {$order->status->label()} to {$newStatus->label()}.");
         }
 
-        $order->transitionTo($newStatus, auth()->user(), $validated['note']);
+        $order->transitionTo($newStatus, auth()->user(), $validated['note'] ?? null);
         $this->audit->record('orders.status.update', $order,
             ['status' => $order->getOriginal('status')],
             ['status' => $newStatus->value],

@@ -41,6 +41,22 @@ class CheckoutController extends Controller
 
     public function store(PlaceOrderRequest $request): RedirectResponse
     {
+        // Reject a payment method that cannot be used for this cart *before* an
+        // order is created, so a failed gateway cannot leave an orphan order
+        // behind. (CodGateway::initiate() enforces the same limit.)
+        $cart = $this->cartService->current();
+        $cart->recalculate();
+
+        if ($request->input('payment_method') === 'cod') {
+            $maxValue = (float) config('payments.gateways.cod.max_value', 200000);
+            if ((float) $cart->total > $maxValue) {
+                throw ValidationException::withMessages([
+                    'payment_method' => 'Cash on Delivery is not available for orders over Rs. '
+                        .number_format($maxValue).'. Please choose JazzCash or Easypaisa.',
+                ]);
+            }
+        }
+
         try {
             $order = $this->checkoutService->placeOrder($request->toCheckoutData());
         } catch (InsufficientStockException $e) {
@@ -52,7 +68,19 @@ class CheckoutController extends Controller
         $payment = $this->paymentManager->createPayment($order);
         $gateway = $this->paymentManager->gateway($order->payment_provider);
 
-        $response = $gateway->initiate($payment, $order);
+        try {
+            $response = $gateway->initiate($payment, $order);
+        } catch (\DomainException $e) {
+            // Gateway declined the order (e.g. provider value limit). Undo the
+            // order so it is not left orphaned, then report it as a form error.
+            $this->checkoutService->cancelOrder(
+                $order,
+                auth()->user(),
+                'Payment method unavailable for this order.',
+            );
+
+            throw ValidationException::withMessages(['payment_method' => $e->getMessage()]);
+        }
 
         if ($response['redirect'] ?? false) {
             // Render an automatic redirect form (Stripe-style hosted page).

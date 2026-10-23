@@ -12,10 +12,13 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
-// On cPanel the path should resolve to the private app directory (one level above public_html).
-// Default assumes the layout documented in README.md.
-require __DIR__.'/../haarsingharr/vendor/autoload.php';
-$app = require_once __DIR__.'/../haarsingharr/bootstrap/app.php';
+// Resolve the private application directory. On cPanel this is the app folder
+// one level above public_html (see README.md); for local/standard installs it is
+// simply the parent of public/.
+$appBase = is_dir(__DIR__.'/../haarsingharr/bootstrap') ? __DIR__.'/../haarsingharr' : dirname(__DIR__);
+
+require $appBase.'/vendor/autoload.php';
+$app = require_once $appBase.'/bootstrap/app.php';
 
 // Bind Kernel & handle the request
 $kernel = $app->make(Kernel::class);

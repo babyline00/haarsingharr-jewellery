@@ -77,7 +77,7 @@
             <div class="container-haars flex items-center justify-center gap-3">
                 <span class="font-medium tracking-wide">{{ $announcement->heading ?? 'Complimentary shipping & free returns within 7 days' }}</span>
                 @if ($link = $announcement->link_url ?? null)
-                    <a href="{{ $link }}" class="underline underline-offset-2 hover:text-champagne transition-colors">{{ $announcement->link_text ?? 'Learn more' }}</a>
+                    <a href="{{ $link }}" class="underline underline-offset-2 hover:text-champagne transition-colors">{{ $announcement->link_text ?? $announcement->heading ?? 'Details' }}</a>
                 @endif
                 <button @click="visible = false" class="ml-2 text-ivory/60 hover:text-ivory" aria-label="Dismiss announcement">×</button>
             </div>

@@ -18,7 +18,9 @@ use Spatie\Sluggable\SlugOptions;
 
 class Product extends Model
 {
-    use HasFactory, HasSlug, HasUuid, LogsActivity, SoftDeletes;
+    use HasFactory, HasSlug, HasUuid, LogsActivity, SoftDeletes {
+        HasUuid::getRouteKey insteadof HasSlug;
+    }
 
     protected $fillable = [
         'category_id', 'subcategory_id', 'name', 'slug', 'sku', 'barcode',
@@ -37,6 +39,7 @@ class Product extends Model
     protected function casts(): array
     {
         return [
+            'status'               => ProductStatus::class,
             'regular_price'        => 'decimal:2',
             'sale_price'           => 'decimal:2',
             'cost_price'           => 'decimal:2',
@@ -83,7 +86,7 @@ class Product extends Model
 
     public function images(): HasMany
     {
-        return $this->hasMany(ProductImage::class)->orderBy('sort_order');
+        return $this->hasMany(ProductImage::class)->orderByDesc('is_primary')->orderBy('sort_order');
     }
 
     public function primaryImage(): BelongsTo
@@ -107,7 +110,7 @@ class Product extends Model
 
     public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(ProductTag::class);
+        return $this->belongsToMany(ProductTag::class, 'product_tag', 'product_id', 'product_tag_id');
     }
 
     public function collections(): BelongsToMany

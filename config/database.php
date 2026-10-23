@@ -11,7 +11,7 @@ return [
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
-            'database' => database_path('database.sqlite'),
+            'database' => env('DB_DATABASE') ?: database_path('database.sqlite'),
             'prefix' => '',
             'foreign_key_constraints' => (bool) env('DB_FOREIGN_KEYS', true),
         ],
@@ -35,7 +35,7 @@ return [
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA') ?: null,
                 PDO::MYSQL_ATTR_SSL_CERT => env('MYSQL_ATTR_SSL_CERT') ?: null,
                 PDO::MYSQL_ATTR_SSL_KEY => env('MYSQL_ATTR_SSL_KEY') ?: null,
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVERCERT => env('MYSQL_ATTR_SSL_VERIFY_SERVERCERT', false),
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => env('MYSQL_ATTR_SSL_VERIFY_SERVER_CERT', false),
                 PDO::ATTR_PERSISTENT => (bool) env('DB_PERSISTENT', false),
             ]) : [],
         ],

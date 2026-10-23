@@ -147,6 +147,59 @@
         </div>
     </div>
 
+    {{-- Database & System Info --}}
+    <div class="grid md:grid-cols-2 gap-6 mt-6">
+        <div class="card p-5">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-serif text-lg">Database Status</h2>
+                <a href="{{ route('admin.database.info') }}" class="text-xs text-champagne-dark hover:underline">View details →</a>
+            </div>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-muted">Connection</span>
+                    <span class="font-medium text-success flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
+                        {{ config('database.default') }}
+                    </span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-muted">Host</span>
+                    <span class="font-medium">{{ config('database.connections.' . config('database.default') . '.host') }}</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-muted">Database</span>
+                    <span class="font-medium">{{ config('database.connections.' . config('database.default') . '.database') }}</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-muted">Products</span>
+                    <span class="font-medium">{{ \App\Models\Product::count() }}</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-muted">Orders</span>
+                    <span class="font-medium">{{ \App\Models\Order::count() }}</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-muted">Customers</span>
+                    <span class="font-medium">{{ \App\Models\User::customers()->count() }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-5">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-serif text-lg">Quick Actions</h2>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <a href="{{ route('admin.products.create') }}" class="btn-outline text-sm text-center">New Product</a>
+                <a href="{{ route('admin.orders.index') }}" class="btn-outline text-sm text-center">View Orders</a>
+                <a href="{{ route('admin.customers.index') }}" class="btn-outline text-sm text-center">Customers</a>
+                <a href="{{ route('admin.reports.sales') }}" class="btn-outline text-sm text-center">Reports</a>
+                <a href="{{ route('admin.settings.index') }}" class="btn-outline text-sm text-center">Settings</a>
+                <a href="{{ route('admin.database.info') }}" class="btn-outline text-sm text-center">Database</a>
+            </div>
+        </div>
+    </div>
+
     {{-- Orders by status breakdown --}}
     <div class="card p-5 mt-6">
         <h2 class="font-serif text-lg mb-4">Orders by Status — {{ now()->format('F Y') }}</h2>

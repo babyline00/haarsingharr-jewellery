@@ -39,7 +39,7 @@ class JazzCashGateway implements PaymentGateway
 
     public function enabled(): bool
     {
-        return (bool) config('payments.gateways.jazzcash.enabled', false);
+        return (bool) \App\Models\StoreSetting::get('payment.jazzcash.enabled', config('payments.gateways.jazzcash.enabled', false));
     }
 
     public function isRedirectFlow(): bool

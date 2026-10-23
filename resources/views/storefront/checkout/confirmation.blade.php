@@ -47,7 +47,7 @@
                         <div class="flex justify-between items-center py-2 border-b border-charcoal/5 last:border-0">
                             <div class="flex items-center gap-3">
                                 @if ($item->product_image)
-                                    <img src="{{ $item->product_image }}" alt="" class="w-12 h-12 object-cover rounded">
+                                    <img src="{{ \App\Support\Media::url($item->product_image) }}" alt="" class="w-12 h-12 object-cover rounded">
                                 @endif
                                 <div>
                                     <div class="text-sm font-medium">{{ $item->product_name }}</div>

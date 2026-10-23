@@ -43,11 +43,13 @@ return new class extends Migration
 
         Schema::create('role_user', function (Blueprint $table) {
             $table->id();
+            $table->string('model_type')->nullable();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('role_id')->constrained()->cascadeOnDelete();
             $table->string('guard_name')->default('web');
             $table->timestamps();
             $table->unique(['user_id', 'role_id']);
+            $table->index(['model_type', 'user_id']);
         });
 
         Schema::create('permission_role', function (Blueprint $table) {
@@ -62,11 +64,13 @@ return new class extends Migration
         // User-level override (grant permission to specific user beyond role)
         Schema::create('user_permissions', function (Blueprint $table) {
             $table->id();
+            $table->string('model_type')->nullable();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('permission_id')->constrained()->cascadeOnDelete();
             $table->string('guard_name')->default('web');
             $table->timestamps();
             $table->unique(['user_id', 'permission_id']);
+            $table->index(['model_type', 'user_id']);
         });
     }
 

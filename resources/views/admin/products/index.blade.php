@@ -55,7 +55,7 @@
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 bg-ivory-alt rounded-md overflow-hidden flex-shrink-0">
                                         @if ($path = $product->primaryImagePath())
-                                            <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($path) }}" alt="" class="w-full h-full object-cover">
+                                            <img src="{{ \App\Support\Media::url($path) }}" alt="" class="w-full h-full object-cover">
                                         @endif
                                     </div>
                                     <div>

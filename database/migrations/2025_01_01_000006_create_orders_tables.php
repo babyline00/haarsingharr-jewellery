@@ -17,6 +17,41 @@ return new class extends Migration
         // --------------------------------------------------------------------------
         // Carts
         // --------------------------------------------------------------------------
+        Schema::create('coupons', function (Blueprint $table) {
+            $table->id();
+            $table->string('uuid', 36)->unique();
+            $table->string('code', 40)->unique();
+            $table->string('slug')->unique();
+
+            $table->enum('type', ['percentage', 'fixed', 'free_shipping',
+                'product_specific', 'category_specific'])
+                ->default('fixed');
+            $table->decimal('value', 12, 2);
+            $table->decimal('min_order_value', 12, 2)->nullable();
+            $table->decimal('max_discount_amount', 12, 2)->nullable();
+
+            $table->foreignId('product_id')->nullable()
+                ->references('id')->on('products')->nullOnDelete();
+            $table->foreignId('category_id')->nullable()
+                ->references('id')->on('categories')->nullOnDelete();
+
+            $table->unsignedInteger('usage_limit_total')->nullable();
+            $table->unsignedInteger('usage_limit_per_customer')->nullable();
+            $table->unsignedInteger('used_count')->default(0);
+
+            $table->boolean('first_order_only')->default(false);
+            $table->boolean('exclude_sale_items')->default(false);
+
+            $table->timestamp('starts_at')->nullable();
+            $table->timestamp('expires_at')->nullable();
+            $table->enum('status', ['active', 'scheduled', 'expired', 'disabled'])
+                ->default('active');
+            $table->softDeletes();
+            $table->timestamps();
+            $table->index('code');
+            $table->index('status');
+        });
+
         Schema::create('carts', function (Blueprint $table) {
             $table->id();
             $table->string('uuid', 36)->unique();
@@ -37,6 +72,7 @@ return new class extends Migration
 
         Schema::create('cart_items', function (Blueprint $table) {
             $table->id();
+            $table->string('uuid', 36)->unique();
             $table->foreignId('cart_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_variant_id')->nullable()
@@ -54,6 +90,7 @@ return new class extends Migration
         // --------------------------------------------------------------------------
         Schema::create('wishlists', function (Blueprint $table) {
             $table->id();
+            $table->string('uuid', 36)->unique();
             $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('session_id', 100)->nullable()->index();
             $table->string('name')->default('Saved Items');
@@ -62,6 +99,7 @@ return new class extends Migration
 
         Schema::create('wishlist_items', function (Blueprint $table) {
             $table->id();
+            $table->string('uuid', 36)->unique();
             $table->foreignId('wishlist_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_variant_id')->nullable()
@@ -136,8 +174,6 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            $table->index('status');
-            $table->index('payment_status');
             $table->index('created_at');
             $table->index(['user_id', 'status']);
             $table->index('guest_email');
@@ -145,6 +181,7 @@ return new class extends Migration
 
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
+            $table->string('uuid', 36)->unique();
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('product_variant_id')->nullable()
@@ -179,6 +216,7 @@ return new class extends Migration
 
         Schema::create('order_addresses', function (Blueprint $table) {
             $table->id();
+            $table->string('uuid', 36)->unique();
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->enum('type', ['billing', 'shipping']);
             $table->string('first_name');
@@ -197,6 +235,7 @@ return new class extends Migration
 
         Schema::create('order_status_histories', function (Blueprint $table) {
             $table->id();
+            $table->string('uuid', 36)->unique();
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->string('previous_status')->nullable();
             $table->string('new_status');
@@ -210,40 +249,6 @@ return new class extends Migration
         // --------------------------------------------------------------------------
         // Coupons
         // --------------------------------------------------------------------------
-        Schema::create('coupons', function (Blueprint $table) {
-            $table->id();
-            $table->string('code', 40)->unique();
-            $table->string('slug')->unique();
-
-            $table->enum('type', ['percentage', 'fixed', 'free_shipping',
-                'product_specific', 'category_specific'])
-                ->default('fixed');
-            $table->decimal('value', 12, 2);
-            $table->decimal('min_order_value', 12, 2)->nullable();
-            $table->decimal('max_discount_amount', 12, 2)->nullable();
-
-            $table->foreignId('product_id')->nullable()
-                ->references('id')->on('products')->nullOnDelete();
-            $table->foreignId('category_id')->nullable()
-                ->references('id')->on('categories')->nullOnDelete();
-
-            $table->unsignedInteger('usage_limit_total')->nullable();
-            $table->unsignedInteger('usage_limit_per_customer')->nullable();
-            $table->unsignedInteger('used_count')->default(0);
-
-            $table->boolean('first_order_only')->default(false);
-            $table->boolean('exclude_sale_items')->default(false);
-
-            $table->timestamp('starts_at')->nullable();
-            $table->timestamp('expires_at')->nullable();
-            $table->enum('status', ['active', 'scheduled', 'expired', 'disabled'])
-                ->default('active');
-            $table->softDeletes();
-            $table->timestamps();
-            $table->index('code');
-            $table->index('status');
-        });
-
         Schema::create('coupon_redemptions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('coupon_id')->constrained()->cascadeOnDelete();
@@ -308,7 +313,6 @@ return new class extends Migration
             $table->boolean('is_verified')->default(false);
             $table->text('note')->nullable();
             $table->timestamps();
-            $table->index('provider_event_id');
         });
 
         Schema::create('refunds', function (Blueprint $table) {
@@ -380,6 +384,7 @@ return new class extends Migration
                 ->references('id')->on('refunds')->nullOnDelete();
 
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -391,7 +396,6 @@ return new class extends Migration
         Schema::dropIfExists('payment_events');
         Schema::dropIfExists('payments');
         Schema::dropIfExists('coupon_redemptions');
-        Schema::dropIfExists('coupons');
         Schema::dropIfExists('order_status_histories');
         Schema::dropIfExists('order_addresses');
         Schema::dropIfExists('order_items');
@@ -400,5 +404,6 @@ return new class extends Migration
         Schema::dropIfExists('wishlists');
         Schema::dropIfExists('cart_items');
         Schema::dropIfExists('carts');
+        Schema::dropIfExists('coupons');
     }
 };

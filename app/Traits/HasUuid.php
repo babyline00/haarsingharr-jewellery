@@ -18,12 +18,10 @@ trait HasUuid
 
     public function getRouteKey(): string
     {
-        if (request()?->route()?->bindingFieldFor('id')) {
-            return $this->getKey();
-        }
-        if (in_array('slug', $this->fillable, true) && $this->slug) {
-            return $this->slug;
-        }
-        return parent::getRouteKey();
+        // Always generate URLs from the primary key. Route model binding uses
+        // getRouteKeyName() (which stays "id"), so deriving the URL from the
+        // slug instead would produce links that fail to resolve. Storefront
+        // routes request slugs explicitly via "{model:slug}" bindings.
+        return (string) parent::getRouteKey();
     }
 }

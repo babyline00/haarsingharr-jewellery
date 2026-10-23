@@ -29,7 +29,7 @@ class EasypaisaGateway implements PaymentGateway
 
     public function enabled(): bool
     {
-        return (bool) config('payments.gateways.easypaisa.enabled', false);
+        return (bool) \App\Models\StoreSetting::get('payment.easypaisa.enabled', config('payments.gateways.easypaisa.enabled', false));
     }
 
     public function isRedirectFlow(): bool

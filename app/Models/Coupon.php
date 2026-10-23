@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\GeneratesSlug;
 use App\Traits\HasUuid;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Coupon extends Model
 {
-    use HasFactory, HasUuid, LogsActivity, SoftDeletes;
+    use HasFactory, HasUuid, GeneratesSlug, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'code', 'slug', 'type', 'value',
@@ -96,5 +97,14 @@ class Coupon extends Model
     public function scopeExpired(Builder $q)
     {
         return $q->where('expires_at', '<', now());
+    }
+
+    public function scopeSearch(Builder $q, ?string $term)
+    {
+        if (! $term) {
+            return $q;
+        }
+
+        return $q->where('code', 'like', "%{$term}%");
     }
 }

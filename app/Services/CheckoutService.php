@@ -32,15 +32,18 @@ class CheckoutService
      */
     public function placeOrder(array $data): Order
     {
-        $cart = $this->cartService->current();
-        if ($cart->isEmpty()) {
-            throw new RuntimeException('Your cart is empty.');
-        }
-
+        // Idempotency must be resolved first: a retried submission arrives with an
+        // already-cleared cart, so the empty-cart guard would otherwise reject the
+        // duplicate instead of returning the original order.
         $idempotencyKey = $data['idempotency_key'] ?? session()->getId();
         $existingOrder = Order::where('uuid', $idempotencyKey)->first();
         if ($existingOrder) {
             return $existingOrder; // duplicate submission — return original
+        }
+
+        $cart = $this->cartService->current();
+        if ($cart->isEmpty()) {
+            throw new RuntimeException('Your cart is empty.');
         }
 
         return DB::transaction(function () use ($cart, $data, $idempotencyKey) {
@@ -97,7 +100,7 @@ class CheckoutService
             // Transition to confirmed if still pending.
             if ($order->status->value === 'pending') {
                 $order->transitionTo(
-                    new \App\Enums\OrderStatus(\App\Enums\OrderStatus::Confirmed->value),
+                    \App\Enums\OrderStatus::Confirmed,
                     auth()->user(),
                 );
             }
@@ -123,7 +126,7 @@ class CheckoutService
                 $this->inventoryService->release($reservation);
             }
             $order->transitionTo(
-                new \App\Enums\OrderStatus(\App\Enums\OrderStatus::Cancelled->value),
+                \App\Enums\OrderStatus::Cancelled,
                 $actor,
                 $reason,
             );

@@ -7,9 +7,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProductRequest;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Services\AuditService;
+use App\Support\ImageCompressor;
 use App\Services\InventoryService;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -159,7 +162,83 @@ class ProductController extends Controller
         return back()->with('success', "Variant '{$variant->title}' updated.");
     }
 
-    public function destroyVariant(Product $product, ProductVariant $variant)
+    public function storeImage(Request $request, Product $product): RedirectResponse
+    {
+        // Check for PHP upload errors directly from $_FILES
+        if (isset($_FILES['images'])) {
+            $files = $_FILES['images'];
+            if (is_array($files['error'])) {
+                foreach ($files['error'] as $errorCode) {
+                    if ($errorCode !== UPLOAD_ERR_NO_FILE && $errorCode !== UPLOAD_ERR_OK) {
+                        $errorMessages = [
+                            UPLOAD_ERR_INI_SIZE => 'File exceeds server upload limit (' . ini_get('upload_max_filesize') . '). Try a smaller file or contact your host.',
+                            UPLOAD_ERR_FORM_SIZE => 'File exceeds form upload limit.',
+                            UPLOAD_ERR_PARTIAL => 'File was only partially uploaded. Please try again.',
+                            UPLOAD_ERR_NO_TMP_DIR => 'Server temporary directory is missing. Contact your host.',
+                            UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk. Check permissions.',
+                            UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the upload.',
+                        ];
+                        return back()->withErrors(['images' => $errorMessages[$errorCode] ?? 'Upload failed (error code: ' . $errorCode . ').'])->withInput();
+                    }
+                }
+            }
+        }
+
+        $validated = $request->validate([
+            'images'     => 'required|array|min:1',
+            'images.*'   => 'image|mimes:jpg,jpeg,png,webp,gif|max:5120',
+            'alt_text'   => 'nullable|string|max:200',
+            'is_primary' => 'sometimes|boolean',
+        ]);
+
+        $maxSort = (int) $product->images()->max('sort_order');
+        $created = 0;
+
+        $hasPrimary = $product->images()->where('is_primary', true)->exists();
+
+        foreach ($request->file('images', []) as $i => $file) {
+            $path = ImageCompressor::store($file, 'products');
+            $product->images()->create([
+                'path'       => $path,
+                'alt_text'   => $validated['alt_text'] ?? null,
+                'is_primary' => ! $hasPrimary && $i === 0,
+                'sort_order' => ++$maxSort,
+                'type'       => 'gallery',
+            ]);
+            $created++;
+            if (! $hasPrimary && $i === 0) {
+                $hasPrimary = true;
+            }
+        }
+
+        $this->audit->record('products.images.create', $product);
+
+        return back()->with('success', $created.' image(s) uploaded.');
+    }
+
+    public function destroyImage(Product $product, ProductImage $image): RedirectResponse
+    {
+        abort_unless($image->product_id === $product->id, 404);
+
+        $this->audit->record('products.images.delete', $image);
+        Storage::disk('public')->delete($image->path);
+        $image->delete();
+
+        return back()->with('success', 'Image removed.');
+    }
+
+    public function setPrimaryImage(Product $product, ProductImage $image): RedirectResponse
+    {
+        abort_unless($image->product_id === $product->id, 404);
+
+        $product->images()->update(['is_primary' => false]);
+        $image->update(['is_primary' => true]);
+
+        $this->audit->record('products.images.primary', $image);
+
+        return back()->with('success', 'Primary image updated.');
+    }
+    public function destroyVariant(Product $product, ProductVariant $variant): RedirectResponse
     {
         $this->audit->record('products.variants.delete', $variant);
         $variant->delete();

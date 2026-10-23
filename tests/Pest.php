@@ -10,6 +10,8 @@
 |
 */
 
+uses(Tests\TestCase::class)->in('Feature');
+
 if (! function_exists('seedRoles')) {
     function seedRoles(): void
     {

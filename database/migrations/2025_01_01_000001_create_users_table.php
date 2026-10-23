@@ -20,7 +20,7 @@ return new class extends Migration
             // Identity
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
-            $table->string('name')->virtualAs('CONCAT(first_name, " ", last_name)');
+            $table->string('name')->nullable();
             $table->string('email')->unique();
             $table->string('phone_country', 5)->default('+92');
             $table->string('phone', 20)->nullable();

@@ -23,39 +23,80 @@
 <body class="min-h-screen bg-ivory-alt/30 text-charcoal" x-data="{ sidebar: false }">
 
     {{-- Top bar --}}
-    <header class="bg-charcoal text-ivory sticky top-0 z-30">
-        <div class="flex items-center justify-between h-14 px-4 md:px-6">
+    <header class="bg-charcoal text-ivory sticky top-0 z-[var(--z-sticky)] border-b border-charcoal/10">
+        <div class="flex items-center justify-between h-16 px-4 md:px-6">
             <div class="flex items-center gap-3">
-                <button @click="sidebar = !sidebar" class="lg:hidden text-ivory" aria-label="Toggle sidebar">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                <button @click="sidebar = !sidebar" class="lg:hidden p-2 text-ivory/80 hover:text-ivory rounded-md hover:bg-charcoal/20 transition-colors" aria-label="Toggle sidebar" aria-expanded="false" :aria-expanded="sidebar.toString()">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :class="{ 'rotate-90': sidebar }" class="transition-transform duration-200">
+                        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
                 </button>
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2">
-                    <img src="{{ asset('images/logo.png') }}" alt="Haarsingharr.pk Admin" class="h-7 w-auto brightness-0 invert opacity-90">
+                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2" aria-label="Haarsingharr Admin Dashboard">
+                    <img src="{{ asset('images/logo.png') }}" alt="" class="h-7 w-auto brightness-0 invert opacity-90">
+                    <span class="hidden lg:inline font-serif text-lg font-medium tracking-tight">Haarsingharr</span>
                 </a>
             </div>
             <div class="flex items-center gap-3 text-sm">
-                <a href="{{ route('home') }}" target="_blank" class="text-ivory/70 hover:text-champagne transition-colors hidden md:flex items-center gap-1">
+                {{-- Search --}}
+                <div class="hidden lg:block relative">
+                    <label for="global-search" class="sr-only">Search admin</label>
+                    <input type="search" id="global-search" placeholder="Search… (⌘K)" class="w-64 bg-charcoal/30 border border-charcoal/20 text-ivory placeholder-charcoal/40 rounded-md px-4 py-2 text-sm focus:bg-charcoal/40 focus:border-champagne/50 focus:outline-none focus:ring-1 focus:ring-champagne transition-all duration-200" x-data="{ open: false }" @focus="open = true" @keydown.escape="open = false">
+                </div>
+
+                <a href="{{ route('home') }}" target="_blank" class="text-ivory/70 hover:text-champagne transition-colors hidden md:flex items-center gap-1.5 p-2 rounded-md hover:bg-charcoal/20" title="View storefront">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                    View store
+                    <span>View store</span>
                 </a>
+
+                {{-- Notifications --}}
+                <div class="relative" x-data="{ open: false, count: {{ auth()->user()->unreadNotifications()->count() ?? 0 }} }">
+                    <button @click="open = !open" class="p-2 text-ivory/80 hover:text-ivory rounded-md hover:bg-charcoal/20 transition-colors relative" aria-label="Notifications" :aria-expanded="open.toString()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        <span x-show="count > 0" x-text="count" class="absolute -top-1 -right-1 w-5 h-5 text-[10px] font-semibold bg-danger text-ivory rounded-full flex items-center justify-center"></span>
+                    </button>
+                    <div x-show="open" @click.outside="open = false" x-transition class="absolute right-0 mt-2 w-80 bg-porcelain text-charcoal rounded-xl shadow-xl border border-charcoal/5 py-1 overflow-hidden">
+                        <div class="px-4 py-3 border-b border-charcoal/5 flex items-center justify-between">
+                            <h3 class="font-medium">Notifications</h3>
+                            <button @click="count = 0" class="text-xs text-champagne-dark hover:underline">Mark all read</button>
+                        </div>
+                        <div class="max-h-96 overflow-y-auto">
+                            @foreach (auth()->user()->unreadNotifications()->take(10)->get() as $notification)
+                                <a href="{{ $notification->data['url'] ?? '#' }}" class="block px-4 py-3 hover:bg-ivory-alt/50 border-b border-charcoal/5 transition-colors">
+                                    <p class="text-sm font-medium">{{ $notification->data['title'] ?? 'Notification' }}</p>
+                                    <p class="text-xs text-muted mt-0.5">{{ $notification->created_at->diffForHumans() }}</p>
+                                </a>
+                            @endforeach
+                            <a href="#" class="block px-4 py-3 text-center text-xs text-champagne-dark hover:bg-ivory-alt transition-colors">View all</a>
+                        </div>
+                    </div>
+                </div>
 
                 {{-- User menu --}}
                 <div class="relative" x-data="{ open: false }">
-                    <button @click="open = !open" class="flex items-center gap-2 text-ivory hover:text-champagne transition-colors">
+                    <button @click="open = !open" class="flex items-center gap-2.5 p-1.5 rounded-md text-ivory/80 hover:text-ivory hover:bg-charcoal/20 transition-colors" aria-label="User menu" :aria-expanded="open.toString()">
                         <div class="w-8 h-8 rounded-full bg-champagne/30 flex items-center justify-center text-xs font-semibold">
                             {{ strtoupper(substr(auth()->user()->first_name, 0, 1) . substr(auth()->user()->last_name, 0, 1)) }}
                         </div>
-                        <span class="hidden md:block">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        <div class="hidden md:block text-left">
+                            <p class="text-sm font-medium">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</p>
+                            <p class="text-[11px] text-ivory/50">{{ auth()->user()->getRoleNames()->first() ?? 'Staff' }}</p>
+                        </div>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ml-1"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
-                    <div x-show="open" @click.outside="open = false" x-transition class="absolute right-0 mt-2 w-48 bg-porcelain text-charcoal rounded-md shadow-lg py-1">
-                        <a href="{{ route('account.profile.edit') }}" class="block px-4 py-2 text-sm hover:bg-ivory-alt transition-colors">Profile</a>
+                    <div x-show="open" @click.outside="open = false" x-transition class="absolute right-0 mt-2 w-52 bg-porcelain text-charcoal rounded-xl shadow-xl border border-charcoal/5 py-1 overflow-hidden">
+                        <div class="px-4 py-3 border-b border-charcoal/5">
+                            <p class="text-sm font-medium">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</p>
+                            <p class="text-xs text-muted">{{ auth()->user()->email }}</p>
+                        </div>
+                        <a href="{{ route('account.profile.edit') }}" class="dropdown-item">Profile</a>
+                        <a href="#" class="dropdown-item">Change Password</a>
                         @can('audit.view')
-                            <a href="{{ route('admin.active-sessions.index') }}" class="block px-4 py-2 text-sm hover:bg-ivory-alt transition-colors">Active Sessions</a>
+                            <a href="{{ route('admin.active-sessions.index') }}" class="dropdown-item">Active Sessions</a>
                         @endcan
+                        <div class="dropdown-divider"></div>
                         <form action="{{ route('logout') }}" method="post" class="block">
                             @csrf
-                            <button type="submit" class="w-full text-left px-4 py-2 text-sm hover:bg-ivory-alt transition-colors text-danger">Sign Out</button>
+                            <button type="submit" class="dropdown-item text-danger w-full text-left">Sign Out</button>
                         </form>
                     </div>
                 </div>
@@ -65,95 +106,132 @@
 
     <div class="flex">
 
+        {{-- Mobile sidebar backdrop --}}
+        <div x-show="sidebar" @click="sidebar = false" x-transition.opacity class="lg:hidden fixed inset-0 top-16 bg-charcoal/40 z-[var(--z-fixed)]" x-cloak aria-hidden="true"></div>
+
         {{-- Sidebar --}}
-        <aside class="lg:block bg-porcelain border-r border-charcoal/5 w-64 min-h-[calc(100vh-56px)]"
-               :class="sidebar ? 'block fixed z-40 top-14 left-0 bottom-0' : 'hidden lg:block'">
-            <nav class="p-3 space-y-1 text-sm">
+        <aside class="lg:block bg-porcelain border-r border-charcoal/5 w-64 min-h-[calc(100vh-64px)] transition-transform duration-300 ease-out"
+               :class="sidebar ? 'translate-x-0 fixed z-[var(--z-fixed)] top-16 left-0 bottom-0' : '-translate-x-full lg:translate-x-0'">
+            <div class="flex flex-col h-full">
+                <nav class="flex-1 p-3 space-y-0.5 overflow-y-auto" role="navigation" aria-label="Main navigation">
+                    {{-- Dashboard --}}
+                    <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" aria-current="{{ request()->routeIs('admin.dashboard') ? 'page' : 'false' }}">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="16" width="7" height="5" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                        <span>Dashboard</span>
+                    </a>
 
-                <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.dashboard') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">
-                    <span class="inline-flex items-center gap-2">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
-                        Dashboard
-                    </span>
-                </a>
+                    {{-- Catalogue --}}
+                    @can('products.view')
+                    <div class="sidebar-section-title">Catalogue</div>
+                    <a href="{{ route('admin.products.index') }}" class="sidebar-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">Products</a>
+                    <a href="{{ route('admin.categories.index') }}" class="sidebar-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">Categories</a>
+                    <a href="{{ route('admin.collections.index') }}" class="sidebar-link {{ request()->routeIs('admin.collections.*') ? 'active' : '' }}">Collections</a>
+                    <a href="{{ route('admin.inventory.index') }}" class="sidebar-link {{ request()->routeIs('admin.inventory.*') ? 'active' : '' }}">Inventory</a>
+                    @endcan
 
-                {{-- Catalogue --}}
-                @can('products.view')
-                <div class="pt-3 pb-1 px-3 text-xs uppercase tracking-widest text-muted">Catalogue</div>
-                <a href="{{ route('admin.products.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.products.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">Products</a>
-                <a href="{{ route('admin.categories.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.categories.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">Categories</a>
-                <a href="{{ route('admin.collections.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.collections.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">Collections</a>
-                <a href="{{ route('admin.inventory.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.inventory.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">Inventory</a>
-                @endcan
+                    {{-- Sales --}}
+                    @can('orders.view')
+                    <div class="sidebar-section-title">Sales</div>
+                    <a href="{{ route('admin.orders.index') }}" class="sidebar-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">Orders</a>
+                    @endcan
+                    @can('payments.view')
+                    <a href="{{ route('admin.payments.index') }}" class="sidebar-link {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">Payments</a>
+                    @endcan
+                    @can('refunds.view')
+                    <a href="{{ route('admin.refunds.index') }}" class="sidebar-link {{ request()->routeIs('admin.refunds.*') ? 'active' : '' }}">Refunds</a>
+                    @endcan
+                    @can('exchanges.view')
+                    <a href="{{ route('admin.exchanges.index') }}" class="sidebar-link {{ request()->routeIs('admin.exchanges.*') ? 'active' : '' }}">Exchanges / Returns</a>
+                    @endcan
 
-                {{-- Sales --}}
-                @can('orders.view')
-                <div class="pt-3 pb-1 px-3 text-xs uppercase tracking-widest text-muted">Sales</div>
-                <a href="{{ route('admin.orders.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.orders.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">Orders</a>
-                @endcan
-                @can('payments.view')
-                <a href="{{ route('admin.payments.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.payments.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">Payments</a>
-                @endcan
-                @can('refunds.view')
-                <a href="{{ route('admin.refunds.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.refunds.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">Refunds</a>
-                @endcan
-                @can('exchanges.view')
-                <a href="{{ route('admin.exchanges.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.exchanges.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">Exchanges / Returns</a>
-                @endcan
+                    {{-- Customers --}}
+                    @can('customers.view')
+                    <div class="sidebar-section-title">Customers</div>
+                    <a href="{{ route('admin.customers.index') }}" class="sidebar-link {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}">Customers</a>
+                    @endcan
+                    @can('reviews.view')
+                    <a href="{{ route('admin.reviews.index') }}" class="sidebar-link {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">Reviews</a>
+                    @endcan
 
-                {{-- Customers --}}
-                @can('customers.view')
-                <div class="pt-3 pb-1 px-3 text-xs uppercase tracking-widest text-muted">Customers</div>
-                <a href="{{ route('admin.customers.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.customers.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">Customers</a>
-                @endcan
-                @can('reviews.view')
-                <a href="{{ route('admin.reviews.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.reviews.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">Reviews</a>
-                @endcan
+                    {{-- Marketing --}}
+                    @can('coupons.view')
+                    <div class="sidebar-section-title">Marketing</div>
+                    <a href="{{ route('admin.coupons.index') }}" class="sidebar-link {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">Coupons</a>
+                    @endcan
+                    @can('banners.view')
+                    <a href="{{ route('admin.banners.index') }}" class="sidebar-link {{ request()->routeIs('admin.banners.*') ? 'active' : '' }}">Banners</a>
+                    <a href="{{ route('admin.homepage-sections.index') }}" class="sidebar-link {{ request()->routeIs('admin.homepage-sections.*') ? 'active' : '' }}">Homepage Builder</a>
+                    @endcan
+                    @can('cms.view')
+                    <a href="{{ route('admin.pages.index') }}" class="sidebar-link {{ request()->routeIs('admin.pages.*') ? 'active' : '' }}">CMS Pages</a>
+                    <a href="{{ route('admin.faqs.index') }}" class="sidebar-link {{ request()->routeIs('admin.faqs.*') ? 'active' : '' }}">FAQs</a>
+                    @endcan
 
-                {{-- Marketing --}}
-                @can('coupons.view')
-                <div class="pt-3 pb-1 px-3 text-xs uppercase tracking-widest text-muted">Marketing</div>
-                <a href="{{ route('admin.coupons.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.coupons.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">Coupons</a>
-                @endcan
-                @can('banners.view')
-                <a href="{{ route('admin.banners.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.banners.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">Banners</a>
-                <a href="{{ route('admin.homepage-sections.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.homepage-sections.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">Homepage Builder</a>
-                @endcan
-                @can('cms.view')
-                <a href="{{ route('admin.pages.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.pages.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">CMS Pages</a>
-                <a href="{{ route('admin.faqs.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.faqs.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">FAQs</a>
-                @endcan
+                    {{-- System --}}
+                    @can('staff.view')
+                    <div class="sidebar-section-title">System</div>
+                    <a href="{{ route('admin.staff.index') }}" class="sidebar-link {{ request()->routeIs('admin.staff.*') ? 'active' : '' }}">Staff</a>
+                    @endcan
+                    @can('roles.view')
+                    <a href="{{ route('admin.roles.index') }}" class="sidebar-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">Roles & Permissions</a>
+                    @endcan
+                    @can('reports.view')
+                    <a href="{{ route('admin.reports.sales') }}" class="sidebar-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">Reports</a>
+                    @endcan
+                    @can('settings.view')
+                    <a href="{{ route('admin.settings.index') }}" class="sidebar-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">Store Settings</a>
+                    <a href="{{ route('admin.database.info') }}" class="sidebar-link {{ request()->routeIs('admin.database.*') ? 'active' : '' }}">Database</a>
+                    @endcan
+                    @can('audit.view')
+                    <a href="{{ route('admin.audit-logs.index') }}" class="sidebar-link {{ request()->routeIs('admin.audit-logs.*') ? 'active' : '' }}">Audit Logs</a>
+                    @endcan
+                    @can('store-locations.view')
+                    <a href="{{ route('admin.store-locations.index') }}" class="sidebar-link {{ request()->routeIs('admin.store-locations.*') ? 'active' : '' }}">Store Locations</a>
+                    @endcan
+                    @can('shipping.view')
+                    <a href="{{ route('admin.shipping.index') }}" class="sidebar-link {{ request()->routeIs('admin.shipping.*') ? 'active' : '' }}">Shipping</a>
+                    @endcan
+                </nav>
 
-                {{-- System --}}
-                @can('staff.view')
-                <div class="pt-3 pb-1 px-3 text-xs uppercase tracking-widest text-muted">System</div>
-                <a href="{{ route('admin.staff.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.staff.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">Staff</a>
-                @endcan
-                @can('roles.view')
-                <a href="{{ route('admin.roles.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.roles.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">Roles & Permissions</a>
-                @endcan
-                @can('reports.view')
-                <a href="{{ route('admin.reports.sales') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.reports.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">Reports</a>
-                @endcan
-                @can('settings.view')
-                <a href="{{ route('admin.settings.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.settings.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">Store Settings</a>
-                @endcan
-                @can('audit.view')
-                <a href="{{ route('admin.audit-logs.index') }}" class="block px-3 py-2 rounded-md {{ request()->routeIs('admin.audit-logs.*') ? 'bg-champagne/15 text-champagne-dark font-medium' : 'text-charcoal-soft hover:bg-ivory-alt' }}">Audit Logs</a>
-                @endcan
-            </nav>
+                {{-- Footer --}}
+                <div class="p-3 border-t border-charcoal/5">
+                    <a href="{{ route('home') }}" target="_blank" class="sidebar-link text-champagne-dark/80 hover:text-champagne-dark" title="View storefront">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        <span>View Storefront</span>
+                    </a>
+                    <a href="{{ route('admin.dashboard') }}#shortcuts" class="sidebar-link text-muted hover:text-charcoal-soft">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+                        <span>Keyboard Shortcuts</span>
+                    </a>
+                </div>
+            </div>
         </aside>
 
-        {{-- Backdrop for mobile sidebar --}}
-        <div x-show="sidebar" @click="sidebar = false" x-transition.opacity class="lg:hidden fixed inset-0 top-14 bg-charcoal/30 z-30" x-cloak></div>
-
         {{-- Main content --}}
-        <main class="flex-1 p-4 md:p-6 lg:p-8">
+        <main class="flex-1 min-h-[calc(100vh-64px)] p-4 md:p-6 lg:p-8" id="main-content" role="main">
+            {{-- Flash messages --}}
             @if (session('success'))
-                <div class="bg-success/10 border border-success/30 text-success px-4 py-3 rounded-md text-sm mb-4" x-data x-init="setTimeout(() => $el.remove(), 5000)">{{ session('success') }}</div>
+                <div class="alert alert-success mb-6" role="alert" x-data x-init="setTimeout(() => \$el.remove(), 5000)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <div>
+                        <p class="font-medium">{{ session('success') }}</p>
+                    </div>
+                    <button @click="$el.parentElement.remove()" class="text-success/60 hover:text-success" aria-label="Dismiss">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
             @endif
             @if (session('error'))
-                <div class="bg-danger/10 border border-danger/30 text-danger px-4 py-3 rounded-md text-sm mb-4">{{ session('error') }}</div>
+                <div class="alert alert-danger mb-6" role="alert">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    <div>
+                        <p class="font-medium">Error</p>
+                        <p class="text-sm mt-0.5">{{ session('error') }}</p>
+                    </div>
+                    <button @click="$el.parentElement.remove()" class="text-danger/60 hover:text-danger" aria-label="Dismiss">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
             @endif
 
             @yield('content')
@@ -161,5 +239,6 @@
     </div>
 
     @stack('scripts')
+    <script src="{{ asset('js/image-compressor.js') }}"></script>
 </body>
 </html>

@@ -17,27 +17,8 @@ use Illuminate\Support\Facades\DB;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->seedRoles();
+    seedRoles();
 });
-
-// Helper: create a Super Admin role+user for tests.
-function seedRoles(): void
-{
-    $roles = [
-        ['super-admin', 'Super Admin'],
-        ['store-admin', 'Store Admin'],
-        ['product-manager', 'Product Manager'],
-        ['order-manager', 'Order Manager'],
-        ['customer-support', 'Customer Support'],
-        ['customer', 'Customer'],
-    ];
-    foreach ($roles as [$slug, $title]) {
-        \Spatie\Permission\Models\Role::firstOrCreate(
-            ['slug' => $slug, 'name' => $slug],
-            ['title' => $title, 'guard_name' => 'web', 'is_system' => true]
-        );
-    }
-}
 
 // ============================================================================
 // Authentication & Authorization Tests
@@ -210,6 +191,8 @@ test('duplicate checkout submissions return the same order', function () {
         'line_total'         => $variant->regular_price,
     ]);
 
+    $this->actingAs($customer);
+
     $checkoutService = app(CheckoutService::class);
     $key = \Illuminate\Support\Str::uuid()->toString();
 
@@ -261,6 +244,8 @@ test('duplicate webhook events do not create duplicate payments', function () {
         'unit_price'         => $variant->regular_price,
         'line_total'         => $variant->regular_price,
     ]);
+
+    $this->actingAs($customer);
 
     $checkoutService = app(CheckoutService::class);
     $order = $checkoutService->placeOrder([
@@ -375,7 +360,7 @@ test('order cannot transition from delivered to pending', function () {
 
 test('order number format is human-readable', function () {
     $number = Order::nextOrderNumber();
-    expect($number)->toStartWith('AU-')
+    expect($number)->toStartWith('HS-')
         ->and(strlen($number))->toBeLessThanOrEqual(16);
 });
 
@@ -411,6 +396,8 @@ test('product manager cannot access staff management', function () {
 });
 
 test('customer support cannot view cost prices', function () {
+    $this->seedRolesAndPermissions();
+
     $support = User::factory()->staff()->create();
     $support->assignRole('customer-support');
 

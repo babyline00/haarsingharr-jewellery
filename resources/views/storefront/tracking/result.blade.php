@@ -5,12 +5,12 @@
 @section('content')
     <section class="py-12">
         <div class="container-haars max-w-3xl">
-            <div class="flex items-center justify-between mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
                 <div>
-                    <h1 class="font-serif text-3xl">Order {{ $order->number }}</h1>
+                    <h1 class="font-serif text-3xl md:text-4xl">Order {{ $order->number }}</h1>
                     <p class="text-sm text-muted mt-1">Placed on {{ $order->created_at->format('j F Y, g:i A') }}</p>
                 </div>
-                <span class="badge {{ $order->status->color() }}">{{ $order->status->label() }}</span>
+                <span class="badge badge-lg {{ $order->status->color() }}">{{ $order->status->label() }}</span>
             </div>
 
             {{-- Status timeline --}}
@@ -56,17 +56,17 @@
                         <div class="p-5 flex gap-4 items-center">
                             <div class="w-16 h-16 bg-ivory-alt rounded-md overflow-hidden flex-shrink-0">
                                 @if ($item->product_image)
-                                    <img src="{{ $item->product_image }}" alt="" class="w-full h-full object-cover">
+                                    <img src="{{ \App\Support\Media::url($item->product_image) }}" alt="" class="w-full h-full object-cover">
                                 @endif
                             </div>
-                            <div class="flex-1">
-                                <div class="font-medium">{{ $item->product_name }}</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-medium truncate">{{ $item->product_name }}</div>
                                 @if ($item->variant_title)
                                     <div class="text-xs text-muted">{{ $item->variant_title }}</div>
                                 @endif
                                 <div class="text-xs text-muted">Qty: {{ $item->quantity }} • Rs. {{ number_format($item->unit_price) }} each</div>
                             </div>
-                            <div class="font-medium">Rs. {{ number_format($item->line_total) }}</div>
+                            <div class="font-medium whitespace-nowrap">Rs. {{ number_format($item->line_total) }}</div>
                         </div>
                     @endforeach
                 </div>

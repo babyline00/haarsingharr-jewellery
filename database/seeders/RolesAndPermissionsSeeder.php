@@ -7,13 +7,12 @@ use App\Models\Collection;
 use App\Models\Coupon;
 use App\Models\HomepageSection;
 use App\Models\NewsletterSubscription;
-use App\Models\Permission;
-use App\Models\Role;
 use App\Models\StoreSetting;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
-use Spatie\Permission\Models\Role as SpatieRole;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -134,10 +133,12 @@ class RolesAndPermissionsSeeder extends Seeder
             ->pluck('id');
         Role::where('slug', 'order-manager')->first()->permissions()->sync($orderPerms);
 
-        // Customer Support
+        // Customer Support — front-line order/customer/review handling, and
+        // read-only visibility of the product catalogue (cost prices excluded).
         $supportPerms = Permission::whereIn('slug', [
             'orders.view', 'customers.view', 'customers.update',
-            'reviews.view', 'reviews.moderate', 'contacts.view', 'contacts.update',
+            'products.view', 'reviews.view', 'reviews.moderate',
+            'contacts.view', 'contacts.update',
         ])->pluck('id');
         Role::where('slug', 'customer-support')->first()->permissions()->sync($supportPerms);
 

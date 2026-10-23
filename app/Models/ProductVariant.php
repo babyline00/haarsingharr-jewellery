@@ -22,7 +22,7 @@ class ProductVariant extends Model
         'sale_starts_at', 'sale_ends_at',
         'stock_quantity', 'reserved_stock', 'safety_stock',
         'low_stock_threshold', 'allow_backorder', 'is_default',
-        'status', 'weight_grams', 'dimensions', 'sort_order',
+        'status', 'weight_grams', 'dimensions',
     ];
 
     protected function casts(): array
@@ -41,7 +41,6 @@ class ProductVariant extends Model
             'low_stock_threshold'=> 'integer',
             'allow_backorder'    => 'boolean',
             'is_default'         => 'boolean',
-            'sort_order'         => 'integer',
         ];
     }
 

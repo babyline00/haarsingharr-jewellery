@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Storefront\ProductSearchRequest;
+use App\Enums\ProductStatus;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Product;
@@ -50,14 +51,27 @@ class ProductController extends Controller
 
     public function show(Product $product): View
     {
-        abort_if($product->status !== 'active', 404);
+        abort_if($product->status !== ProductStatus::Active, 404);
         $product->load(['images', 'variants.images', 'tags', 'approvedReviews' => fn ($q) => $q->latest()->limit(10)]);
         $product->recordView();
+
+        // Track recently viewed products in session
+        $recentlyViewed = session()->get('recently_viewed', []);
+        $recentlyViewed = array_values(array_diff($recentlyViewed, [$product->id]));
+        array_unshift($recentlyViewed, $product->id);
+        $recentlyViewed = array_slice($recentlyViewed, 0, 8);
+        session()->put('recently_viewed', $recentlyViewed);
+
+        $recentlyViewedProducts = Product::active()
+            ->whereIn('id', array_slice($recentlyViewed, 1, 4))
+            ->with(['images', 'variants'])
+            ->get();
 
         return view('storefront.product.show', [
             'product'       => $product,
             'relatedProducts' => $product->relatedProducts()->active()->limit(4)->get(),
             'crossSells'    => $product->crossSells()->active()->limit(3)->get(),
+            'recentlyViewedProducts' => $recentlyViewedProducts,
         ]);
     }
 

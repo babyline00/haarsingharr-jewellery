@@ -9,7 +9,6 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\StoreLocation;
-use App\Models\Testimonial;
 use Illuminate\View\View;
 
 class HomeController extends Controller

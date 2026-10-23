@@ -5,7 +5,7 @@
 @section('content')
     <section class="py-12">
         <div class="container-haars max-w-3xl">
-            <h1 class="font-serif text-3xl md:text-4xl mb-8">Frequently Asked Questions</h1>
+            <h1 class="font-serif text-3xl md:text-4xl lg:text-5xl mb-8">Frequently Asked Questions</h1>
 
             @foreach ($groupedFaqs as $category => $faqs)
                 <div class="mb-10" x-data="{ open: null }">

@@ -8,7 +8,7 @@
             <h1 class="font-serif text-3xl mb-8">Your Profile</h1>
 
             <div class="card p-6 md:p-8">
-                <form action="{{ route('profile.update') }}" method="post">
+                <form action="{{ route('account.profile.update') }}" method="post">
                     @csrf
                     @method('PATCH')
 

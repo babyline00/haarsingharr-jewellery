@@ -105,6 +105,160 @@
                     </div>
                 </div>
 
+                {{-- Images --}}
+                <div class="card p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-serif text-lg">Images</h2>
+                    </div>
+
+                    @if ($product->images->isNotEmpty())
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
+                            @foreach ($product->images as $img)
+                                <div class="relative group border border-charcoal/10 rounded-lg overflow-hidden bg-ivory-alt">
+                                    <img src="{{ \App\Support\Media::url($img->path) }}" alt="{{ $img->alt_text }}" class="w-full aspect-square object-cover">
+                                    <div class="absolute top-1 left-1 flex gap-1">
+                                        @if ($img->is_primary)
+                                            <span class="badge bg-champagne text-charcoal text-[10px]">Primary</span>
+                                        @endif
+                                    </div>
+                                    <div class="absolute bottom-0 inset-x-0 bg-charcoal/70 text-ivory text-xs p-1.5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition">
+                                        @unless ($img->is_primary)
+                                            <form action="{{ route('admin.products.images.primary', [$product, $img]) }}" method="post" class="inline">
+                                                @csrf @method('PATCH')
+                                                <button type="submit" class="hover:text-champagne">Primary</button>
+                                            </form>
+                                        @endunless
+                                        <form action="{{ route('admin.products.images.destroy', [$product, $img]) }}" method="post" class="inline" onsubmit="return confirm('Remove this image?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="hover:text-danger">Remove</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-sm text-muted mb-4">No images uploaded yet.</p>
+                    @endif
+
+                    <form action="{{ route('admin.products.images.store', $product) }}" method="post" enctype="multipart/form-data" class="space-y-3 border-t border-charcoal/5 pt-4" id="product-image-form">
+                        @csrf
+                        <div>
+                            <label for="images">Upload images</label>
+                            <input type="file" id="images" name="images[]" multiple accept="image/*" required>
+                            @error('images') <p class="text-xs text-danger">{{ $message }}</p> @enderror
+                            @error('images.*') <p class="text-xs text-danger">{{ $message }}</p> @enderror
+                        </div>
+
+                        {{-- Client-side file size validation & compression --}}
+                        @push('scripts')
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const form = document.getElementById('product-image-form');
+                                if (!form) return;
+                                const fileInput = form.querySelector('input[name="images[]"]');
+                                if (!fileInput) return;
+                                
+                                fileInput.addEventListener('change', async function() {
+                                    if (this.files.length === 0) return;
+                                    
+                                    const compressed = [];
+                                    let needsCompression = false;
+                                    
+                                    for (let i = 0; i < this.files.length; i++) {
+                                        if (this.files[i].size > 5 * 1024 * 1024) {
+                                            needsCompression = true;
+                                        }
+                                    }
+                                    
+                                    if (needsCompression) {
+                                        try {
+                                            const results = await ImageCompressor.compressAll(Array.from(this.files), { maxSizeMB: 8 });
+                                            const dt = new DataTransfer();
+                                            results.forEach(f => dt.items.add(f));
+                                            this.files = dt.files;
+                                            console.log('Compressed ' + results.length + ' files');
+                                        } catch (e) {
+                                            console.warn('Compression failed:', e);
+                                        }
+                                    }
+                                    
+                                    // Final size check
+                                    let tooLarge = false;
+                                    for (let i = 0; i < this.files.length; i++) {
+                                        if (this.files[i].size > 5 * 1024 * 1024) {
+                                            tooLarge = true;
+                                            break;
+                                        }
+                                    }
+                                    if (tooLarge) {
+                                        alert('One or more files are still too large. Server limit is 2MB. Please choose smaller files or use URL-based upload.');
+                                        this.value = '';
+                                    }
+                                });
+                                
+                                form.addEventListener('submit', function(e) {
+                                    let tooLarge = false;
+                                    for (let i = 0; i < fileInput.files.length; i++) {
+                                        if (fileInput.files[i].size > 5 * 1024 * 1024) {
+                                            tooLarge = true;
+                                            break;
+                                        }
+                                    }
+                                    if (tooLarge) {
+                                        e.preventDefault();
+                                        alert('One or more files exceed 5MB. Please choose smaller files.');
+                                    }
+                                });
+                            });
+                        </script>
+                        @endpush
+                        </div>
+                        <div>
+                            <label for="alt_text">Alt text (optional, applied to all)</label>
+                            <input type="text" id="alt_text" name="alt_text" value="{{ old('alt_text') }}">
+                        </div>
+                        <button type="submit" class="btn-gold text-sm">Upload</button>
+                    </form>
+                    @push('scripts')
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const form = document.getElementById('product-image-form');
+                            if (!form) return;
+                            const fileInput = form.querySelector('input[name="images[]"]');
+                            if (!fileInput) return;
+                            
+                            fileInput.addEventListener('change', function() {
+                                let tooLarge = false;
+                                for (let i = 0; i < this.files.length; i++) {
+                                    if (this.files[i].size > 5 * 1024 * 1024) {
+                                        tooLarge = true;
+                                        break;
+                                    }
+                                }
+                                if (tooLarge) {
+                                    alert('One or more files exceed 5MB. Please choose smaller files.');
+                                    this.value = '';
+                                }
+                            });
+                            
+                            form.addEventListener('submit', function(e) {
+                                let tooLarge = false;
+                                for (let i = 0; i < fileInput.files.length; i++) {
+                                    if (fileInput.files[i].size > 5 * 1024 * 1024) {
+                                        tooLarge = true;
+                                        break;
+                                    }
+                                }
+                                if (tooLarge) {
+                                    e.preventDefault();
+                                    alert('One or more files exceed 5MB. Please choose smaller files.');
+                                }
+                            });
+                        });
+                    </script>
+                    @endpush
+                </div>
+
                 {{-- Variants --}}
                 <div class="card p-5">
                     <div class="flex items-center justify-between mb-4">

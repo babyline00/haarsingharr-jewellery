@@ -219,6 +219,7 @@ return new class extends Migration
 
         Schema::create('newsletter_subscriptions', function (Blueprint $table) {
             $table->id();
+            $table->string('uuid', 36)->unique();
             $table->string('email')->unique();
             $table->string('token', 80)->unique();
             $table->timestamp('subscribed_at')->useCurrent();
@@ -235,6 +236,7 @@ return new class extends Migration
         // --------------------------------------------------------------------------
         Schema::create('store_settings', function (Blueprint $table) {
             $table->id();
+            $table->string('uuid', 36)->unique();
             $table->string('key')->unique();
             $table->text('value')->nullable();
             $table->json('data')->nullable();
@@ -291,6 +293,7 @@ return new class extends Migration
             $table->enum('outcome', ['success', 'failure', 'warning'])->default('success');
             $table->text('note')->nullable();
             $table->timestamps();
+            $table->softDeletes();
             $table->index(['action', 'created_at']);
             $table->index(['target_type', 'target_id']);
         });

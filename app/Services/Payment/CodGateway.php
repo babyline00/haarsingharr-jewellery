@@ -27,7 +27,7 @@ class CodGateway implements PaymentGateway
 
     public function enabled(): bool
     {
-        return (bool) config('payments.gateways.cod.enabled', true);
+        return (bool) \App\Models\StoreSetting::get('payment.cod.enabled', config('payments.gateways.cod.enabled', true));
     }
 
     public function isRedirectFlow(): bool

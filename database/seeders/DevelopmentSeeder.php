@@ -13,6 +13,7 @@ use App\Models\ProductImage;
 use App\Models\ProductTag;
 use App\Models\ProductVariant;
 use App\Models\StoreLocation;
+use App\Support\DemoArtwork;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -89,11 +90,15 @@ class DevelopmentSeeder extends Seeder
             $product->update(['category_id' => $categories->random()->id]);
             $product->collections()->attach($collections->random(2)->pluck('id'));
 
-            // Add 3-4 images per product (using fake paths)
+            // Add 3-4 images per product (deterministic on-brand artwork)
             foreach (range(1, 4) as $i) {
+                $path = 'products/sample-'.$product->id.'-'.$i.'.svg';
+
+                DemoArtwork::ensure($path, DemoArtwork::product($product->slug.'-'.$i));
+
                 ProductImage::create([
                     'product_id'  => $product->id,
-                    'path'        => 'products/sample-'.$product->id.'-'.$i.'.jpg',
+                    'path'        => $path,
                     'alt_text'    => $product->name.' view '.$i,
                     'is_primary' => $i === 1,
                     'sort_order'  => $i,
@@ -113,26 +118,35 @@ class DevelopmentSeeder extends Seeder
 
     private function seedBanners(): void
     {
-        Banner::create([
-            'name'        => 'Hero — Bridal Collection',
-            'location'    => 'hero',
-            'image'       => 'banners/hero-bridal.jpg',
-            'heading'     => 'Jewelry For Every You',
-            'subheading'  => 'New Bridal Collection',
-            'link_url'    => '/shop/bridal',
-            'link_text'   => 'Discover the Collection',
-            'is_published'=> true,
-            'sort_order'  => 1,
-        ]);
+        DemoArtwork::ensure('banners/hero-bridal.svg', DemoArtwork::wide('hero-bridal'));
+        DemoArtwork::ensure('banners/announcement.svg', DemoArtwork::wide('announcement'));
 
-        Banner::create([
-            'name'        => 'Announcement — Free Shipping',
-            'location'    => 'announcement',
-            'image'       => 'banners/announcement.jpg',
-            'heading'     => 'Complimentary shipping & free returns within 7 days',
-            'link_url'    => '/pages/shipping-policy',
-            'is_published'=> true,
-        ]);
+        Banner::firstOrCreate(
+            ['name' => 'Hero — Bridal Collection', 'location' => 'hero'],
+            [
+                'name'        => 'Hero — Bridal Collection',
+                'location'    => 'hero',
+                'image'       => 'banners/hero-bridal.svg',
+                'heading'     => 'Jewelry For Every You',
+                'subheading'  => 'New Bridal Collection',
+                'link_url'    => '/bridal',
+                'link_text'   => 'Discover the Collection',
+                'is_published'=> true,
+                'sort_order'  => 1,
+            ]
+        );
+
+        Banner::firstOrCreate(
+            ['name' => 'Announcement — Free Shipping', 'location' => 'announcement'],
+            [
+                'name'        => 'Announcement — Free Shipping',
+                'location'    => 'announcement',
+                'image'       => 'banners/announcement.svg',
+                'heading'     => 'Complimentary shipping & free returns within 7 days',
+                'link_url'    => '/pages/shipping-policy',
+                'is_published'=> true,
+            ]
+        );
     }
 
     private function seedHomepageSections(): void
@@ -150,10 +164,13 @@ class DevelopmentSeeder extends Seeder
         ];
 
         foreach ($sections as $i => $section) {
-            HomepageSection::create(array_merge($section, [
-                'is_published' => true,
-                'sort_order'   => $i + 1,
-            ]));
+            HomepageSection::firstOrCreate(
+                ['key' => $section['key']],
+                array_merge($section, [
+                    'is_published' => true,
+                    'sort_order'   => $i + 1,
+                ])
+            );
         }
     }
 
@@ -191,13 +208,16 @@ class DevelopmentSeeder extends Seeder
         ];
 
         foreach ($faqs as $i => $faq) {
-            Faq::create([
-                'question'    => $faq['q'],
-                'answer'      => $faq['a'],
-                'category'    => $faq['category'],
-                'is_published'=> true,
-                'sort_order'  => $i + 1,
-            ]);
+            Faq::firstOrCreate(
+                ['question' => $faq['q']],
+                [
+                    'question'    => $faq['q'],
+                    'answer'      => $faq['a'],
+                    'category'    => $faq['category'],
+                    'is_published'=> true,
+                    'sort_order'  => $i + 1,
+                ]
+            );
         }
     }
 
@@ -210,11 +230,14 @@ class DevelopmentSeeder extends Seeder
         ];
 
         foreach ($locations as $i => $loc) {
-            StoreLocation::create(array_merge($loc, [
-                'slug' => Str::slug($loc['name']),
-                'status' => 'active',
-                'sort_order' => $i + 1,
-            ]));
+            StoreLocation::firstOrCreate(
+                ['slug' => Str::slug($loc['name'])],
+                array_merge($loc, [
+                    'slug' => Str::slug($loc['name']),
+                    'status' => 'active',
+                    'sort_order' => $i + 1,
+                ])
+            );
         }
     }
 }

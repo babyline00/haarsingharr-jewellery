@@ -25,7 +25,7 @@
                 @foreach ($order->items as $item)
                     <div class="p-4 flex gap-3 items-center">
                         <div class="w-14 h-14 bg-ivory-alt rounded-md overflow-hidden flex-shrink-0">
-                            @if ($item->product_image) <img src="{{ $item->product_image }}" alt="" class="w-full h-full object-cover"> @endif
+                            @if ($item->product_image) <img src="{{ \App\Support\Media::url($item->product_image) }}" alt="" class="w-full h-full object-cover"> @endif
                         </div>
                         <div class="flex-1">
                             <div class="font-medium text-sm">{{ $item->product_name }}</div>

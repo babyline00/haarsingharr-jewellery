@@ -13,13 +13,13 @@
                     @csrf
                     <div class="mb-4">
                         <label for="order_number">Order number</label>
-                        <input type="text" id="order_number" name="order_number" required value="{{ old('order_number') }}" placeholder="AU-25-000001">
-                        @error('order_number') <p class="text-xs text-danger">{{ $message }}</p> @enderror
+                        <input type="text" id="order_number" name="order_number" required value="{{ old('order_number') }}" placeholder="AU-25-000001" class="text-sm">
+                        @error('order_number') <p class="text-xs text-danger mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div class="mb-4">
                         <label for="email">Email used to place order</label>
-                        <input type="email" id="email" name="email" required value="{{ old('email') }}">
-                        @error('email') <p class="text-xs text-danger">{{ $message }}</p> @enderror
+                        <input type="email" id="email" name="email" required value="{{ old('email') }}" class="text-sm">
+                        @error('email') <p class="text-xs text-danger mt-1">{{ $message }}</p> @enderror
                     </div>
                     <button type="submit" class="btn-gold w-full">Track Order</button>
                 </form>

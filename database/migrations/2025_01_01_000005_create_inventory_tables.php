@@ -33,7 +33,7 @@ return new class extends Migration
             $table->id();
             $table->string('number', 32)->unique();
             $table->foreignId('supplier_id')->constrained()->restrictOnDelete();
-            $table->foreignId('created_by')->references('id')->on('users')->nullOnDelete();
+            $table->foreignId('created_by')->nullable()->references('id')->on('users')->nullOnDelete();
             $table->enum('status', ['draft', 'sent', 'partial', 'received', 'cancelled'])
                 ->default('draft');
             $table->date('expected_at')->nullable();
@@ -82,14 +82,15 @@ return new class extends Migration
             $table->text('notes')->nullable();
 
             // Polymorphic reference: order, purchase order, manual adjustment, etc.
-            $table->morphs('reference');
+            // Nullable — a manual stock adjustment has no source document.
+            $table->nullableMorphs('reference');
 
             $table->foreignId('actor_id')->nullable()
                 ->references('id')->on('users')->nullOnDelete();
 
             $table->timestamps();
+            $table->softDeletes();
             $table->index('created_at');
-            $table->index('type');
         });
 
         Schema::create('stock_reservations', function (Blueprint $table) {

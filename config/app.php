@@ -109,7 +109,15 @@ return [
         'whatsapp_click_to_chat' => (bool) env('FEATURE_WHATSAPP_CLICK_CHAT', true),
     ],
 
-    'providers' => [
-        // ServiceProvider overrides
-    ],
+    /*
+    |--------------------------------------------------------------------------
+    | Service Providers
+    |--------------------------------------------------------------------------
+    |
+    | Intentionally omitted: Laravel 12 registers its default providers through
+    | Illuminate\Support\DefaultProviders whenever this key is absent. Defining
+    | an empty array here would replace the defaults with nothing, so app
+    | providers are declared in bootstrap/providers.php instead.
+    |
+    */
 ];
