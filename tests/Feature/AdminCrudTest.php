@@ -8,14 +8,19 @@ use App\Models\Coupon;
 use App\Models\ExchangeRequest;
 use App\Models\Faq;
 use App\Models\HomepageSection;
+use App\Models\InventoryMovement;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\ProductVideo;
 use App\Models\Refund;
 use App\Models\Review;
 use App\Models\StoreLocation;
+use App\Models\StoreSetting;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 
 /*
@@ -218,6 +223,50 @@ test('product and variant lifecycle round-trips', function () {
     expect(Product::find($product->id))->toBeNull();
 });
 
+test('product creation can set initial inventory', function () {
+    $this->post(route('admin.products.store'), [
+        'name' => 'Stocked Ring',
+        'regular_price' => 1000,
+        'status' => 'active',
+        'stock_quantity' => 12,
+        'low_stock_threshold' => 3,
+        'allow_backorder' => 1,
+    ])->assertRedirect();
+
+    $product = Product::where('name', 'Stocked Ring')->firstOrFail();
+    $variant = $product->variants()->firstOrFail();
+
+    expect($variant->stock_quantity)->toBe(12)
+        ->and($variant->low_stock_threshold)->toBe(3)
+        ->and($variant->allow_backorder)->toBeTrue()
+        ->and($product->availableStock())->toBe(12)
+        ->and(InventoryMovement::where('product_variant_id', $variant->id)
+            ->where('quantity_change', 12)->exists())->toBeTrue();
+});
+
+test('product videos and reels can be uploaded and removed', function () {
+    Storage::fake('public');
+
+    $product = Product::factory()->create();
+
+    $this->post(route('admin.products.videos.store', $product), [
+        'videos' => [UploadedFile::fake()->create('reel.mp4', 1024, 'video/mp4')],
+        'type' => 'reel',
+        'title' => 'Studio reel',
+    ])->assertRedirect();
+
+    $video = $product->videos()->firstOrFail();
+
+    expect($video->type)->toBe('reel')
+        ->and($video->title)->toBe('Studio reel');
+    Storage::disk('public')->assertExists($video->path);
+
+    $this->delete(route('admin.products.videos.destroy', [$product, $video]))
+        ->assertRedirect();
+
+    expect(ProductVideo::find($video->id))->toBeNull();
+});
+
 // ----------------------------------------------------------------------------
 // Roles + staff + users + customers
 // ----------------------------------------------------------------------------
@@ -382,4 +431,33 @@ test('admin can save settings, shipping and a redirect', function () {
     ])->assertRedirect();
 
     expect(\App\Models\Redirect::where('source_url', '/old-ring')->exists())->toBeTrue();
+});
+
+test('admin can upload a logo and configure the gift popup', function () {
+    Storage::fake('public');
+
+    $this->post(route('admin.settings.update'), [
+        'settings' => [
+            'branding' => [
+                'store_logo_url'    => '/images/logo.png',
+                'store_logo_height' => 72,
+                'store_logo_file'   => UploadedFile::fake()->create('logo.png', 40, 'image/png'),
+            ],
+            'marketing' => [
+                'gift_popup_enabled' => '1',
+                'gift_popup_title'   => 'Scratch & Win',
+                'gift_popup_prize'   => 'Free gift',
+                'gift_popup_coupon'  => 'GIFT10',
+                'gift_popup_delay'   => 2,
+            ],
+        ],
+    ])->assertRedirect();
+
+    expect((int) StoreSetting::get('store_logo_height'))->toBe(72)
+        ->and((string) StoreSetting::get('gift_popup_coupon'))->toBe('GIFT10')
+        ->and((bool) StoreSetting::get('gift_popup_enabled'))->toBeTrue();
+
+    $logo = StoreSetting::get('store_logo_url');
+    expect($logo)->toStartWith('branding/');
+    Storage::disk('public')->assertExists($logo);
 });

@@ -17,6 +17,8 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ExchangeRequestController;
 use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\GiftController as AdminGiftController;
+use App\Http\Controllers\Admin\GiveawayController;
 use App\Http\Controllers\Admin\HomepageSectionController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
@@ -46,6 +48,7 @@ use App\Http\Controllers\Storefront\CollectionController as StorefrontCollection
 use App\Http\Controllers\Storefront\ContactController;
 use App\Http\Controllers\Storefront\CmsPageController as StorefrontCmsController;
 use App\Http\Controllers\Storefront\FaqController as StorefrontFaqController;
+use App\Http\Controllers\Storefront\GiftController;
 use App\Http\Controllers\Storefront\HomeController;
 use App\Http\Controllers\Storefront\NewsletterController;
 use App\Http\Controllers\Storefront\OrderTrackingController;
@@ -153,6 +156,14 @@ Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy'])
 Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
 Route::delete('/cart/coupon', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 
+// Homepage gift popup (unique coupon issue + analytics)
+Route::post('/gift/claim', [GiftController::class, 'claim'])
+    ->middleware('throttle:gift')
+    ->name('gift.claim');
+Route::post('/gift/event', [GiftController::class, 'event'])
+    ->middleware('throttle:gift')
+    ->name('gift.event');
+
 Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
 Route::post('/checkout', [CheckoutController::class, 'store'])
     ->middleware('throttle:checkout')
@@ -196,6 +207,8 @@ Route::middleware('auth')->prefix('account')->name('account.')->group(function (
         ->name('reviews.store');
     Route::get('/returns', [ReturnController::class, 'index'])->name('returns.index');
     Route::post('/returns', [ReturnController::class, 'store'])->name('returns.store');
+    Route::get('/notifications', [\App\Http\Controllers\Storefront\AccountNotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/read-all', [\App\Http\Controllers\Storefront\AccountNotificationController::class, 'markAllRead'])->name('notifications.read-all');
 });
 
 // Wishlist — public add for guests too
@@ -212,6 +225,11 @@ Route::middleware(['auth', 'staff', 'mfa'])
     ->name('admin.')
     ->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])
+            ->name('notifications.index');
+        Route::post('notifications/read-all', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllRead'])
+            ->name('notifications.read-all');
 
         // Products & variants
         Route::resource('products', AdminProductController::class)
@@ -237,6 +255,15 @@ Route::middleware(['auth', 'staff', 'mfa'])
         Route::patch('products/{product}/images/{image}/primary', [AdminProductController::class, 'setPrimaryImage'])
             ->middleware('permission:products.update')
             ->name('products.images.primary');
+        Route::post('products/{product}/videos', [AdminProductController::class, 'storeVideo'])
+            ->middleware('permission:products.update')
+            ->name('products.videos.store');
+        Route::delete('products/{product}/videos/{video}', [AdminProductController::class, 'destroyVideo'])
+            ->middleware('permission:products.update')
+            ->name('products.videos.destroy');
+        Route::patch('products/{product}/videos/{video}/primary', [AdminProductController::class, 'setPrimaryVideo'])
+            ->middleware('permission:products.update')
+            ->name('products.videos.primary');
 
         // Categories & collections
         Route::resource('categories', CategoryController::class)
@@ -298,6 +325,25 @@ Route::middleware(['auth', 'staff', 'mfa'])
             ->middlewareFor(['create', 'store'], 'permission:coupons.create')
             ->middlewareFor(['edit', 'update'], 'permission:coupons.update')
             ->middlewareFor(['destroy'], 'permission:coupons.delete');
+
+        // Gift popup analytics & giveaways
+        Route::get('gifts', [AdminGiftController::class, 'index'])
+            ->middleware('permission:coupons.view')
+            ->name('gifts.index');
+        Route::resource('giveaways', GiveawayController::class)
+            ->middlewareFor(['index', 'show'], 'permission:coupons.view')
+            ->middlewareFor(['create', 'store'], 'permission:coupons.create')
+            ->middlewareFor(['edit', 'update'], 'permission:coupons.update')
+            ->middlewareFor(['destroy'], 'permission:coupons.delete');
+        Route::post('giveaways/{giveaway}/entries', [GiveawayController::class, 'addEntry'])
+            ->middleware('permission:coupons.update')
+            ->name('giveaways.entries.store');
+        Route::delete('giveaways/{giveaway}/entries/{entry}', [GiveawayController::class, 'removeEntry'])
+            ->middleware('permission:coupons.update')
+            ->name('giveaways.entries.destroy');
+        Route::post('giveaways/{giveaway}/draw', [GiveawayController::class, 'draw'])
+            ->middleware('permission:coupons.update')
+            ->name('giveaways.draw');
 
         // Reviews
         Route::resource('reviews', AdminReviewController::class)->only(['index', 'show', 'update'])

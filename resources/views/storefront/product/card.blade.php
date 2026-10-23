@@ -6,6 +6,9 @@
     $price = $product->currentPrice();
     $regularPrice = (float) $product->regular_price;
     $discount = $product->discountPercentage();
+    $stock = $product->availableStock();
+    $likes = (int) ($product->wishlist_items_count ?? 0);
+    $views = (int) ($product->view_count ?? 0);
 @endphp
 
 <article class="card card-hover group relative flex flex-col">
@@ -81,9 +84,30 @@
             @endif
         </div>
 
-        {{-- Stock hint --}}
-        @if (! $product->inStock())
-            <div class="text-xs text-muted mt-2 italic">Currently out of stock</div>
-        @endif
+        {{-- Stock & social proof --}}
+        <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted">
+            @if ($stock > 0)
+                <span class="inline-flex items-center gap-1.5 font-medium text-emerald-700">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                    {{ $stock <= 5 ? "Only {$stock} left" : 'In stock' }}
+                </span>
+            @else
+                <span class="inline-flex items-center gap-1.5 font-medium text-rose">
+                    <span class="h-1.5 w-1.5 rounded-full bg-rose"></span>
+                    Sold out
+                </span>
+            @endif
+
+            <span class="inline-flex items-center gap-3">
+                <span class="inline-flex items-center gap-1" title="{{ $views }} product views">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                    {{ number_format($views) }}
+                </span>
+                <span class="inline-flex items-center gap-1" title="{{ $likes }} people saved this">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 21s-7-4.5-9.5-9.5C.5 8 3 4 6.5 4 9 4 11 5.5 12 7c1-1.5 3-3 5.5-3C21 4 23.5 8 21.5 11.5 19 16.5 12 21 12 21z"/></svg>
+                    {{ number_format($likes) }}
+                </span>
+            </span>
+        </div>
     </div>
 </article>

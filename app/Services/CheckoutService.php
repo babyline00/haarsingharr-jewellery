@@ -9,6 +9,7 @@ use App\Models\OrderItem;
 use App\Models\StockReservation;
 use App\Models\User;
 use App\Models\ProductVariant;
+use App\Notifications\AdminOrderPlacedNotification;
 use App\Notifications\OrderPlacedNotification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -68,9 +69,30 @@ class CheckoutService
             // 4. Save address snapshots.
             $this->orderService->storeAddresses($order, $data);
 
-            // 5. Queue the order-placed notification (database queue).
-            if ($user = $order->user) {
-                Notification::send($user, new OrderPlacedNotification($order));
+            // 4b. Record the coupon redemption so single-use gift coupons and
+            // usage limits are actually enforced at checkout. A free-shipping
+            // coupon on an already-free order has no monetary discount; it is
+            // left unspent rather than blocking the checkout.
+            if ($cart->coupon_id
+                && (float) $cart->discount > 0
+                && ($coupon = Coupon::find($cart->coupon_id))) {
+                app(CouponService::class)->redeem($coupon, $cart, $order);
+            }
+
+            // 5. Send order notifications. A mail/notification failure must
+            // never roll back an order that has already been placed.
+            try {
+                if ($user = $order->user) {
+                    Notification::send($user, new OrderPlacedNotification($order));
+                }
+
+                $admins = User::whereIn('type', ['admin', 'staff'])->get();
+
+                if ($admins->isNotEmpty()) {
+                    Notification::send($admins, new AdminOrderPlacedNotification($order));
+                }
+            } catch (\Throwable $e) {
+                report($e);
             }
 
             // 6. Clear the cart after successful checkout.

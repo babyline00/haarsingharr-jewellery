@@ -30,7 +30,7 @@
                     </div>
                     <div>
                         <label for="content">Content (HTML allowed)</label>
-                        <textarea id="content" name="content" rows="8" class="font-mono text-xs">{{ old('content', $section?->content) }}</textarea>
+                        <textarea id="content" name="content" rows="8" class="ckeditor font-mono text-xs">{{ old('content', $section?->content) }}</textarea>
                     </div>
                 </div>
             </div>

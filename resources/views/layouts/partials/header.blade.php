@@ -3,7 +3,7 @@
         x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 10 })"
         :class="scrolled ? 'bg-ivory shadow-md' : 'bg-ivory/98 backdrop-blur-lg shadow-sm'">
     <div class="container-haars">
-        <div class="flex items-center justify-between h-16 md:h-20 gap-4">
+        <div class="flex items-center justify-between min-h-[64px] md:min-h-[80px] py-2 gap-4">
 
             {{-- Mobile menu trigger --}}
             <button class="lg:hidden flex items-center justify-center w-10 h-10 text-charcoal-soft hover:text-charcoal hover:bg-charcoal/5 rounded-md transition-all duration-1000"
@@ -18,10 +18,11 @@
             </button>
 
             {{-- Logo --}}
-            <a href="{{ route('home') }}" class="flex items-center gap-2 group flex-shrink-0" aria-label="Haarsingharr.pk — Jewelry For Every You">
-                <img src="{{ asset('images/logo.png') }}" alt="Haarsingharr.pk"
-                     class="w-auto max-h-[55px] md:max-h-[80px] lg:max-h-[80px]"
-                     loading="eager" width="120" height="40">
+            <a href="{{ route('home') }}" class="flex items-center group flex-shrink-0" aria-label="{{ $brand['name'] ?? 'Haarsingharr' }} — Jewelry For Every You">
+                <img src="{{ $brand['logo'] ?? asset('images/logo.png') }}" alt="{{ $brand['name'] ?? 'Haarsingharr' }}"
+                     style="height: {{ $brand['logoHeight'] ?? 56 }}px; width: auto;"
+                     class="w-auto max-w-[220px] object-contain"
+                     loading="eager">
             </a>
 
             {{-- Desktop primary nav --}}

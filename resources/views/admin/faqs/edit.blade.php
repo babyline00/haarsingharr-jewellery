@@ -20,7 +20,7 @@
                 </div>
                 <div>
                     <label for="answer">Answer *</label>
-                    <textarea id="answer" name="answer" rows="6" required>{{ old('answer', $faq->answer) }}</textarea>
+                    <textarea id="answer" name="answer" rows="6" required class="ckeditor">{{ old('answer', $faq->answer) }}</textarea>
                     @error('answer') <p class="text-xs text-danger">{{ $message }}</p> @enderror
                 </div>
             </div>

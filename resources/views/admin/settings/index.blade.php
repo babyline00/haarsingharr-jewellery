@@ -12,6 +12,7 @@
         'social'    => 'Social Profiles',
         'shipping'  => 'Shipping',
         'orders'    => 'Orders',
+        'marketing' => 'Marketing & Gift Popup',
     ];
 @endphp
 
@@ -25,11 +26,11 @@
     </div>
 
     @can('settings.update')
-    <form action="{{ route('admin.settings.update') }}" method="post">
+    <form action="{{ route('admin.settings.update') }}" method="post" enctype="multipart/form-data">
         @csrf
         <div class="grid lg:grid-cols-2 gap-6">
             @foreach ($groups as $module => $fields)
-                <div class="card p-5 {{ in_array($module, ['general'], true) ? 'lg:col-span-2' : '' }}">
+                <div id="settings-{{ $module }}" class="card p-5 scroll-mt-24 {{ in_array($module, ['general'], true) ? 'lg:col-span-2' : '' }}">
                     <h2 class="font-serif text-lg mb-4">{{ $titles[$module] ?? ucfirst($module) }}</h2>
                     <div class="grid md:grid-cols-2 gap-4">
                         @include('admin.settings._fields', ['module' => $module, 'fields' => $fields])

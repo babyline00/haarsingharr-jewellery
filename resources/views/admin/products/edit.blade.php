@@ -33,7 +33,7 @@
                         </div>
                         <div>
                             <label for="description">Detailed description</label>
-                            <textarea id="description" name="description" rows="6">{{ old('description', $product->description) }}</textarea>
+                            <textarea id="description" name="description" rows="6" class="ckeditor">{{ old('description', $product->description) }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -70,6 +70,63 @@
                         </div>
                     </div>
                 </div>
+                <div class="card p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-serif text-lg">Inventory</h2>
+                        <a href="{{ route('admin.inventory.index') }}" class="text-xs text-champagne-dark hover:underline">Open inventory →</a>
+                    </div>
+
+                    @php
+                        $inventoryVariant = $product->variants->firstWhere('is_default', true) ?? $product->variants->first();
+                        $inventoryAvailable = $product->availableStock();
+                        $inventoryThreshold = $inventoryVariant?->low_stock_threshold ?? 5;
+                    @endphp
+
+                    <div class="grid sm:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <p class="text-xs uppercase tracking-widest text-muted">Available</p>
+                            <p class="text-2xl font-serif">{{ $inventoryAvailable }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-widest text-muted">Variants</p>
+                            <p class="text-2xl font-serif">{{ $product->variants->count() }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-widest text-muted">Status</p>
+                            @if ($inventoryAvailable <= 0)
+                                <span class="badge bg-rose-100 text-rose-800">Out of stock</span>
+                            @elseif ($inventoryVariant && $inventoryVariant->stock_quantity <= $inventoryThreshold)
+                                <span class="badge bg-amber-100 text-amber-800">Low stock</span>
+                            @else
+                                <span class="badge bg-emerald-100 text-emerald-800">In stock</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    @if ($product->variants->count() <= 1)
+                        @can('inventory.update')
+                        <div class="grid sm:grid-cols-3 gap-4 border-t border-charcoal/5 pt-4">
+                            <div>
+                                <label for="stock_quantity">Stock on hand</label>
+                                <input type="number" id="stock_quantity" name="stock_quantity" min="0" step="1" value="{{ old('stock_quantity', $inventoryVariant?->stock_quantity ?? 0) }}">
+                                @error('stock_quantity') <p class="text-xs text-danger">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label for="low_stock_threshold">Low stock threshold</label>
+                                <input type="number" id="low_stock_threshold" name="low_stock_threshold" min="0" step="1" value="{{ old('low_stock_threshold', $inventoryThreshold) }}">
+                                @error('low_stock_threshold') <p class="text-xs text-danger">{{ $message }}</p> @enderror
+                            </div>
+                            <div class="flex items-end">
+                                <label class="flex items-center gap-2 text-sm">
+                                    <input type="checkbox" id="allow_backorder" name="allow_backorder" value="1" @checked(old('allow_backorder', $inventoryVariant?->allow_backorder))> Allow backorders
+                                </label>
+                            </div>
+                        </div>
+                        @endcan
+                    @else
+                        <p class="text-xs text-muted border-t border-charcoal/5 pt-4">This product has multiple variants. Adjust stock per variant on the <a href="{{ route('admin.inventory.index') }}" class="text-champagne-dark hover:underline">Inventory screen</a>.</p>
+                    @endif
+                </div>
 
                 <div class="card p-5">
                     <h2 class="font-serif text-lg mb-4">Properties</h2>
@@ -101,208 +158,10 @@
                     </div>
                     <div class="mt-4">
                         <label for="care_instructions">Care instructions</label>
-                        <textarea id="care_instructions" name="care_instructions" rows="3">{{ old('care_instructions', $product->care_instructions) }}</textarea>
+                        <textarea id="care_instructions" name="care_instructions" rows="3" class="ckeditor">{{ old('care_instructions', $product->care_instructions) }}</textarea>
                     </div>
                 </div>
 
-                {{-- Images --}}
-                <div class="card p-5">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="font-serif text-lg">Images</h2>
-                    </div>
-
-                    @if ($product->images->isNotEmpty())
-                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
-                            @foreach ($product->images as $img)
-                                <div class="relative group border border-charcoal/10 rounded-lg overflow-hidden bg-ivory-alt">
-                                    <img src="{{ \App\Support\Media::url($img->path) }}" alt="{{ $img->alt_text }}" class="w-full aspect-square object-cover">
-                                    <div class="absolute top-1 left-1 flex gap-1">
-                                        @if ($img->is_primary)
-                                            <span class="badge bg-champagne text-charcoal text-[10px]">Primary</span>
-                                        @endif
-                                    </div>
-                                    <div class="absolute bottom-0 inset-x-0 bg-charcoal/70 text-ivory text-xs p-1.5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition">
-                                        @unless ($img->is_primary)
-                                            <form action="{{ route('admin.products.images.primary', [$product, $img]) }}" method="post" class="inline">
-                                                @csrf @method('PATCH')
-                                                <button type="submit" class="hover:text-champagne">Primary</button>
-                                            </form>
-                                        @endunless
-                                        <form action="{{ route('admin.products.images.destroy', [$product, $img]) }}" method="post" class="inline" onsubmit="return confirm('Remove this image?')">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="hover:text-danger">Remove</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-sm text-muted mb-4">No images uploaded yet.</p>
-                    @endif
-
-                    <form action="{{ route('admin.products.images.store', $product) }}" method="post" enctype="multipart/form-data" class="space-y-3 border-t border-charcoal/5 pt-4" id="product-image-form">
-                        @csrf
-                        <div>
-                            <label for="images">Upload images</label>
-                            <input type="file" id="images" name="images[]" multiple accept="image/*" required>
-                            @error('images') <p class="text-xs text-danger">{{ $message }}</p> @enderror
-                            @error('images.*') <p class="text-xs text-danger">{{ $message }}</p> @enderror
-                        </div>
-
-                        {{-- Client-side file size validation & compression --}}
-                        @push('scripts')
-                        <script>
-                            document.addEventListener('DOMContentLoaded', function() {
-                                const form = document.getElementById('product-image-form');
-                                if (!form) return;
-                                const fileInput = form.querySelector('input[name="images[]"]');
-                                if (!fileInput) return;
-                                
-                                fileInput.addEventListener('change', async function() {
-                                    if (this.files.length === 0) return;
-                                    
-                                    const compressed = [];
-                                    let needsCompression = false;
-                                    
-                                    for (let i = 0; i < this.files.length; i++) {
-                                        if (this.files[i].size > 5 * 1024 * 1024) {
-                                            needsCompression = true;
-                                        }
-                                    }
-                                    
-                                    if (needsCompression) {
-                                        try {
-                                            const results = await ImageCompressor.compressAll(Array.from(this.files), { maxSizeMB: 8 });
-                                            const dt = new DataTransfer();
-                                            results.forEach(f => dt.items.add(f));
-                                            this.files = dt.files;
-                                            console.log('Compressed ' + results.length + ' files');
-                                        } catch (e) {
-                                            console.warn('Compression failed:', e);
-                                        }
-                                    }
-                                    
-                                    // Final size check
-                                    let tooLarge = false;
-                                    for (let i = 0; i < this.files.length; i++) {
-                                        if (this.files[i].size > 5 * 1024 * 1024) {
-                                            tooLarge = true;
-                                            break;
-                                        }
-                                    }
-                                    if (tooLarge) {
-                                        alert('One or more files are still too large. Server limit is 2MB. Please choose smaller files or use URL-based upload.');
-                                        this.value = '';
-                                    }
-                                });
-                                
-                                form.addEventListener('submit', function(e) {
-                                    let tooLarge = false;
-                                    for (let i = 0; i < fileInput.files.length; i++) {
-                                        if (fileInput.files[i].size > 5 * 1024 * 1024) {
-                                            tooLarge = true;
-                                            break;
-                                        }
-                                    }
-                                    if (tooLarge) {
-                                        e.preventDefault();
-                                        alert('One or more files exceed 5MB. Please choose smaller files.');
-                                    }
-                                });
-                            });
-                        </script>
-                        @endpush
-                        </div>
-                        <div>
-                            <label for="alt_text">Alt text (optional, applied to all)</label>
-                            <input type="text" id="alt_text" name="alt_text" value="{{ old('alt_text') }}">
-                        </div>
-                        <button type="submit" class="btn-gold text-sm">Upload</button>
-                    </form>
-                    @push('scripts')
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            const form = document.getElementById('product-image-form');
-                            if (!form) return;
-                            const fileInput = form.querySelector('input[name="images[]"]');
-                            if (!fileInput) return;
-                            
-                            fileInput.addEventListener('change', function() {
-                                let tooLarge = false;
-                                for (let i = 0; i < this.files.length; i++) {
-                                    if (this.files[i].size > 5 * 1024 * 1024) {
-                                        tooLarge = true;
-                                        break;
-                                    }
-                                }
-                                if (tooLarge) {
-                                    alert('One or more files exceed 5MB. Please choose smaller files.');
-                                    this.value = '';
-                                }
-                            });
-                            
-                            form.addEventListener('submit', function(e) {
-                                let tooLarge = false;
-                                for (let i = 0; i < fileInput.files.length; i++) {
-                                    if (fileInput.files[i].size > 5 * 1024 * 1024) {
-                                        tooLarge = true;
-                                        break;
-                                    }
-                                }
-                                if (tooLarge) {
-                                    e.preventDefault();
-                                    alert('One or more files exceed 5MB. Please choose smaller files.');
-                                }
-                            });
-                        });
-                    </script>
-                    @endpush
-                </div>
-
-                {{-- Variants --}}
-                <div class="card p-5">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="font-serif text-lg">Variants</h2>
-                        @can('products.update')
-                        <button type="button" @click="$dispatch('open-variant-modal')" class="btn-outline text-sm">+ Add Variant</button>
-                        @endcan
-                    </div>
-
-                    @if ($product->variants->isEmpty())
-                        <p class="text-sm text-muted">This product has no variants. Add one for size/colour options.</p>
-                    @else
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm">
-                                <thead class="bg-ivory-alt/30 text-xs uppercase tracking-widest text-muted">
-                                    <tr>
-                                        <th class="text-left p-2">SKU</th>
-                                        <th class="text-left p-2">Title</th>
-                                        <th class="text-right p-2">Price</th>
-                                        <th class="text-right p-2">Stock</th>
-                                        <th class="text-left p-2">Default?</th>
-                                        <th class="text-right p-2">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-charcoal/5">
-                                    @foreach ($product->variants as $variant)
-                                        <tr>
-                                            <td class="p-2 font-mono text-xs">{{ $variant->sku ?? '—' }}</td>
-                                            <td class="p-2">{{ $variant->title ?? $variant->formattedAttributes() }}</td>
-                                            <td class="p-2 text-right">Rs. {{ number_format($variant->currentPrice()) }}</td>
-                                            <td class="p-2 text-right">{{ $variant->availableStock() }}</td>
-                                            <td class="p-2">
-                                                @if ($variant->is_default) <span class="badge bg-champagne/30 text-charcoal">Default</span> @endif
-                                            </td>
-                                            <td class="p-2 text-right">
-                                                <a href="{{ route('admin.inventory.index', ['variant' => $variant->id]) }}" class="text-xs text-champagne-dark hover:underline">Inventory</a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @endif
-                </div>
             </div>
 
             {{-- Sidebar --}}
@@ -380,4 +239,276 @@
             </aside>
         </div>
     </form>
+
+            <div class="mt-6 space-y-4">
+                {{-- Images --}}
+                <div class="card p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-serif text-lg">Images</h2>
+                    </div>
+
+                    @if ($product->images->isNotEmpty())
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
+                            @foreach ($product->images as $img)
+                                <div class="relative group border border-charcoal/10 rounded-lg overflow-hidden bg-ivory-alt">
+                                    <img src="{{ \App\Support\Media::url($img->path) }}" alt="{{ $img->alt_text }}" class="w-full aspect-square object-cover">
+                                    <div class="absolute top-1 left-1 flex gap-1">
+                                        @if ($img->is_primary)
+                                            <span class="badge bg-champagne text-charcoal text-[10px]">Primary</span>
+                                        @endif
+                                    </div>
+                                    <div class="absolute bottom-0 inset-x-0 bg-charcoal/70 text-ivory text-xs p-1.5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition">
+                                        @unless ($img->is_primary)
+                                            <form action="{{ route('admin.products.images.primary', [$product, $img]) }}" method="post" class="inline">
+                                                @csrf @method('PATCH')
+                                                <button type="submit" class="hover:text-champagne">Primary</button>
+                                            </form>
+                                        @endunless
+                                        <form action="{{ route('admin.products.images.destroy', [$product, $img]) }}" method="post" class="inline" onsubmit="return confirm('Remove this image?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="hover:text-danger">Remove</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-sm text-muted mb-4">No images uploaded yet.</p>
+                    @endif
+
+                    <form action="{{ route('admin.products.images.store', $product) }}" method="post" enctype="multipart/form-data" class="space-y-3 border-t border-charcoal/5 pt-4" id="product-image-form">
+                        @csrf
+                        <div>
+                            <label for="images">Upload images</label>
+                            <input type="file" id="images" name="images[]" multiple accept="image/*" required>
+                            @error('images') <p class="text-xs text-danger">{{ $message }}</p> @enderror
+                            @error('images.*') <p class="text-xs text-danger">{{ $message }}</p> @enderror
+                        </div>
+
+                        {{-- Client-side file size validation & compression --}}
+                        @push('scripts')
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const form = document.getElementById('product-image-form');
+                                if (!form) return;
+                                const fileInput = form.querySelector('input[name="images[]"]');
+                                if (!fileInput) return;
+                                
+                                fileInput.addEventListener('change', async function() {
+                                    if (this.files.length === 0) return;
+                                    
+                                    const compressed = [];
+                                    let needsCompression = false;
+                                    
+                                    for (let i = 0; i < this.files.length; i++) {
+                                        if (this.files[i].size > 5 * 1024 * 1024) {
+                                            needsCompression = true;
+                                        }
+                                    }
+                                    
+                                    if (needsCompression) {
+                                        try {
+                                            const results = await ImageCompressor.compressAll(Array.from(this.files), { maxSizeMB: 4 });
+                                            const dt = new DataTransfer();
+                                            results.forEach(f => dt.items.add(f));
+                                            this.files = dt.files;
+                                            console.log('Compressed ' + results.length + ' files');
+                                        } catch (e) {
+                                            console.warn('Compression failed:', e);
+                                        }
+                                    }
+                                    
+                                    // Final size check
+                                    let tooLarge = false;
+                                    for (let i = 0; i < this.files.length; i++) {
+                                        if (this.files[i].size > 5 * 1024 * 1024) {
+                                            tooLarge = true;
+                                            break;
+                                        }
+                                    }
+                                    if (tooLarge) {
+                                        alert('One or more files are still too large (server limit: {{ ini_get('upload_max_filesize') }}). Please choose smaller files or use URL-based upload.');
+                                        this.value = '';
+                                    }
+                                });
+                                
+                                form.addEventListener('submit', function(e) {
+                                    let tooLarge = false;
+                                    for (let i = 0; i < fileInput.files.length; i++) {
+                                        if (fileInput.files[i].size > 5 * 1024 * 1024) {
+                                            tooLarge = true;
+                                            break;
+                                        }
+                                    }
+                                    if (tooLarge) {
+                                        e.preventDefault();
+                                        alert('One or more files exceed 5MB. Please choose smaller files.');
+                                    }
+                                });
+                            });
+                        </script>
+                        @endpush
+                        </div>
+                        <div>
+                            <label for="alt_text">Alt text (optional, applied to all)</label>
+                            <input type="text" id="alt_text" name="alt_text" value="{{ old('alt_text') }}">
+                        </div>
+                        <button type="submit" class="btn-gold text-sm">Upload</button>
+                    </form>
+                    @push('scripts')
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const form = document.getElementById('product-image-form');
+                            if (!form) return;
+                            const fileInput = form.querySelector('input[name="images[]"]');
+                            if (!fileInput) return;
+                            
+                            fileInput.addEventListener('change', function() {
+                                let tooLarge = false;
+                                for (let i = 0; i < this.files.length; i++) {
+                                    if (this.files[i].size > 5 * 1024 * 1024) {
+                                        tooLarge = true;
+                                        break;
+                                    }
+                                }
+                                if (tooLarge) {
+                                    alert('One or more files exceed 5MB. Please choose smaller files.');
+                                    this.value = '';
+                                }
+                            });
+                            
+                            form.addEventListener('submit', function(e) {
+                                let tooLarge = false;
+                                for (let i = 0; i < fileInput.files.length; i++) {
+                                    if (fileInput.files[i].size > 5 * 1024 * 1024) {
+                                        tooLarge = true;
+                                        break;
+                                    }
+                                }
+                                if (tooLarge) {
+                                    e.preventDefault();
+                                    alert('One or more files exceed 5MB. Please choose smaller files.');
+                                }
+                            });
+                        });
+                    </script>
+                    @endpush
+                </div>
+
+                {{-- Videos & Reels --}}
+                <div class="card p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-serif text-lg">Videos &amp; Reels</h2>
+                    </div>
+
+                    @if ($product->videos->isNotEmpty())
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                            @foreach ($product->videos as $video)
+                                <div class="border border-charcoal/10 rounded-lg overflow-hidden bg-charcoal">
+                                    <video src="{{ $video->url() }}" @if ($video->thumbnailUrl()) poster="{{ $video->thumbnailUrl() }}" @endif controls playsinline preload="metadata" class="w-full aspect-[9/16] object-cover bg-black"></video>
+                                    <div class="p-3 bg-porcelain text-xs flex items-start justify-between gap-2">
+                                        <div>
+                                            <p class="font-medium">{{ $video->title ?: ucfirst($video->type) }}</p>
+                                            <div class="flex flex-wrap gap-1 mt-1">
+                                                <span class="badge bg-charcoal/10 text-charcoal">{{ ucfirst($video->type) }}</span>
+                                                @if ($video->is_primary)
+                                                    <span class="badge bg-champagne/30 text-charcoal">Primary</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="flex gap-2 shrink-0">
+                                            @unless ($video->is_primary)
+                                                <form action="{{ route('admin.products.videos.primary', [$product, $video]) }}" method="post" class="inline">
+                                                    @csrf @method('PATCH')
+                                                    <button type="submit" class="hover:text-champagne-dark">Primary</button>
+                                                </form>
+                                            @endunless
+                                            <form action="{{ route('admin.products.videos.destroy', [$product, $video]) }}" method="post" class="inline" onsubmit="return confirm('Remove this video?')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="text-danger hover:underline">Remove</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-sm text-muted mb-4">No videos or reels uploaded yet.</p>
+                    @endif
+
+                    <form action="{{ route('admin.products.videos.store', $product) }}" method="post" enctype="multipart/form-data" class="space-y-3 border-t border-charcoal/5 pt-4">
+                        @csrf
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="videos">Upload videos / reels</label>
+                                <input type="file" id="videos" name="videos[]" multiple accept="video/mp4,video/webm,video/quicktime,video/x-m4v" required>
+                                @error('videos') <p class="text-xs text-danger">{{ $message }}</p> @enderror
+                                @error('videos.*') <p class="text-xs text-danger">{{ $message }}</p> @enderror
+                                <p class="text-xs text-muted mt-1">MP4, WebM or MOV. Max 100 MB each. Reels look best in vertical 9:16.</p>
+                            </div>
+                            <div>
+                                <label for="video_type">Type</label>
+                                <select id="video_type" name="type">
+                                    <option value="video" @selected(old('type', 'video') === 'video')>Video</option>
+                                    <option value="reel" @selected(old('type') === 'reel')>Reel</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="video_title">Title (optional)</label>
+                                <input type="text" id="video_title" name="title" value="{{ old('title') }}" maxlength="150">
+                            </div>
+                            <div>
+                                <label for="thumbnails">Poster images (optional, matched by order)</label>
+                                <input type="file" id="thumbnails" name="thumbnails[]" multiple accept="image/*">
+                                @error('thumbnails.*') <p class="text-xs text-danger">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-gold text-sm">Upload videos</button>
+                    </form>
+                </div>
+                {{-- Variants --}}
+                <div class="card p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-serif text-lg">Variants</h2>
+                        @can('products.update')
+                        <button type="button" @click="$dispatch('open-variant-modal')" class="btn-outline text-sm">+ Add Variant</button>
+                        @endcan
+                    </div>
+
+                    @if ($product->variants->isEmpty())
+                        <p class="text-sm text-muted">This product has no variants. Add one for size/colour options.</p>
+                    @else
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-ivory-alt/30 text-xs uppercase tracking-widest text-muted">
+                                    <tr>
+                                        <th class="text-left p-2">SKU</th>
+                                        <th class="text-left p-2">Title</th>
+                                        <th class="text-right p-2">Price</th>
+                                        <th class="text-right p-2">Stock</th>
+                                        <th class="text-left p-2">Default?</th>
+                                        <th class="text-right p-2">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-charcoal/5">
+                                    @foreach ($product->variants as $variant)
+                                        <tr>
+                                            <td class="p-2 font-mono text-xs">{{ $variant->sku ?? '—' }}</td>
+                                            <td class="p-2">{{ $variant->title ?? $variant->formattedAttributes() }}</td>
+                                            <td class="p-2 text-right">Rs. {{ number_format($variant->currentPrice()) }}</td>
+                                            <td class="p-2 text-right">{{ $variant->availableStock() }}</td>
+                                            <td class="p-2">
+                                                @if ($variant->is_default) <span class="badge bg-champagne/30 text-charcoal">Default</span> @endif
+                                            </td>
+                                            <td class="p-2 text-right">
+                                                <a href="{{ route('admin.inventory.index', ['variant' => $variant->id]) }}" class="text-xs text-champagne-dark hover:underline">Inventory</a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
 @endsection

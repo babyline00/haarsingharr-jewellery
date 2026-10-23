@@ -61,12 +61,27 @@
                                     <div>
                                         <a href="{{ route('admin.products.edit', $product) }}" class="font-medium hover:text-champagne-dark transition-colors">{{ $product->name }}</a>
                                         <div class="text-xs text-muted">SKU: {{ $product->sku ?? '—' }}</div>
+                                        @if ($product->videos_count > 0)
+                                            <div class="text-xs text-champagne-dark mt-0.5">{{ $product->videos_count }} video{{ $product->videos_count === 1 ? '' : 's' }}</div>
+                                        @endif
                                     </div>
                                 </div>
                             </td>
                             <td class="p-3 text-charcoal-soft">{{ $product->category?->name ?? '—' }}</td>
                             <td class="p-3 text-right font-medium">Rs. {{ number_format($product->currentPrice()) }}</td>
-                            <td class="p-3 text-right">{{ $product->availableStock() }}</td>
+                            <td class="p-3 text-right">
+                                @php
+                                    $stock = $product->availableStock();
+                                    $threshold = $product->variants->min('low_stock_threshold') ?? 5;
+                                @endphp
+                                @if ($stock <= 0)
+                                    <span class="badge bg-rose-100 text-rose-800">Out of stock</span>
+                                @elseif ($stock <= $threshold)
+                                    <span class="badge bg-amber-100 text-amber-800">{{ $stock }} low</span>
+                                @else
+                                    <span class="badge bg-emerald-100 text-emerald-800">{{ $stock }}</span>
+                                @endif
+                            </td>
                             <td class="p-3"><span class="badge {{ $product->status->color() }}">{{ $product->status->label() }}</span></td>
                             <td class="p-3 text-right">
                                 <a href="{{ route('admin.products.edit', $product) }}" class="text-xs text-champagne-dark hover:underline">Edit</a>

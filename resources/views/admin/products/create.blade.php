@@ -26,7 +26,7 @@
                         </div>
                         <div>
                             <label for="description">Detailed description</label>
-                            <textarea id="description" name="description" rows="6">{{ old('description') }}</textarea>
+                            <textarea id="description" name="description" rows="6" class="ckeditor">{{ old('description') }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -50,6 +50,30 @@
                         @endcan
                     </div>
                 </div>
+
+                @can('inventory.update')
+                <div class="card p-5">
+                    <h2 class="font-serif text-lg mb-4">Inventory</h2>
+                    <p class="text-xs text-muted mb-4">Stock is tracked on the product's default variant and written to the inventory ledger.</p>
+                    <div class="grid sm:grid-cols-3 gap-4">
+                        <div>
+                            <label for="stock_quantity">Initial stock</label>
+                            <input type="number" id="stock_quantity" name="stock_quantity" min="0" step="1" value="{{ old('stock_quantity', 0) }}">
+                            @error('stock_quantity') <p class="text-xs text-danger">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label for="low_stock_threshold">Low stock threshold</label>
+                            <input type="number" id="low_stock_threshold" name="low_stock_threshold" min="0" step="1" value="{{ old('low_stock_threshold', 5) }}">
+                            @error('low_stock_threshold') <p class="text-xs text-danger">{{ $message }}</p> @enderror
+                        </div>
+                        <div class="flex items-end">
+                            <label class="flex items-center gap-2 text-sm">
+                                <input type="checkbox" name="allow_backorder" value="1" @checked(old('allow_backorder'))> Allow backorders
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                @endcan
             </div>
 
             <aside class="space-y-4">

@@ -15,7 +15,7 @@ class SearchController extends Controller
         $q = trim($request->input('q', ''));
         $products = Product::active()
             ->search($q)
-            ->with(['images', 'variants'])
+            ->with(['images', 'variants'])->withCount('wishlistItems')
             ->paginate(24);
 
         return view('storefront.search.index', [

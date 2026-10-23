@@ -102,6 +102,11 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class)->orderBy('sort_order');
     }
 
+    public function videos(): HasMany
+    {
+        return $this->hasMany(ProductVideo::class)->orderByDesc('is_primary')->orderBy('sort_order');
+    }
+
     public function defaultVariant(): HasMany
     {
         return $this->hasMany(ProductVariant::class)
@@ -149,6 +154,11 @@ class Product extends Model
     public function approvedReviews(): HasMany
     {
         return $this->reviews()->where('is_approved', true)->latest();
+    }
+
+    public function wishlistItems(): HasMany
+    {
+        return $this->hasMany(WishlistItem::class);
     }
 
     public function questions(): HasMany
@@ -284,9 +294,6 @@ class Product extends Model
 
     public function availableStock(): int
     {
-        if (! $this->has_variants) {
-            return 0;
-        }
         return $this->variants->sum(fn ($v) => $v->availableStock());
     }
 

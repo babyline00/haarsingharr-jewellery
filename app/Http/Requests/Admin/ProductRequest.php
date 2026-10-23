@@ -43,6 +43,9 @@ class ProductRequest extends FormRequest
             'seo_title'          => 'nullable|string|max:200',
             'seo_description'   => 'nullable|string|max:500',
             'seo_image'         => 'nullable|string|max:300',
+            'stock_quantity'    => 'nullable|integer|min:0|max:1000000',
+            'low_stock_threshold' => 'nullable|integer|min:0|max:1000000',
+            'allow_backorder'   => 'sometimes|boolean',
         ];
 
         // Cost price requires elevated permission

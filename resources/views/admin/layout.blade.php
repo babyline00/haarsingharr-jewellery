@@ -19,6 +19,12 @@
     @endif
 
     @stack('styles')
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+    <style>
+        .ck.ck-editor { width: 100%; }
+        .ck-editor__editable { min-height: 150px; background: #fff; }
+        .ck.ck-editor__main > .ck-editor__editable:not(.ck-focused) { border-color: rgba(0, 0, 0, .15); }
+    </style>
 </head>
 <body class="min-h-screen bg-ivory-alt/30 text-charcoal" x-data="{ sidebar: false }">
 
@@ -31,9 +37,8 @@
                         <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
                     </svg>
                 </button>
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2" aria-label="Haarsingharr Admin Dashboard">
-                    <img src="{{ asset('images/logo.png') }}" alt="" class="h-7 w-auto brightness-0 invert opacity-90">
-                    <span class="hidden lg:inline font-serif text-lg font-medium tracking-tight">Haarsingharr</span>
+                <a href="{{ route('admin.dashboard') }}" class="flex items-center" aria-label="{{ $brand['name'] ?? 'Haarsingharr' }} Admin Dashboard">
+                    <img src="{{ $brand['logo'] ?? asset('images/logo.png') }}" alt="{{ $brand['name'] ?? 'Haarsingharr' }}" style="height: {{ min($brand['logoHeight'] ?? 56, 36) }}px; width: auto;" class="w-auto brightness-0 invert opacity-90">
                 </a>
             </div>
             <div class="flex items-center gap-3 text-sm">
@@ -57,16 +62,22 @@
                     <div x-show="open" @click.outside="open = false" x-transition class="absolute right-0 mt-2 w-80 bg-porcelain text-charcoal rounded-xl shadow-xl border border-charcoal/5 py-1 overflow-hidden">
                         <div class="px-4 py-3 border-b border-charcoal/5 flex items-center justify-between">
                             <h3 class="font-medium">Notifications</h3>
-                            <button @click="count = 0" class="text-xs text-champagne-dark hover:underline">Mark all read</button>
+                            <form action="{{ route('admin.notifications.read-all') }}" method="post">
+                                @csrf
+                                <button type="submit" class="text-xs text-champagne-dark hover:underline">Mark all read</button>
+                            </form>
                         </div>
                         <div class="max-h-96 overflow-y-auto">
                             @foreach (auth()->user()->unreadNotifications()->take(10)->get() as $notification)
-                                <a href="{{ $notification->data['url'] ?? '#' }}" class="block px-4 py-3 hover:bg-ivory-alt/50 border-b border-charcoal/5 transition-colors">
+                                <a href="{{ $notification->data['url'] ?? $notification->data['action_url'] ?? '#' }}" class="block px-4 py-3 hover:bg-ivory-alt/50 border-b border-charcoal/5 transition-colors">
                                     <p class="text-sm font-medium">{{ $notification->data['title'] ?? 'Notification' }}</p>
+                                    @if (! empty($notification->data['message']))
+                                        <p class="text-xs text-charcoal-soft mt-0.5 line-clamp-2">{{ $notification->data['message'] }}</p>
+                                    @endif
                                     <p class="text-xs text-muted mt-0.5">{{ $notification->created_at->diffForHumans() }}</p>
                                 </a>
                             @endforeach
-                            <a href="#" class="block px-4 py-3 text-center text-xs text-champagne-dark hover:bg-ivory-alt transition-colors">View all</a>
+                            <a href="{{ route('admin.notifications.index') }}" class="block px-4 py-3 text-center text-xs text-champagne-dark hover:bg-ivory-alt transition-colors">View all</a>
                         </div>
                     </div>
                 </div>
@@ -157,6 +168,8 @@
                     @can('coupons.view')
                     <div class="sidebar-section-title">Marketing</div>
                     <a href="{{ route('admin.coupons.index') }}" class="sidebar-link {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">Coupons</a>
+                    <a href="{{ route('admin.gifts.index') }}" class="sidebar-link {{ request()->routeIs('admin.gifts.*') ? 'active' : '' }}">Gift Popup</a>
+                    <a href="{{ route('admin.giveaways.index') }}" class="sidebar-link {{ request()->routeIs('admin.giveaways.*') ? 'active' : '' }}">Giveaways</a>
                     @endcan
                     @can('banners.view')
                     <a href="{{ route('admin.banners.index') }}" class="sidebar-link {{ request()->routeIs('admin.banners.*') ? 'active' : '' }}">Banners</a>
@@ -240,5 +253,25 @@
 
     @stack('scripts')
     <script src="{{ asset('js/image-compressor.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof ClassicEditor === 'undefined') {
+                console.warn('CKEditor 5 failed to load. Check the CDN and Content-Security-Policy.');
+                return;
+            }
+
+            document.querySelectorAll('textarea.ckeditor').forEach(function (el) {
+                if (el.dataset.ckeditorInitialized === 'true') {
+                    return;
+                }
+
+                el.dataset.ckeditorInitialized = 'true';
+
+                ClassicEditor.create(el).catch(function (error) {
+                    console.error('CKEditor initialisation failed:', error);
+                });
+            });
+        });
+    </script>
 </body>
 </html>

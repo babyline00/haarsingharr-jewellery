@@ -80,6 +80,25 @@
                     @endif
                 </div>
 
+                @if ($product->videos->isNotEmpty())
+                    <div class="card p-4">
+                        <h2 class="font-serif text-lg mb-3">Videos &amp; Reels</h2>
+                        <div class="grid grid-cols-2 gap-3">
+                            @foreach ($product->videos as $video)
+                                <div class="rounded-xl overflow-hidden bg-charcoal">
+                                    <video src="{{ $video->url() }}"
+                                           @if ($video->thumbnailUrl()) poster="{{ $video->thumbnailUrl() }}" @endif
+                                           controls playsinline preload="metadata"
+                                           class="w-full aspect-[9/16] object-cover bg-black"></video>
+                                    @if ($video->title)
+                                        <p class="text-xs text-ivory/80 p-2">{{ $video->title }}</p>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 {{-- Info --}}
                 <div class="lg:py-4">
                     <div class="text-xs uppercase tracking-[0.25em] text-champagne-deep font-medium mb-2">{{ $product->metal ?? 'Jewellery' }}</div>

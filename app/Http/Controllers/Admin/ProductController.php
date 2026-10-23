@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
+use App\Models\ProductVideo;
 use App\Services\AuditService;
 use App\Support\ImageCompressor;
 use App\Services\InventoryService;
@@ -27,6 +28,7 @@ class ProductController extends Controller
     public function index(Request $request): View
     {
         $products = Product::with(['category', 'images', 'variants'])
+            ->withCount('videos')
             ->when($request->input('q'), fn ($q, $term) => $q->search($term))
             ->when($request->input('status'), fn ($q, $s) => $q->where('status', $s))
             ->when($request->input('category'), function ($q, $slug) {
@@ -58,11 +60,15 @@ class ProductController extends Controller
     public function store(ProductRequest $request): RedirectResponse
     {
         $validated = $request->validated();
+        $inventory = $this->pullInventoryPayload($validated);
+
         $validated['created_by'] = auth()->id();
         $validated['updated_by'] = auth()->id();
 
         $product = Product::create($validated);
         $this->audit->record('products.create', $product);
+
+        $this->syncProductInventory($product, $inventory, true);
 
         return redirect()->route('admin.products.edit', $product)
             ->with('success', "Product '{$product->name}' created.");
@@ -75,7 +81,7 @@ class ProductController extends Controller
 
     public function edit(Product $product): View
     {
-        $product->load(['images', 'variants', 'category', 'tags']);
+        $product->load(['images', 'variants', 'videos', 'category', 'tags']);
         $categories = Category::active()->root()->ordered()->get();
         return view('admin.products.edit', [
             'product' => $product,
@@ -87,12 +93,102 @@ class ProductController extends Controller
     public function update(ProductRequest $request, Product $product): RedirectResponse
     {
         $validated = $request->validated();
+        $inventory = $this->pullInventoryPayload($validated);
         $validated['updated_by'] = auth()->id();
 
         $product->update($validated);
         $this->audit->record('products.update', $product);
 
+        $this->syncProductInventory($product, $inventory, false);
+
         return back()->with('success', "Product '{$product->name}' updated.");
+    }
+
+    /**
+     * Remove inventory-only keys from the validated product payload.
+     */
+    private function pullInventoryPayload(array &$validated): array
+    {
+        $inventory = [];
+
+        foreach (['stock_quantity', 'low_stock_threshold', 'allow_backorder'] as $key) {
+            if (array_key_exists($key, $validated)) {
+                $inventory[$key] = $validated[$key];
+                unset($validated[$key]);
+            }
+        }
+
+        return $inventory;
+    }
+
+    /**
+     * Keep the product's default variant in sync with the inventory card.
+     *
+     * Products with multiple variants are managed from the Inventory screen:
+     * changing one aggregate stock number here would be ambiguous.
+     */
+    private function syncProductInventory(Product $product, array $inventory, bool $creating): void
+    {
+        if ($inventory === []) {
+            return;
+        }
+
+        $stock = array_key_exists('stock_quantity', $inventory) && $inventory['stock_quantity'] !== null
+            ? (int) $inventory['stock_quantity']
+            : null;
+        $threshold = array_key_exists('low_stock_threshold', $inventory) && $inventory['low_stock_threshold'] !== null
+            ? (int) $inventory['low_stock_threshold']
+            : null;
+        $backorder = (bool) ($inventory['allow_backorder'] ?? false);
+
+        $variants = $product->variants()->orderByDesc('is_default')->orderBy('sort_order')->get();
+
+        if ($variants->count() > 1) {
+            return;
+        }
+
+        $variant = $variants->first();
+
+        if (! $variant) {
+            if ($stock === null && $threshold === null && ! $backorder) {
+                return;
+            }
+
+            $variant = $product->variants()->create([
+                'sku'                 => $product->sku,
+                'title'               => 'Default',
+                'regular_price'       => $product->regular_price,
+                'sale_price'          => $product->sale_price,
+                'cost_price'          => $product->cost_price,
+                'stock_quantity'      => 0,
+                'low_stock_threshold' => $threshold ?? 5,
+                'allow_backorder'     => $backorder,
+                'is_default'          => true,
+                'status'              => 'active',
+            ]);
+        } else {
+            $variant->fill([
+                'low_stock_threshold' => $threshold ?? $variant->low_stock_threshold,
+                'allow_backorder'     => $backorder,
+            ])->save();
+        }
+
+        if ($stock === null || $stock === $variant->fresh()->stock_quantity) {
+            return;
+        }
+
+        // Inventory adjustments are a separate permission from product editing.
+        if (! auth()->user()?->can('inventory.update')) {
+            return;
+        }
+
+        $this->inventoryService->adjust(
+            $variant->fresh(),
+            $stock,
+            $creating ? 'Initial stock' : 'manual',
+            auth()->user(),
+            $creating ? 'Set while creating the product' : 'Updated from the product form',
+        );
     }
 
     public function destroy(Product $product): RedirectResponse
@@ -237,6 +333,70 @@ class ProductController extends Controller
         $this->audit->record('products.images.primary', $image);
 
         return back()->with('success', 'Primary image updated.');
+    }
+
+    public function storeVideo(Request $request, Product $product): RedirectResponse
+    {
+        $validated = $request->validate([
+            'videos'        => 'required|array|min:1',
+            'videos.*'      => 'file|mimes:mp4,webm,mov,m4v|max:102400',
+            'thumbnails'    => 'nullable|array',
+            'thumbnails.*'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'title'         => 'nullable|string|max:150',
+            'type'          => 'required|in:video,reel',
+        ]);
+
+        $maxSort = (int) $product->videos()->max('sort_order');
+        $thumbnails = $request->file('thumbnails', []);
+        $created = 0;
+
+        foreach ($request->file('videos', []) as $index => $file) {
+            $thumbnailPath = isset($thumbnails[$index])
+                ? ImageCompressor::store($thumbnails[$index], 'products/videos/thumbnails')
+                : null;
+
+            $product->videos()->create([
+                'path'           => $file->store('products/videos', 'public'),
+                'thumbnail_path' => $thumbnailPath,
+                'title'          => $validated['title'] ?? null,
+                'type'           => $validated['type'],
+                'sort_order'     => ++$maxSort,
+                'is_primary'     => ! $product->videos()->where('is_primary', true)->exists(),
+            ]);
+
+            $created++;
+        }
+
+        $this->audit->record('products.videos.create', $product);
+
+        return back()->with('success', $created.' video(s) uploaded.');
+    }
+
+    public function destroyVideo(Product $product, ProductVideo $video): RedirectResponse
+    {
+        abort_unless($video->product_id === $product->id, 404);
+
+        Storage::disk('public')->delete($video->path);
+        if ($video->thumbnail_path) {
+            Storage::disk('public')->delete($video->thumbnail_path);
+        }
+
+        $this->audit->record('products.videos.delete', $video);
+        $video->delete();
+
+        return back()->with('success', 'Video removed.');
+    }
+
+    public function setPrimaryVideo(Product $product, ProductVideo $video): RedirectResponse
+    {
+        abort_unless($video->product_id === $product->id, 404);
+
+        $product->videos()->update(['is_primary' => false]);
+        $video->update(['is_primary' => true]);
+
+        $this->audit->record('products.videos.primary', $video);
+
+        return back()->with('success', 'Primary video updated.');
     }
     public function destroyVariant(Product $product, ProductVariant $variant): RedirectResponse
     {

@@ -54,6 +54,30 @@
         </section>
     @endif
 
+    {{-- Live store stats --}}
+    @if (isset($homeStats))
+        <section class="border-y border-charcoal/10 bg-ivory-alt/30">
+            <div class="container-haars grid grid-cols-2 divide-x divide-charcoal/10 md:grid-cols-4">
+                <div class="px-4 py-5 text-center">
+                    <p class="font-serif text-2xl md:text-3xl">{{ number_format($homeStats['products']) }}</p>
+                    <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted">Pieces in store</p>
+                </div>
+                <div class="px-4 py-5 text-center">
+                    <p class="font-serif text-2xl md:text-3xl">{{ number_format($homeStats['customers']) }}</p>
+                    <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted">Happy customers</p>
+                </div>
+                <div class="px-4 py-5 text-center">
+                    <p class="font-serif text-2xl md:text-3xl">{{ number_format($homeStats['orders']) }}</p>
+                    <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted">Orders delivered</p>
+                </div>
+                <div class="px-4 py-5 text-center">
+                    <p class="font-serif text-2xl md:text-3xl">{{ number_format($homeStats['views']) }}</p>
+                    <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted">Product views</p>
+                </div>
+            </div>
+        </section>
+    @endif
+
     {{-- Featured collections --}}
     @if (isset($featuredCategories) && $featuredCategories->isNotEmpty())
         <section class="section">
@@ -167,6 +191,31 @@
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                     @foreach ($newArrivals as $product)
                         @include('storefront.product.card', ['product' => $product])
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+
+    {{-- Trending now — ranked 1–4 by real views/sales --}}
+    @if (isset($trending) && $trending->isNotEmpty())
+        <section class="section py-12 md:py-16">
+            <div class="container-haars">
+                <div class="flex items-end justify-between mb-10">
+                    <div>
+                        <p class="text-champagne-deep text-xs font-semibold tracking-[0.3em] uppercase mb-2">Most Viewed</p>
+                        <h2 class="font-serif text-3xl md:text-4xl">Trending Now</h2>
+                    </div>
+                    <a href="{{ route('shop.index') }}" class="text-sm text-charcoal-soft hover:text-champagne transition-colors">Shop all →</a>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                    @foreach ($trending as $product)
+                        <div class="relative">
+                            <span class="absolute -left-2 -top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-charcoal font-serif text-sm text-ivory shadow-lg ring-2 ring-champagne/50" title="Rank {{ $loop->iteration }}">
+                                {{ $loop->iteration }}
+                            </span>
+                            @include('storefront.product.card', ['product' => $product])
+                        </div>
                     @endforeach
                 </div>
             </div>
@@ -324,4 +373,6 @@
             </div>
         </section>
     @endif
+    {{-- Scratch & win gift popup (admin-configurable) --}}
+    @include('storefront.home.partials.gift-popup')
 @endsection

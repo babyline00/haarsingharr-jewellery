@@ -27,7 +27,7 @@
                         </div>
                         <div>
                             <label for="description">Description</label>
-                            <textarea id="description" name="description" rows="5">{{ old('description', $category->description) }}</textarea>
+                            <textarea id="description" name="description" rows="5" class="ckeditor">{{ old('description', $category->description) }}</textarea>
                         </div>
                         <div>
                             <label for="banner_image">Banner image</label>
@@ -37,8 +37,6 @@
                             <input type="text" id="banner_image" name="banner_image" value="{{ old('banner_image', $category->banner_image) }}" placeholder="URL or upload below">
                             <input type="file" name="banner_image_file" accept="image/*" class="mt-2 block w-full text-sm">
                             @error('banner_image_file') <p class="text-xs text-danger">{{ $message }}</p> @enderror
-                            <div class="mt-4">
-                                <label for="icon">Icon</label>
                             <div class="mt-4">
                                 <label for="icon">Icon</label>
                                 @if ($category->icon)
@@ -123,7 +121,7 @@
                 const file = input.files[0];
                 if (file.size > 5 * 1024 * 1024) {
                     try {
-                        const compressed = await ImageCompressor.compress(file, { maxSizeMB: 8 });
+                        const compressed = await ImageCompressor.compress(file, { maxSizeMB: 4 });
                         if (compressed.size < file.size) {
                             const dt = new DataTransfer();
                             dt.items.add(compressed);

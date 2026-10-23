@@ -22,7 +22,7 @@
                         </div>
                         <div>
                             <label for="description">Description</label>
-                            <textarea id="description" name="description" rows="5">{{ old('description') }}</textarea>
+                            <textarea id="description" name="description" rows="5" class="ckeditor">{{ old('description') }}</textarea>
                         </div>
                         <div>
                             <label for="banner_image">Banner image URL</label>

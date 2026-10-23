@@ -51,7 +51,7 @@
                                 if (file.size > 5 * 1024 * 1024) {
                                     // Try to compress
                                     try {
-                                        const compressed = await ImageCompressor.compress(file, { maxSizeMB: 8 });
+                                        const compressed = await ImageCompressor.compress(file, { maxSizeMB: 4 });
                                         if (compressed.size < file.size) {
                                             // Replace the file in the input
                                             const dt = new DataTransfer();
@@ -67,7 +67,7 @@
                                 // Final size check
                                 const finalFile = this.files[0];
                                 if (finalFile && finalFile.size > 5 * 1024 * 1024) {
-                                    alert('File is still too large (' + (finalFile.size/1024/1024).toFixed(1) + 'MB). Server limit is 2MB. Please choose a smaller file or use the URL field instead.');
+                                    alert('File is still too large (' + (finalFile.size/1024/1024).toFixed(1) + 'MB). Server limit is {{ ini_get('upload_max_filesize') }}. Please choose a smaller file or use the URL field instead.');
                                     this.value = '';
                                 }
                             });
