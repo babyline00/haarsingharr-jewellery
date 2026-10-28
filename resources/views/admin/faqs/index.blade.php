@@ -37,7 +37,14 @@
                             <td class="p-3 text-right">
                                 <a href="{{ route('admin.faqs.edit', $faq) }}" class="text-xs text-champagne-dark hover:underline">Edit</a>
                                 @can('faqs.delete')
+<<<<<<< HEAD
                                 <x-admin.confirm :action="route('admin.faqs.destroy', $faq)" title="Delete this FAQ?" :message="$faq->question" label="Delete FAQ" />
+=======
+                                <form action="{{ route('admin.faqs.destroy', $faq) }}" method="post" class="inline" onsubmit="return confirm('Delete this FAQ?')">
+                                    @csrf @method('DELETE')
+                                    <button class="text-xs text-danger hover:underline ml-2">Delete</button>
+                                </form>
+>>>>>>> origin/main
                                 @endcan
                             </td>
                         </tr>

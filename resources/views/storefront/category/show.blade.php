@@ -22,7 +22,11 @@
             @endsection
 
             {{-- Header --}}
+<<<<<<< HEAD
             <div class="mb-8 md:mb-10" x-reveal>
+=======
+            <div class="mb-8 md:mb-10">
+>>>>>>> origin/main
                 <h1 class="font-serif text-3xl md:text-4xl lg:text-5xl">{{ $category->name }}</h1>
                 @if ($category->short_description)
                     <p class="text-base text-muted mt-3 max-w-2xl">{{ $category->short_description }}</p>
@@ -44,7 +48,11 @@
 
             {{-- Products --}}
             @if ($products->isNotEmpty())
+<<<<<<< HEAD
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 xl:gap-8" x-reveal="80">
+=======
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 xl:gap-8">
+>>>>>>> origin/main
                     @foreach ($products as $product)
                         @include('storefront.product.card', ['product' => $product])
                     @endforeach

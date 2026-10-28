@@ -33,7 +33,11 @@
                                 </a>
                             @endif
                             @if ($location->whatsapp)
+<<<<<<< HEAD
                                 <a href="https://wa.me/{{ preg_replace('/\D/', '', $location->whatsapp) }}" target="_blank" rel="noopener" class="flex items-center gap-2 text-success font-medium">
+=======
+                                <a href="https://wa.me/{{ preg_replace('/\D/', '', $location->whatsapp) }}" target="_blank" class="flex items-center gap-2 text-success font-medium">
+>>>>>>> origin/main
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.4 8.4 0 0 1-12 7.6L4 22l1.9-5A8.4 8.4 0 1 1 21 11.5z"/></svg>
                                     Chat on WhatsApp
                                 </a>
@@ -48,7 +52,11 @@
                         @endif
 
                         @if ($location->map_link)
+<<<<<<< HEAD
                             <a href="{{ $location->map_link }}" target="_blank" rel="noopener" class="text-xs text-champagne-dark hover:underline mt-3 inline-block flex items-center gap-1">
+=======
+                            <a href="{{ $location->map_link }}" target="_blank" class="text-xs text-champagne-dark hover:underline mt-3 inline-block flex items-center gap-1">
+>>>>>>> origin/main
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                                 View on map
                             </a>

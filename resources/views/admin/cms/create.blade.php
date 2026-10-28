@@ -26,7 +26,11 @@
                         </div>
                         <div>
                             <label for="content">Body (HTML allowed)</label>
+<<<<<<< HEAD
                             <textarea id="content" name="content" rows="14" class="font-mono text-xs">{{ old('content') }}</textarea>
+=======
+                            <textarea id="content" name="content" rows="14" class="ckeditor font-mono text-xs">{{ old('content') }}</textarea>
+>>>>>>> origin/main
                         </div>
                         <div>
                             <label for="sections">Builder sections (JSON)</label>

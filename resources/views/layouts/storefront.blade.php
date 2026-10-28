@@ -42,10 +42,10 @@
 
     {{-- Favicons & manifest --}}
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-touch-icon.png') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon-16x16.png') }}">
-    <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('images/favicon-96x96.png') }}">
-    <link rel="icon" type="image/x-icon" href="{{ asset('images/favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ $brand['favicon'] ?? asset('images/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ $brand['favicon'] ?? asset('images/favicon-16x16.png') }}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ $brand['favicon'] ?? asset('images/favicon-96x96.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ $brand['favicon'] ?? asset('images/favicon.ico') }}">
     <link rel="manifest" href="{{ asset('site.webmanifest') }}">
     <meta name="msapplication-TileColor" content="#C8A968">
     <meta name="msapplication-TileImage" content="{{ asset('images/mstile-150x150.png') }}">
@@ -73,7 +73,11 @@
             <div class="container-haars flex items-center justify-center gap-3">
                 <span class="font-medium tracking-wide">{{ $announcement->heading ?? 'Complimentary shipping & free returns within 7 days' }}</span>
                 @if ($link = $announcement->link_url ?? null)
+<<<<<<< HEAD
                     <a href="{{ route('banners.click', $announcement) }}" class="underline underline-offset-2 hover:text-champagne transition-colors">{{ $announcement->link_text ?? $announcement->heading ?? 'Details' }}</a>
+=======
+                    <a href="{{ $link }}" class="underline underline-offset-2 hover:text-champagne transition-colors">{{ $announcement->link_text ?? $announcement->heading ?? 'Details' }}</a>
+>>>>>>> origin/main
                 @endif
                 <button @click="visible = false" class="ml-2 text-ivory/60 hover:text-ivory" aria-label="Dismiss announcement">×</button>
             </div>

@@ -836,8 +836,13 @@
                            required
                            @checked(old('terms'))>
                     <span style="color: #72695e; font-size: 11px; line-height: 1.6;">
+<<<<<<< HEAD
                         I accept the <a href="{{ route('pages.show', 'terms') }}" target="_blank" rel="noopener" class="gold-link">Terms</a> and
                         <a href="{{ route('pages.show', 'privacy-policy') }}" target="_blank" rel="noopener" class="gold-link">Privacy Policy</a>.
+=======
+                        I accept the <a href="{{ route('pages.show', 'terms') }}" target="_blank" class="gold-link">Terms</a> and
+                        <a href="{{ route('pages.show', 'privacy-policy') }}" target="_blank" class="gold-link">Privacy Policy</a>.
+>>>>>>> origin/main
                     </span>
                 </label>
 

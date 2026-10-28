@@ -9,7 +9,10 @@
             <p class="text-sm text-muted mt-1">Authentication attempts, failed logins and suspicious activity.</p>
         </div>
         <div class="flex gap-2">
+<<<<<<< HEAD
             <a href="{{ route('admin.security-events.export', request()->only(['q', 'event_type', 'outcome', 'from', 'to'])) }}" class="btn-ghost text-sm">Export CSV</a>
+=======
+>>>>>>> origin/main
             <a href="{{ route('admin.audit-logs.index') }}" class="btn-outline text-sm">Audit Logs</a>
             <a href="{{ route('admin.active-sessions.index') }}" class="btn-outline text-sm">Active Sessions</a>
         </div>

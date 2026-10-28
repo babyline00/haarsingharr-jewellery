@@ -8,9 +8,14 @@ use App\Models\HomepageSection;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Collection;
+use App\Models\Order;
 use App\Models\StoreLocation;
+<<<<<<< HEAD
 use App\Models\StoreSetting;
 use Illuminate\Http\Request;
+=======
+use App\Models\User;
+>>>>>>> origin/main
 use Illuminate\View\View;
 
 class HomeController extends Controller
@@ -43,15 +48,24 @@ class HomeController extends Controller
             'featuredCategories' => Category::where('show_on_homepage', true)
                 ->active()->ordered()->limit(8)->get(),
             'bestSellers'      => Product::active()->bestSellers()
-                ->with(['images', 'variants'])->limit(8)->get(),
+                ->with(['images', 'variants'])->withCount('wishlistItems')->limit(8)->get(),
             'newArrivals'      => Product::active()->newArrivals()
-                ->with(['images', 'variants'])->limit(8)->get(),
+                ->with(['images', 'variants'])->withCount('wishlistItems')->limit(8)->get(),
             'bridalCollection' => Product::active()->bridal()
-                ->with(['images', 'variants'])->limit(4)->get(),
+                ->with(['images', 'variants'])->withCount('wishlistItems')->limit(4)->get(),
             'menCollection'    => Product::active()->men()
-                ->with(['images', 'variants'])->limit(4)->get(),
+                ->with(['images', 'variants'])->withCount('wishlistItems')->limit(4)->get(),
             'saleItems'        => Product::active()->where('sale_price', '>', 0)
-                ->with(['images', 'variants'])->limit(4)->get(),
+                ->with(['images', 'variants'])->withCount('wishlistItems')->limit(4)->get(),
+            'trending'         => Product::active()
+                ->with(['images', 'variants'])->withCount('wishlistItems')
+                ->orderByDesc('view_count')->orderByDesc('units_sold')->limit(4)->get(),
+            'homeStats'        => [
+                'products'  => Product::active()->count(),
+                'customers' => User::where('type', 'customer')->count(),
+                'orders'    => Order::where('status', 'delivered')->count(),
+                'views'     => (int) Product::sum('view_count'),
+            ],
             'collections'       => Collection::active()->shownOnHomepage()->limit(6)->get(),
             'storeLocations'   => StoreLocation::active()->limit(3)->get(),
             'budgetCategories' => [

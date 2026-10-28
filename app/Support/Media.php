@@ -22,6 +22,7 @@ class Media
             return asset($fallback);
         }
 
+<<<<<<< HEAD
         if (Str::startsWith($path, ['https://', 'http://'])) {
             return $path;
         }
@@ -34,6 +35,8 @@ class Media
             return asset(ltrim($path, '/'));
         }
 
+=======
+>>>>>>> origin/main
         $disk = Storage::disk('public');
 
         if (! $disk->exists($path)) {

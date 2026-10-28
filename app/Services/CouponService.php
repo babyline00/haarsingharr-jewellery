@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\CouponRedemption;
+use App\Models\Order;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -63,6 +64,12 @@ class CouponService
             ]);
 
             DB::table('coupons')->where('id', $coupon->id)->increment('used_count');
+
+            // A popup/giveaway coupon is tied to exactly one gift claim; flag
+            // the claim as redeemed for the marketing analytics screen.
+            \App\Models\GiftClaim::where('coupon_id', $coupon->id)
+                ->where('status', '!=', 'redeemed')
+                ->update(['status' => 'redeemed', 'redeemed_at' => now()]);
 
             return $redemption;
         });

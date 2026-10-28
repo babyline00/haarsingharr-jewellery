@@ -7,7 +7,11 @@
         <div class="container-haars">
 
             {{-- Search header --}}
+<<<<<<< HEAD
             <div class="mb-8 md:mb-12 max-w-xl" x-reveal>
+=======
+            <div class="mb-8 md:mb-12 max-w-xl">
+>>>>>>> origin/main
                 <h1 class="font-serif text-3xl md:text-4xl lg:text-5xl">Search</h1>
                 <form method="get" action="{{ route('search.index') }}" class="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
                     <input type="search" name="q" value="{{ $query }}" placeholder="Rings, necklaces, bridal sets…" class="text-sm w-full sm:w-64 lg:w-80">
@@ -21,7 +25,11 @@
             </div>
 
             @if ($products->isNotEmpty())
+<<<<<<< HEAD
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 xl:gap-8" x-reveal="80">
+=======
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 xl:gap-8">
+>>>>>>> origin/main
                     @foreach ($products as $product)
                         @include('storefront.product.card', ['product' => $product])
                     @endforeach

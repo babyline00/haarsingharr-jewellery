@@ -56,11 +56,19 @@ class ImageCompressor
         $output = $disk->path($filename);
 
         $input = $file->getRealPath();
+<<<<<<< HEAD
         $cmd = sprintf(
             'magick %s -auto-orient -resize %dx%d> -strip -quality %d %s 2>&1',
             escapeshellarg($input),
             $maxDimension,
             $maxDimension,
+=======
+        $geometry = sprintf('%dx%d>', $maxDimension, $maxDimension);
+        $cmd = sprintf(
+            'magick %s -auto-orient -resize %s -strip -quality %d %s 2>&1',
+            escapeshellarg($input),
+            escapeshellarg($geometry),
+>>>>>>> origin/main
             $quality,
             escapeshellarg($output)
         );

@@ -6,8 +6,12 @@
     <div class="flex items-center justify-between mb-6">
         <h1 class="font-serif text-2xl md:text-3xl">Edit Page</h1>
         <div class="flex items-center gap-2">
+<<<<<<< HEAD
             <a href="{{ route('admin.pages.preview', $page) }}" target="_blank" rel="noopener" class="btn-outline text-sm">Preview (live)</a>
             <a href="{{ route('admin.pages.revisions', $page) }}" class="btn-outline text-sm">Revisions ({{ $page->revisions()->count() }})</a>
+=======
+            <a href="{{ route('pages.show', $page->slug) }}" target="_blank" class="btn-outline text-sm">Preview</a>
+>>>>>>> origin/main
             <a href="{{ route('admin.pages.index') }}" class="btn-ghost text-sm">Back</a>
         </div>
     </div>
@@ -31,7 +35,11 @@
                         </div>
                         <div>
                             <label for="content">Body (HTML allowed)</label>
+<<<<<<< HEAD
                             <textarea id="content" name="content" rows="14" class="font-mono text-xs">{{ old('content', $page->content) }}</textarea>
+=======
+                            <textarea id="content" name="content" rows="14" class="ckeditor font-mono text-xs">{{ old('content', $page->content) }}</textarea>
+>>>>>>> origin/main
                         </div>
                         <div>
                             <label for="sections">Builder sections (JSON)</label>
@@ -98,12 +106,22 @@
 
                 <button type="submit" class="btn-gold w-full">Save Changes</button>
                 @can('cms.delete')
+<<<<<<< HEAD
                 <button type="button" class="btn-ghost w-full text-danger" @click="$dispatch('open-confirm', 'confirm-page-{{ $page->id }}')">Archive Page</button>
+=======
+                <form action="{{ route('admin.pages.destroy', $page) }}" method="post" onsubmit="return confirm('Archive this page?')">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="btn-ghost w-full text-danger">Archive Page</button>
+                </form>
+>>>>>>> origin/main
                 @endcan
             </aside>
         </div>
     </form>
+<<<<<<< HEAD
     @can('cms.delete')
         <x-admin.confirm :action="route('admin.pages.destroy', $page)" name="page-{{ $page->id }}" title="Archive this page?" :message="$page->title . ' will be removed from the live site.'" label="Archive page" :show-trigger="false" />
     @endcan
+=======
+>>>>>>> origin/main
 @endsection

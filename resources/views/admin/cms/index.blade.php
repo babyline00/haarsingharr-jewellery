@@ -51,9 +51,18 @@
                             <td class="p-3 text-xs text-muted">{{ $page->published_at?->format('M j, Y') ?? '—' }}</td>
                             <td class="p-3 text-right">
                                 <a href="{{ route('admin.pages.edit', $page) }}" class="text-xs text-champagne-dark hover:underline">Edit</a>
+<<<<<<< HEAD
                                 <a href="{{ route('pages.show', $page->slug) }}" target="_blank" rel="noopener" class="text-xs text-muted hover:underline ml-2">View</a>
                                 @can('cms.delete')
                                 <x-admin.confirm :action="route('admin.pages.destroy', $page)" title="Archive this page?" :message="$page->title . ' will be removed from the live site.'" label="Archive page" />
+=======
+                                <a href="{{ route('pages.show', $page->slug) }}" target="_blank" class="text-xs text-muted hover:underline ml-2">View</a>
+                                @can('cms.delete')
+                                <form action="{{ route('admin.pages.destroy', $page) }}" method="post" class="inline" onsubmit="return confirm('Archive this page?')">
+                                    @csrf @method('DELETE')
+                                    <button class="text-xs text-danger hover:underline ml-2">Archive</button>
+                                </form>
+>>>>>>> origin/main
                                 @endcan
                             </td>
                         </tr>

@@ -21,11 +21,16 @@ class StaffController extends Controller
         $staff = User::staff()
             ->with('roles')
             ->when($request->input('q'), function ($q, $term) {
+<<<<<<< HEAD
                 // Grouped so the OR cannot escape the staff-type scoping.
                 $q->where(function ($sub) use ($term) {
                     $sub->where('email', 'like', "%{$term}%")
                         ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$term}%"]);
                 });
+=======
+                $q->where('email', 'like', "%{$term}%")
+                  ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$term}%"]);
+>>>>>>> origin/main
             })
             ->when($request->input('role'), fn ($q, $role) => $q->whereHas('roles', fn ($q) => $q->where('slug', $role)))
             ->latest()

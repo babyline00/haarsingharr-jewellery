@@ -93,12 +93,22 @@
 
                 <button type="submit" class="btn-gold w-full">Save Changes</button>
                 @can('coupons.delete')
+<<<<<<< HEAD
                 <button type="button" class="btn-ghost w-full text-danger" @click="$dispatch('open-confirm', 'confirm-coupon-{{ $coupon->id }}')">Archive Coupon</button>
+=======
+                <form action="{{ route('admin.coupons.destroy', $coupon) }}" method="post" onsubmit="return confirm('Archive this coupon?')">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="btn-ghost w-full text-danger">Archive Coupon</button>
+                </form>
+>>>>>>> origin/main
                 @endcan
             </aside>
         </div>
     </form>
+<<<<<<< HEAD
     @can('coupons.delete')
         <x-admin.confirm :action="route('admin.coupons.destroy', $coupon)" name="coupon-{{ $coupon->id }}" title="Archive this coupon?" :message="$coupon->code . ' will no longer be available for new orders.'" label="Archive coupon" :show-trigger="false" />
     @endcan
+=======
+>>>>>>> origin/main
 @endsection

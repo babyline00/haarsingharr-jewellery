@@ -19,7 +19,11 @@
                 </div>
                 <div>
                     <label for="answer">Answer *</label>
+<<<<<<< HEAD
                     <textarea id="answer" name="answer" rows="6" required>{{ old('answer') }}</textarea>
+=======
+                    <textarea id="answer" name="answer" rows="6" required class="ckeditor">{{ old('answer') }}</textarea>
+>>>>>>> origin/main
                     @error('answer') <p class="text-xs text-danger">{{ $message }}</p> @enderror
                 </div>
             </div>

@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+<<<<<<< HEAD
 use Illuminate\Http\RedirectResponse;
+=======
+>>>>>>> origin/main
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -11,6 +14,7 @@ class NotificationController extends Controller
 {
     public function index(Request $request): View
     {
+<<<<<<< HEAD
         $filter = $request->input('filter') === 'all' ? 'all' : 'unread';
 
         $notifications = $request->user()
@@ -36,4 +40,20 @@ class NotificationController extends Controller
 
         return back()->with('success', 'Notification marked as read.');
     }
+=======
+        return view('admin.notifications.index', [
+            'notifications' => $request->user()
+                ->notifications()
+                ->latest()
+                ->paginate(20),
+        ]);
+    }
+
+    public function markAllRead(Request $request)
+    {
+        $request->user()->unreadNotifications->markAsRead();
+
+        return back()->with('success', 'All notifications marked as read.');
+    }
+>>>>>>> origin/main
 }

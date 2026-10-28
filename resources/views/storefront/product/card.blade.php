@@ -24,6 +24,7 @@
     $price = $priceSpread ? (float) $priceRange[0] : $product->currentPrice();
     $regularPrice = (float) ($variant?->regular_price ?? $product->regular_price);
     $discount = $product->discountPercentage();
+<<<<<<< HEAD
 
     // Single-option products can be added straight from the card; products
     // with a real choice get a "Choose options" shortcut to the detail page.
@@ -70,25 +71,55 @@
                 >
             @endif
         </a>
+=======
+    $stock = $product->availableStock();
+    $likes = (int) ($product->wishlist_items_count ?? 0);
+    $views = (int) ($product->view_count ?? 0);
+@endphp
+
+<article class="card card-hover group relative flex flex-col">
+    {{-- Image --}}
+    <a href="{{ route('products.show', $product) }}" class="block relative aspect-square overflow-hidden bg-ivory-alt" aria-label="{{ $product->name }}">
+        @if ($image)
+            <img src="{{ \App\Support\Media::url($image) }}"
+                 alt="{{ $product->name }}"
+                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                 loading="lazy">
+        @else
+            <div class="absolute inset-0 bg-gradient-to-br from-ivory-alt to-champagne/10 flex items-center justify-center text-muted/40 text-xs">Haarsingharr</div>
+        @endif
+>>>>>>> origin/main
 
         {{-- Product badges --}}
         <div class="pointer-events-none absolute left-2 top-2 z-10 flex max-w-[75%] flex-wrap gap-1 sm:left-3 sm:top-3 sm:gap-1.5">
             @if ($product->is_new_arrival)
+<<<<<<< HEAD
                 <span class="badge badge-sm bg-porcelain/95 text-charcoal shadow-sm">
                     Just in
                 </span>
+=======
+                <span class="badge badge-sm bg-charcoal text-ivory">New</span>
+>>>>>>> origin/main
             @endif
 
             @if ($product->is_best_seller)
+<<<<<<< HEAD
                 <span class="badge badge-sm bg-champagne text-charcoal shadow-sm">
                     Bestseller
                 </span>
+=======
+                <span class="badge badge-sm bg-champagne text-charcoal">Bestseller</span>
+>>>>>>> origin/main
             @endif
 
             @if ($discount)
+<<<<<<< HEAD
                 <span class="badge badge-sm bg-rose text-white shadow-sm">
                     Save {{ $discount }}%
                 </span>
+=======
+                <span class="badge badge-sm bg-rose text-charcoal">-{{ $discount }}%</span>
+>>>>>>> origin/main
             @endif
         </div>
 
@@ -100,6 +131,7 @@
                 class="absolute right-2 top-2 z-10 sm:right-3 sm:top-3"
             >
                 @csrf
+<<<<<<< HEAD
 
                 <input
                     type="hidden"
@@ -131,6 +163,11 @@
                     >
                         <path d="M12 21s-7-4.5-9.5-9.5C.5 8 3 4 6.5 4 9 4 11 5.5 12 7c1-1.5 3-3 5.5-3 3.5 0 6 4 4 7.5C19 16.5 12 21 12 21z"/>
                     </svg>
+=======
+                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                <button type="submit" aria-label="Add {{ $product->name }} to wishlist" class="w-10 h-10 bg-porcelain/90 hover:bg-porcelain rounded-full flex items-center justify-center text-charcoal-soft hover:text-rose transition-all duration-200 shadow-sm">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-4.5-9.5-9.5C0.5 8 3 4 6.5 4 9 4 11 5.5 12 7c1-1.5 3-3 5.5-3C21 4 23.5 8 21.5 11.5 19 16.5 12 21 12 21z"/></svg>
+>>>>>>> origin/main
                 </button>
             </form>
         @endif
@@ -149,6 +186,7 @@
                        md:group-focus-within:opacity-100"
             >
                 @csrf
+<<<<<<< HEAD
 
                 <input
                     type="hidden"
@@ -214,10 +252,25 @@
             >
                 {{ $product->name }}
             </a>
+=======
+                <input type="hidden" name="product_variant_id" value="{{ $product->variants->where('is_default', true)->first()?->id ?? $product->variants->first()?->id }}">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="btn-primary w-full text-sm py-2">Add to Cart</button>
+            </form>
+        @endif
+    </a>
+
+    {{-- Body --}}
+    <div class="p-4 flex flex-col flex-1">
+        <div class="text-xs uppercase tracking-widest text-champagne-deep font-medium mb-1">{{ $product->metal ?? 'Jewellery' }}</div>
+        <h3 class="font-serif text-base leading-snug mb-2">
+            <a href="{{ route('products.show', $product) }}" class="hover:text-champagne-dark transition-colors line-clamp-2">{{ $product->name }}</a>
+>>>>>>> origin/main
         </h3>
 
         {{-- Rating --}}
         @if ($product->rating_count > 0)
+<<<<<<< HEAD
             <div
                 class="mt-2 flex min-w-0 flex-wrap items-center gap-x-1
                        text-[11px] text-muted sm:text-xs"
@@ -232,6 +285,12 @@
                 <span>
                     ({{ $product->rating_count }})
                 </span>
+=======
+            <div class="flex items-center gap-1 mt-1 text-xs text-muted">
+                <span class="text-champagne-deep">★</span>
+                <span class="font-medium">{{ number_format($product->rating_average, 1) }}</span>
+                <span>({{ $product->rating_count }})</span>
+>>>>>>> origin/main
             </div>
         @endif
 
@@ -256,11 +315,39 @@
             @endif
         </div>
 
+<<<<<<< HEAD
         {{-- Stock status --}}
         @if (! $product->inStock())
             <p class="mt-1.5 text-xs text-muted">
                 Currently unavailable
             </p>
         @endif
+=======
+        {{-- Stock & social proof --}}
+        <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted">
+            @if ($stock > 0)
+                <span class="inline-flex items-center gap-1.5 font-medium text-emerald-700">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                    {{ $stock <= 5 ? "Only {$stock} left" : 'In stock' }}
+                </span>
+            @else
+                <span class="inline-flex items-center gap-1.5 font-medium text-rose">
+                    <span class="h-1.5 w-1.5 rounded-full bg-rose"></span>
+                    Sold out
+                </span>
+            @endif
+
+            <span class="inline-flex items-center gap-3">
+                <span class="inline-flex items-center gap-1" title="{{ $views }} product views">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                    {{ number_format($views) }}
+                </span>
+                <span class="inline-flex items-center gap-1" title="{{ $likes }} people saved this">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 21s-7-4.5-9.5-9.5C.5 8 3 4 6.5 4 9 4 11 5.5 12 7c1-1.5 3-3 5.5-3C21 4 23.5 8 21.5 11.5 19 16.5 12 21 12 21z"/></svg>
+                    {{ number_format($likes) }}
+                </span>
+            </span>
+        </div>
+>>>>>>> origin/main
     </div>
 </article>

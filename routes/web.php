@@ -20,6 +20,8 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\ExchangeRequestController;
 use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\GiftController as AdminGiftController;
+use App\Http\Controllers\Admin\GiveawayController;
 use App\Http\Controllers\Admin\HomepageSectionController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\NavigationMenuController;
@@ -55,6 +57,7 @@ use App\Http\Controllers\Storefront\CollectionController as StorefrontCollection
 use App\Http\Controllers\Storefront\ContactController;
 use App\Http\Controllers\Storefront\CmsPageController as StorefrontCmsController;
 use App\Http\Controllers\Storefront\FaqController as StorefrontFaqController;
+use App\Http\Controllers\Storefront\GiftController;
 use App\Http\Controllers\Storefront\HomeController;
 use App\Http\Controllers\Storefront\NewsletterController;
 use App\Http\Controllers\Storefront\OrderTrackingController;
@@ -166,6 +169,14 @@ Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy'])
 Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
 Route::delete('/cart/coupon', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 
+// Homepage gift popup (unique coupon issue + analytics)
+Route::post('/gift/claim', [GiftController::class, 'claim'])
+    ->middleware('throttle:gift')
+    ->name('gift.claim');
+Route::post('/gift/event', [GiftController::class, 'event'])
+    ->middleware('throttle:gift')
+    ->name('gift.event');
+
 Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
 Route::post('/checkout', [CheckoutController::class, 'store'])
     ->middleware('throttle:checkout')
@@ -211,6 +222,8 @@ Route::middleware('auth')->prefix('account')->name('account.')->group(function (
         ->name('reviews.store');
     Route::get('/returns', [ReturnController::class, 'index'])->name('returns.index');
     Route::post('/returns', [ReturnController::class, 'store'])->name('returns.store');
+    Route::get('/notifications', [\App\Http\Controllers\Storefront\AccountNotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/read-all', [\App\Http\Controllers\Storefront\AccountNotificationController::class, 'markAllRead'])->name('notifications.read-all');
 });
 
 // Wishlist — public add for guests too
@@ -250,7 +263,13 @@ Route::middleware(['auth', 'staff', 'mfa'])
         Route::post('notifications/{notification}/read', [NotificationController::class, 'markRead'])
             ->name('notifications.read');
 
+        Route::get('notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])
+            ->name('notifications.index');
+        Route::post('notifications/read-all', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllRead'])
+            ->name('notifications.read-all');
+
         // Products & variants
+<<<<<<< HEAD
         Route::get('products/export', [AdminProductController::class, 'export'])
             ->middleware('permission:products.view')->name('products.export');
         Route::get('products/import', [AdminProductController::class, 'importForm'])
@@ -262,11 +281,14 @@ Route::middleware(['auth', 'staff', 'mfa'])
         Route::post('products/bulk', [AdminProductController::class, 'bulk'])
             ->middleware('permission:products.update|products.delete')->name('products.bulk');
 
+=======
+>>>>>>> origin/main
         Route::resource('products', AdminProductController::class)
             ->middlewareFor(['index', 'show'], 'permission:products.view')
             ->middlewareFor(['create', 'store'], 'permission:products.create')
             ->middlewareFor(['edit', 'update'], 'permission:products.update')
             ->middlewareFor(['destroy'], 'permission:products.delete');
+<<<<<<< HEAD
         Route::post('products/{product}/duplicate', [AdminProductController::class, 'duplicate'])
             ->middleware('permission:products.create')->name('products.duplicate');
         Route::post('products/{product}/variants/generate', [AdminProductController::class, 'generateVariants'])
@@ -275,6 +297,8 @@ Route::middleware(['auth', 'staff', 'mfa'])
             ->middleware('permission:products.update')->name('products.relations.store');
         Route::delete('products/{product}/relations/{related}', [AdminProductController::class, 'destroyRelation'])
             ->middleware('permission:products.update')->name('products.relations.destroy');
+=======
+>>>>>>> origin/main
         Route::post('products/{product}/variants', [AdminProductController::class, 'storeVariant'])
             ->middleware('permission:products.create')
             ->name('products.variants.store');
@@ -296,22 +320,40 @@ Route::middleware(['auth', 'staff', 'mfa'])
         Route::patch('products/{product}/images/{image}/primary', [AdminProductController::class, 'setPrimaryImage'])
             ->middleware('permission:products.update')
             ->name('products.images.primary');
+<<<<<<< HEAD
 
         // Categories & collections
         Route::post('categories/bulk', [CategoryController::class, 'bulk'])
             ->middleware('permission:categories.update|categories.delete')->name('categories.bulk');
+=======
+        Route::post('products/{product}/videos', [AdminProductController::class, 'storeVideo'])
+            ->middleware('permission:products.update')
+            ->name('products.videos.store');
+        Route::delete('products/{product}/videos/{video}', [AdminProductController::class, 'destroyVideo'])
+            ->middleware('permission:products.update')
+            ->name('products.videos.destroy');
+        Route::patch('products/{product}/videos/{video}/primary', [AdminProductController::class, 'setPrimaryVideo'])
+            ->middleware('permission:products.update')
+            ->name('products.videos.primary');
+
+        // Categories & collections
+>>>>>>> origin/main
         Route::resource('categories', CategoryController::class)
             ->middlewareFor(['index', 'show'], 'permission:categories.view')
             ->middlewareFor(['create', 'store'], 'permission:categories.create')
             ->middlewareFor(['edit', 'update'], 'permission:categories.update')
             ->middlewareFor(['destroy'], 'permission:categories.delete');
+<<<<<<< HEAD
         Route::post('categories/{category}/move/{direction}', [CategoryController::class, 'move'])
             ->middleware('permission:categories.update')->name('categories.move');
+=======
+>>>>>>> origin/main
         Route::resource('collections', CollectionController::class)
             ->middlewareFor(['index', 'show'], 'permission:collections.view')
             ->middlewareFor(['create', 'store'], 'permission:collections.create')
             ->middlewareFor(['edit', 'update'], 'permission:collections.update')
             ->middlewareFor(['destroy'], 'permission:collections.delete');
+<<<<<<< HEAD
         Route::post('collections/{collection}/products', [CollectionController::class, 'attachProduct'])
             ->middleware('permission:collections.update')->name('collections.products.store');
         Route::delete('collections/{collection}/products/{product}', [CollectionController::class, 'detachProduct'])
@@ -330,6 +372,10 @@ Route::middleware(['auth', 'staff', 'mfa'])
             ->middleware('permission:inventory.update')->name('inventory.bulk');
         Route::post('inventory/alerts/{alert}/resolve', [InventoryController::class, 'resolveAlert'])
             ->middleware('permission:inventory.update')->name('inventory.alerts.resolve');
+=======
+
+        // Inventory
+>>>>>>> origin/main
         Route::get('inventory', [InventoryController::class, 'index'])
             ->middleware('permission:inventory.view')->name('inventory.index');
         Route::post('inventory/adjust', [InventoryController::class, 'adjust'])
@@ -338,6 +384,7 @@ Route::middleware(['auth', 'staff', 'mfa'])
             ->middleware('permission:inventory.view')->name('inventory.movements');
 
         // Orders
+<<<<<<< HEAD
         Route::get('orders/export', [AdminOrderController::class, 'export'])
             ->middleware('permission:orders.view|orders.export')
             ->name('orders.export');
@@ -349,6 +396,12 @@ Route::middleware(['auth', 'staff', 'mfa'])
             ->name('orders.bulk');
         Route::resource('orders', AdminOrderController::class)->except(['create', 'store', 'edit', 'update', 'destroy'])
             ->middlewareFor(['index', 'show'], 'permission:orders.view');
+=======
+        Route::resource('orders', AdminOrderController::class)->except(['create', 'store'])
+            ->middlewareFor(['index', 'show'], 'permission:orders.view')
+            ->middlewareFor(['edit', 'update'], 'permission:orders.update')
+            ->middlewareFor(['destroy'], 'permission:orders.delete');
+>>>>>>> origin/main
         Route::post('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])
             ->middleware('permission:orders.update')
             ->name('orders.status.update');
@@ -390,6 +443,7 @@ Route::middleware(['auth', 'staff', 'mfa'])
             ->name('orders.packing_slip');
 
         // Payments & refunds
+<<<<<<< HEAD
         Route::get('payments/export', [AdminPaymentController::class, 'export'])
             ->middleware('permission:payments.view|payments.export')
             ->name('payments.export');
@@ -416,11 +470,19 @@ Route::middleware(['auth', 'staff', 'mfa'])
         Route::get('refunds/{refund}/receipt', [RefundController::class, 'receipt'])
             ->middleware('permission:refunds.view')
             ->name('refunds.receipt');
+=======
+        Route::resource('payments', AdminPaymentController::class)->only(['index', 'show'])
+            ->middlewareFor(['index', 'show'], 'permission:payments.view');
+        Route::post('refunds/{refund}/approve', [RefundController::class, 'approve'])
+            ->middleware('permission:refunds.approve')
+            ->name('refunds.approve');
+>>>>>>> origin/main
         Route::resource('refunds', RefundController::class)->only(['index', 'show', 'store'])
             ->middlewareFor(['index', 'show'], 'permission:refunds.view')
             ->middlewareFor(['store'], 'permission:refunds.create');
 
         // Customers
+<<<<<<< HEAD
         Route::get('customers/export', [CustomerController::class, 'export'])
             ->middleware('permission:customers.view|customers.export')->name('customers.export');
         Route::post('customers/bulk', [CustomerController::class, 'bulk'])
@@ -431,12 +493,15 @@ Route::middleware(['auth', 'staff', 'mfa'])
             ->middleware('permission:customers.delete')->name('customers.gdpr.erase');
         Route::post('customers/{customer}/impersonate', [CustomerController::class, 'impersonate'])
             ->middleware('permission:customers.update')->name('customers.impersonate');
+=======
+>>>>>>> origin/main
         Route::resource('customers', CustomerController::class)->only(['index', 'show', 'update', 'destroy'])
             ->middlewareFor(['index', 'show'], 'permission:customers.view')
             ->middlewareFor(['update'], 'permission:customers.update')
             ->middlewareFor(['destroy'], 'permission:customers.delete');
 
         // Coupons
+<<<<<<< HEAD
         Route::get('coupons/export', [CouponController::class, 'export'])
             ->middleware('permission:coupons.view|coupons.export')->name('coupons.export');
         Route::get('coupons/generate', [CouponController::class, 'generateForm'])
@@ -445,15 +510,41 @@ Route::middleware(['auth', 'staff', 'mfa'])
             ->middleware('permission:coupons.create')->name('coupons.generate.store');
         Route::post('coupons/bulk', [CouponController::class, 'bulk'])
             ->middleware('permission:coupons.update|coupons.delete')->name('coupons.bulk');
+=======
+>>>>>>> origin/main
         Route::resource('coupons', CouponController::class)
             ->middlewareFor(['index', 'show'], 'permission:coupons.view')
             ->middlewareFor(['create', 'store'], 'permission:coupons.create')
             ->middlewareFor(['edit', 'update'], 'permission:coupons.update')
             ->middlewareFor(['destroy'], 'permission:coupons.delete');
+<<<<<<< HEAD
 
         // Reviews
         Route::post('reviews/bulk', [AdminReviewController::class, 'bulk'])
             ->middleware('permission:reviews.moderate')->name('reviews.bulk');
+=======
+
+        // Gift popup analytics & giveaways
+        Route::get('gifts', [AdminGiftController::class, 'index'])
+            ->middleware('permission:coupons.view')
+            ->name('gifts.index');
+        Route::resource('giveaways', GiveawayController::class)
+            ->middlewareFor(['index', 'show'], 'permission:coupons.view')
+            ->middlewareFor(['create', 'store'], 'permission:coupons.create')
+            ->middlewareFor(['edit', 'update'], 'permission:coupons.update')
+            ->middlewareFor(['destroy'], 'permission:coupons.delete');
+        Route::post('giveaways/{giveaway}/entries', [GiveawayController::class, 'addEntry'])
+            ->middleware('permission:coupons.update')
+            ->name('giveaways.entries.store');
+        Route::delete('giveaways/{giveaway}/entries/{entry}', [GiveawayController::class, 'removeEntry'])
+            ->middleware('permission:coupons.update')
+            ->name('giveaways.entries.destroy');
+        Route::post('giveaways/{giveaway}/draw', [GiveawayController::class, 'draw'])
+            ->middleware('permission:coupons.update')
+            ->name('giveaways.draw');
+
+        // Reviews
+>>>>>>> origin/main
         Route::resource('reviews', AdminReviewController::class)->only(['index', 'show', 'update'])
             ->middlewareFor(['index', 'show'], 'permission:reviews.view')
             ->middlewareFor(['update'], 'permission:reviews.update');
@@ -489,6 +580,7 @@ Route::middleware(['auth', 'staff', 'mfa'])
             ->middlewareFor(['create', 'store'], 'permission:faqs.create')
             ->middlewareFor(['edit', 'update'], 'permission:faqs.update')
             ->middlewareFor(['destroy'], 'permission:faqs.delete');
+<<<<<<< HEAD
 
         // Blog
         Route::post('blog/bulk', [BlogPostController::class, 'bulk'])
@@ -550,26 +642,34 @@ Route::middleware(['auth', 'staff', 'mfa'])
         Route::get('pages/{page}/preview', [CmsPageController::class, 'preview'])
             ->middleware('permission:cms.view')->name('pages.preview');
 
+=======
+>>>>>>> origin/main
         Route::resource('homepage-sections', HomepageSectionController::class)
             ->middlewareFor(['index', 'show'], 'permission:homepage.view')
             ->middlewareFor(['create', 'store'], 'permission:homepage.create')
             ->middlewareFor(['edit', 'update'], 'permission:homepage.update')
             ->middlewareFor(['destroy'], 'permission:homepage.delete');
+<<<<<<< HEAD
         Route::post('homepage-sections/bulk', [HomepageSectionController::class, 'bulk'])
             ->middleware('permission:homepage.update|homepage.delete')->name('homepage-sections.bulk');
         Route::post('homepage-sections/{homepage_section}/duplicate', [HomepageSectionController::class, 'duplicate'])
             ->middleware('permission:homepage.create')->name('homepage-sections.duplicate');
         Route::post('homepage-sections/{homepage_section}/move/{direction}', [HomepageSectionController::class, 'move'])
             ->middleware('permission:homepage.update')->name('homepage-sections.move');
+=======
+>>>>>>> origin/main
         Route::resource('banners', BannerController::class)
             ->middlewareFor(['index', 'show'], 'permission:banners.view')
             ->middlewareFor(['create', 'store'], 'permission:banners.create')
             ->middlewareFor(['edit', 'update'], 'permission:banners.update')
             ->middlewareFor(['destroy'], 'permission:banners.delete');
+<<<<<<< HEAD
         Route::post('banners/bulk', [BannerController::class, 'bulk'])
             ->middleware('permission:banners.update|banners.delete')->name('banners.bulk');
         Route::post('banners/{banner}/move/{direction}', [BannerController::class, 'move'])
             ->middleware('permission:banners.update')->name('banners.move');
+=======
+>>>>>>> origin/main
         Route::post('banners/{banner}/image', [BannerController::class, 'uploadImage'])
             ->middleware('permission:banners.update')
             ->name('banners.image.upload');
@@ -583,6 +683,7 @@ Route::middleware(['auth', 'staff', 'mfa'])
         Route::resource('shipping', ShippingController::class)->only(['index', 'store'])
             ->middlewareFor(['index'], 'permission:shipping.view')
             ->middlewareFor(['store'], 'permission:shipping.update');
+<<<<<<< HEAD
         Route::post('shipping/zones', [ShippingController::class, 'storeZone'])
             ->middleware('permission:shipping.update')->name('shipping.zones.store');
         Route::put('shipping/zones/{zone}', [ShippingController::class, 'updateZone'])
@@ -601,6 +702,8 @@ Route::middleware(['auth', 'staff', 'mfa'])
             ->middleware('permission:shipping.update')->name('shipping.shipments.update');
         Route::delete('shipping/shipments/{shipment}', [ShippingController::class, 'destroyShipment'])
             ->middleware('permission:shipping.update')->name('shipping.shipments.destroy');
+=======
+>>>>>>> origin/main
 
         // SEO
         Route::get('seo', [SettingsController::class, 'seoIndex'])
@@ -617,6 +720,7 @@ Route::middleware(['auth', 'staff', 'mfa'])
             ->middlewareFor(['create', 'store'], 'permission:staff.create')
             ->middlewareFor(['edit', 'update'], 'permission:staff.update')
             ->middlewareFor(['destroy'], 'permission:staff.delete');
+<<<<<<< HEAD
         // Matrix + clone must be registered BEFORE the roles resource so
         // GET roles/matrix is not swallowed by GET roles/{role}.
         Route::get('roles/matrix', [RoleController::class, 'matrix'])
@@ -625,6 +729,8 @@ Route::middleware(['auth', 'staff', 'mfa'])
             ->middleware('permission:roles.update')->name('roles.matrix.update');
         Route::post('roles/{role}/clone', [RoleController::class, 'cloneRole'])
             ->middleware('permission:roles.create')->name('roles.clone');
+=======
+>>>>>>> origin/main
         Route::resource('roles', RoleController::class)
             ->middlewareFor(['index', 'show'], 'permission:roles.view')
             ->middlewareFor(['create', 'store'], 'permission:roles.create')
@@ -636,6 +742,7 @@ Route::middleware(['auth', 'staff', 'mfa'])
             ->middlewareFor(['destroy'], 'permission:staff.delete');
 
         // Exchange requests
+<<<<<<< HEAD
         Route::get('exchanges/export', [ExchangeRequestController::class, 'export'])
             ->middleware('permission:exchanges.view|exchanges.export')
             ->name('exchanges.export');
@@ -648,6 +755,8 @@ Route::middleware(['auth', 'staff', 'mfa'])
         Route::post('exchanges/{exchange}/complete', [ExchangeRequestController::class, 'complete'])
             ->middleware('permission:exchanges.update')
             ->name('exchanges.complete');
+=======
+>>>>>>> origin/main
         Route::resource('exchanges', ExchangeRequestController::class)->only(['index', 'show', 'update'])
             ->middlewareFor(['index', 'show'], 'permission:exchanges.view')
             ->middlewareFor(['update'], 'permission:exchanges.update');
@@ -683,7 +792,10 @@ Route::middleware(['auth', 'staff', 'mfa'])
             ->middleware('permission:reports.export')
             ->name('reports.email');
         Route::get('reports/export/{type}', [ReportController::class, 'export'])
+<<<<<<< HEAD
             ->whereIn('type', ReportController::TYPES)
+=======
+>>>>>>> origin/main
             ->middleware('permission:reports.export')
             ->name('reports.export');
 
@@ -691,6 +803,7 @@ Route::middleware(['auth', 'staff', 'mfa'])
         Route::get('database/info', [\App\Http\Controllers\Admin\DatabaseController::class, 'info'])
             ->middleware('permission:settings.view')->name('database.info');
 
+<<<<<<< HEAD
         // System: health, backups, migrations, queue, maintenance
         Route::controller(\App\Http\Controllers\Admin\SystemController::class)
             ->group(function () {
@@ -715,6 +828,8 @@ Route::middleware(['auth', 'staff', 'mfa'])
                     ->middleware('permission:settings.update')->name('system.failed-jobs.flush');
             });
 
+=======
+>>>>>>> origin/main
         // Settings
         Route::get('settings', [SettingsController::class, 'index'])
             ->middleware('permission:settings.view')->name('settings.index');
@@ -731,10 +846,13 @@ Route::middleware(['auth', 'staff', 'mfa'])
             ->name('settings.email-test');
 
         // Audit
+<<<<<<< HEAD
         // Export routes must be registered BEFORE the audit-logs resource so
         // GET audit-logs/export is not swallowed by GET audit-logs/{audit_log}.
         Route::get('audit-logs/export', [AuditLogController::class, 'exportAudit'])
             ->middleware('permission:audit.view')->name('audit-logs.export');
+=======
+>>>>>>> origin/main
         Route::resource('audit-logs', AuditLogController::class)->only(['index', 'show'])
             ->middlewareFor(['index', 'show'], 'permission:audit.view');
         Route::get('security-events', [AuditLogController::class, 'securityEvents'])

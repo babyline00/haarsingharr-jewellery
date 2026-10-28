@@ -27,7 +27,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'first_name', 'last_name', 'name', 'email', 'phone_country', 'phone',
         'username', 'password', 'avatar', 'type', 'status',
         'two_factor_secret', 'two_factor_recovery_codes',
+<<<<<<< HEAD
         'marketing_consent', 'last_login_ip', 'internal_notes', 'tags',
+=======
+        'marketing_consent', 'last_login_ip', 'internal_notes',
+>>>>>>> origin/main
     ];
 
     protected $hidden = [
@@ -128,6 +132,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function giftClaims(): HasMany
+    {
+        return $this->hasMany(GiftClaim::class);
+    }
+
+    public function giveawayEntries(): HasMany
+    {
+        return $this->hasMany(GiveawayEntry::class);
     }
 
     public function reviews(): HasMany

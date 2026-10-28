@@ -15,7 +15,7 @@ class CategoryController extends Controller
 
         $products = $category->products()
             ->active()
-            ->with(['images', 'variants'])
+            ->with(['images', 'variants'])->withCount('wishlistItems')
             ->paginate(24);
 
         $subcategories = $category->children()->active()->ordered()->get();

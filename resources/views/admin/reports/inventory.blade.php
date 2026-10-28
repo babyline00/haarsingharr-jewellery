@@ -11,7 +11,11 @@
     </div>
 
     @include('admin.reports._tabs')
+<<<<<<< HEAD
     @include('admin.reports._period', ['type' => 'inventory', 'hasCompare' => false])
+=======
+    @include('admin.reports._period', ['type' => 'inventory'])
+>>>>>>> origin/main
 
     <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         <div class="card p-4 md:p-5">

@@ -48,7 +48,14 @@
                             <td class="p-3 text-right">
                                 <a href="{{ route('admin.store-locations.edit', $location) }}" class="text-xs text-champagne-dark hover:underline">Edit</a>
                                 @can('store_locations.delete')
+<<<<<<< HEAD
                                 <x-admin.confirm :action="route('admin.store-locations.destroy', $location)" title="Delete this location?" :message="$location->name . ' will be removed from the store locator.'" label="Delete location" />
+=======
+                                <form action="{{ route('admin.store-locations.destroy', $location) }}" method="post" class="inline" onsubmit="return confirm('Delete this location?')">
+                                    @csrf @method('DELETE')
+                                    <button class="text-xs text-danger hover:underline ml-2">Delete</button>
+                                </form>
+>>>>>>> origin/main
                                 @endcan
                             </td>
                         </tr>

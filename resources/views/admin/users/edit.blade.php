@@ -68,23 +68,34 @@
             </div>
 
             <aside class="space-y-4">
+<<<<<<< HEAD
                 @if ($canManageRoles)
+=======
+>>>>>>> origin/main
                 <div class="card p-5">
                     <h2 class="font-serif text-lg mb-3">Roles</h2>
                     <div class="space-y-2 max-h-80 overflow-y-auto">
                         @foreach ($roles as $role)
+<<<<<<< HEAD
                             @php
                                 $roleCanBeManaged = auth()->user()->isSuperAdmin()
                                     || ($role->name !== 'super-admin' && $role->permissions->every(fn ($permission) => auth()->user()->can($permission->name)));
                             @endphp
                             <label class="flex items-center gap-2 text-sm">
                                 <input type="checkbox" name="roles[]" value="{{ $role->id }}" @checked(in_array($role->id, $assigned)) @disabled(! $roleCanBeManaged)>
+=======
+                            <label class="flex items-center gap-2 text-sm">
+                                <input type="checkbox" name="roles[]" value="{{ $role->id }}" @checked(in_array($role->id, $assigned))>
+>>>>>>> origin/main
                                 {{ $role->title ?? $role->name }}
                             </label>
                         @endforeach
                     </div>
                 </div>
+<<<<<<< HEAD
                 @endif
+=======
+>>>>>>> origin/main
                 <button type="submit" class="btn-gold w-full">Save Changes</button>
             </aside>
         </div>

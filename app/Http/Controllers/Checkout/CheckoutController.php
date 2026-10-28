@@ -48,11 +48,15 @@ class CheckoutController extends Controller
         $cart->recalculate();
 
         if ($request->input('payment_method') === 'cod') {
+<<<<<<< HEAD
             // Matches CodGateway::initiate() — the admin setting wins over env.
             $maxValue = (float) \App\Models\StoreSetting::get(
                 'cod_max_order_value',
                 config('payments.gateways.cod.max_value', 200000),
             );
+=======
+            $maxValue = (float) config('payments.gateways.cod.max_value', 200000);
+>>>>>>> origin/main
             if ((float) $cart->total > $maxValue) {
                 throw ValidationException::withMessages([
                     'payment_method' => 'Cash on Delivery is not available for orders over Rs. '

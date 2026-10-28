@@ -40,7 +40,15 @@
                                             @endif
                                             <p class="text-xs text-muted mt-1">SKU: {{ $variant?->sku ?? $product?->sku }}</p>
                                         </div>
+<<<<<<< HEAD
                                         <x-admin.confirm :action="route('cart.items.destroy', $item->id)" title="Remove this piece?" :message="$product->name . ' will be removed from your bag.'" label="Remove" />
+=======
+                                        <form action="{{ route('cart.items.destroy', $item->id) }}" method="post" onsubmit="return confirm('Remove this item?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-muted hover:text-danger transition-colors text-sm flex-shrink-0" aria-label="Remove {{ $product->name }} from cart">×</button>
+                                        </form>
+>>>>>>> origin/main
                                     </div>
 
                                     <div class="flex flex-col md:flex-row md:items-end md:justify-between mt-3 gap-4">
@@ -112,7 +120,11 @@
                                     @csrf
                                     <label for="promo-code" class="text-xs font-medium uppercase tracking-widest text-charcoal-soft">Promo Code</label>
                                     <div class="flex gap-2 mt-1">
+<<<<<<< HEAD
                                         <input type="text" id="promo-code" name="code" placeholder="HAARS10" class="text-sm flex-1">
+=======
+                                        <input type="text" name="code" placeholder="HAARS10" class="text-sm flex-1">
+>>>>>>> origin/main
                                         <button type="submit" class="btn-outline text-sm shrink-0">Apply</button>
                                     </div>
                                 </form>

@@ -33,7 +33,14 @@
                                         <span class="badge bg-ivory-alt text-charcoal-soft mt-1">Default billing</span>
                                     @endif
                                 </div>
+<<<<<<< HEAD
                                 <x-admin.confirm :action="route('account.addresses.destroy', $address)" title="Delete this address?" message="This saved address will be permanently removed from your account." label="Delete address" />
+=======
+                                <form action="{{ route('account.addresses.destroy', $address) }}" method="post" onsubmit="return confirm('Delete this address?')">
+                                    @csrf @method('DELETE')
+                                    <button class="text-xs text-danger hover:underline">Delete</button>
+                                </form>
+>>>>>>> origin/main
                             </div>
                             <div class="text-sm mt-3 text-charcoal-soft">{{ $address->fullName() }}</div>
                             <div class="text-xs text-muted mt-1">{{ $address->fullAddress() }}</div>

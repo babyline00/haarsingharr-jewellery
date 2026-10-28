@@ -67,7 +67,14 @@
                                 <a href="{{ route('admin.staff.edit', $member) }}" class="text-xs text-champagne-dark hover:underline">Edit</a>
                                 @can('staff.delete')
                                 @if ($member->id !== auth()->id())
+<<<<<<< HEAD
                                 <x-admin.confirm :action="route('admin.staff.destroy', $member)" title="Remove this staff member?" :message="$member->name . ' will lose access to the admin area.'" label="Remove staff member" />
+=======
+                                <form action="{{ route('admin.staff.destroy', $member) }}" method="post" class="inline" onsubmit="return confirm('Remove this staff member?')">
+                                    @csrf @method('DELETE')
+                                    <button class="text-xs text-danger hover:underline ml-2">Delete</button>
+                                </form>
+>>>>>>> origin/main
                                 @endif
                                 @endcan
                             </td>

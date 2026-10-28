@@ -82,7 +82,14 @@
                                     </td>
                                     <td class="p-3 text-right">
                                         @can('seo.delete')
+<<<<<<< HEAD
                                         <x-admin.confirm :action="route('admin.seo.redirects.destroy', $redirect)" title="Remove this redirect?" :message="$redirect->source_url . ' will no longer point to ' . $redirect->destination_url . '.'" label="Remove redirect" />
+=======
+                                        <form action="{{ route('admin.seo.redirects.destroy', $redirect) }}" method="post" class="inline" onsubmit="return confirm('Remove this redirect?')">
+                                            @csrf @method('DELETE')
+                                            <button class="text-xs text-danger hover:underline">Delete</button>
+                                        </form>
+>>>>>>> origin/main
                                         @endcan
                                     </td>
                                 </tr>

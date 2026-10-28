@@ -21,9 +21,32 @@ class AuditLogController extends Controller
      */
     public function index(Request $request): View
     {
+<<<<<<< HEAD
         [$logs, $filters] = $this->filteredLogs($request);
 
         $logs = $logs->with('actor')->latest()->paginate(30)->withQueryString();
+=======
+        $filters = $request->only(['q', 'module', 'action', 'outcome', 'from', 'to']);
+
+        $logs = AuditLog::with('actor')
+            ->when($filters['q'] ?? null, function ($query, $term) {
+                $query->where(function ($q) use ($term) {
+                    $q->where('action', 'like', "%{$term}%")
+                        ->orWhere('module', 'like', "%{$term}%")
+                        ->orWhere('actor_email', 'like', "%{$term}%")
+                        ->orWhere('target_type', 'like', "%{$term}%")
+                        ->orWhere('note', 'like', "%{$term}%");
+                });
+            })
+            ->when($filters['module'] ?? null, fn ($q, $module) => $q->where('module', $module))
+            ->when($filters['action'] ?? null, fn ($q, $action) => $q->where('action', $action))
+            ->when($filters['outcome'] ?? null, fn ($q, $outcome) => $q->where('outcome', $outcome))
+            ->when($filters['from'] ?? null, fn ($q, $from) => $q->where('created_at', '>=', \Illuminate\Support\Carbon::parse($from)->startOfDay()))
+            ->when($filters['to'] ?? null, fn ($q, $to) => $q->where('created_at', '<=', \Illuminate\Support\Carbon::parse($to)->endOfDay()))
+            ->latest()
+            ->paginate(30)
+            ->withQueryString();
+>>>>>>> origin/main
 
         $modules = AuditLog::query()->whereNotNull('module')->distinct()->orderBy('module')->pluck('module');
         $actions = AuditLog::query()->distinct()->orderBy('action')->pluck('action');
@@ -38,6 +61,7 @@ class AuditLogController extends Controller
     {
         $auditLog->load('actor');
 
+<<<<<<< HEAD
         // Per-record activity tab: other events against the same target,
         // and other actions by the same actor, recent first.
         $relatedTarget = AuditLog::with('actor')
@@ -168,6 +192,19 @@ class AuditLogController extends Controller
         $filters = $request->only(['q', 'event_type', 'outcome', 'from', 'to']);
 
         $events = SecurityEvent::query()
+=======
+        return view('admin.audit.show', ['log' => $auditLog]);
+    }
+
+    /**
+     * Authentication / security event stream.
+     */
+    public function securityEvents(Request $request): View
+    {
+        $filters = $request->only(['q', 'event_type', 'outcome', 'from', 'to']);
+
+        $events = SecurityEvent::with('user')
+>>>>>>> origin/main
             ->when($filters['q'] ?? null, function ($query, $term) {
                 $query->where(function ($q) use ($term) {
                     $q->where('email', 'like', "%{$term}%")
@@ -179,6 +216,7 @@ class AuditLogController extends Controller
             ->when($filters['event_type'] ?? null, fn ($q, $type) => $q->where('event_type', $type))
             ->when($filters['outcome'] ?? null, fn ($q, $outcome) => $q->where('outcome', $outcome))
             ->when($filters['from'] ?? null, fn ($q, $from) => $q->where('created_at', '>=', \Illuminate\Support\Carbon::parse($from)->startOfDay()))
+<<<<<<< HEAD
             ->when($filters['to'] ?? null, fn ($q, $to) => $q->where('created_at', '<=', \Illuminate\Support\Carbon::parse($to)->endOfDay()));
 
         return [$events, $filters];
@@ -192,6 +230,12 @@ class AuditLogController extends Controller
         [$stream, $filters] = $this->filteredEvents($request);
 
         $events = $stream->with('user')->latest()->paginate(30)->withQueryString();
+=======
+            ->when($filters['to'] ?? null, fn ($q, $to) => $q->where('created_at', '<=', \Illuminate\Support\Carbon::parse($to)->endOfDay()))
+            ->latest()
+            ->paginate(30)
+            ->withQueryString();
+>>>>>>> origin/main
 
         $eventTypes = SecurityEvent::query()->distinct()->orderBy('event_type')->pluck('event_type');
 

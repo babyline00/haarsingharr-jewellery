@@ -7,7 +7,11 @@
         <div class="container-haars">
 
             {{-- Page header --}}
+<<<<<<< HEAD
             <div class="mb-8 md:mb-12" x-reveal>
+=======
+            <div class="mb-8 md:mb-12">
+>>>>>>> origin/main
                 <h1 class="font-serif text-3xl md:text-4xl lg:text-5xl">{{ $pageTitle ?? 'All Jewellery' }}</h1>
                 <p class="text-base text-muted mt-2">{{ $products->total() }} pieces — hand-crafted, hallmarked 22k gold.</p>
             </div>
@@ -23,11 +27,19 @@
                 </button>
             </div>
 
+<<<<<<< HEAD
             <div class="grid lg:grid-cols-[260px_1fr] gap-8 lg:gap-10">
 
                 {{-- Filters --}}
                 <aside class="hidden lg:block" :class="{ '!block': filtersOpen }" id="mobile-filters">
                     <div class="sticky top-24 space-y-6 rounded-xl border border-charcoal/8 bg-porcelain p-5">
+=======
+            <div class="grid lg:grid-cols-[260px_1fr] gap-8 lg:gap-10" x-data="{ filtersOpen: false }">
+
+                {{-- Filters --}}
+                <aside class="hidden lg:block" :class="{ 'block': filtersOpen }" id="mobile-filters">
+                    <div class="sticky top-24 space-y-6">
+>>>>>>> origin/main
 
                         {{-- Categories --}}
                         <div>
@@ -105,7 +117,11 @@
                     </div>
 
                     @if ($products->isNotEmpty())
+<<<<<<< HEAD
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 xl:gap-8" x-reveal="80">
+=======
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 xl:gap-8">
+>>>>>>> origin/main
                             @foreach ($products as $product)
                                 @include('storefront.product.card', ['product' => $product])
                             @endforeach
@@ -118,7 +134,11 @@
                         <div class="text-center py-16 md:py-20">
                             <svg class="w-16 h-16 mx-auto text-muted/40 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8-4v10l-8 4m0-10L4 7m8-4v10M4 7v10l8 4"/></svg>
                             <p class="font-serif text-2xl md:text-3xl text-muted mb-3">
+<<<<<<< HEAD
                                 @if (($query ?? '') !== '') No pieces found for “{{ $query }}” @else No pieces found @endif
+=======
+                                @if ($query !== '') No pieces found for “{{ $query }}” @else No pieces found @endif
+>>>>>>> origin/main
                             </p>
                             <p class="text-sm text-muted mb-6 max-w-xs mx-auto">Try adjusting your filters or explore our bridal edit.</p>
                             <div class="flex flex-col sm:flex-row gap-3 justify-center">

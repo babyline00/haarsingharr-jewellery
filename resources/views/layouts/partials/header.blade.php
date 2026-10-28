@@ -1,5 +1,6 @@
 <header class="sticky top-0 z-[var(--z-sticky)] border-b border-charcoal/8 transition-all duration-300"
         x-data="{ mobileMenu: false, searchOpen: false, scrolled: false }"
+<<<<<<< HEAD
         @keydown.escape.window="mobileMenu = false; searchOpen = false"
         x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 10 })"
         :class="scrolled ? 'bg-ivory shadow-md' : 'bg-ivory/98 backdrop-blur-lg shadow-sm'">
@@ -8,17 +9,31 @@
 
             {{-- Mobile menu trigger --}}
             <button class="xl:hidden flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-charcoal-soft transition-colors hover:bg-[#f3eadc] hover:text-charcoal"
+=======
+        x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 10 })"
+        :class="scrolled ? 'bg-ivory shadow-md' : 'bg-ivory/98 backdrop-blur-lg shadow-sm'">
+    <div class="container-haars">
+        <div class="flex items-center justify-between min-h-[64px] md:min-h-[80px] py-2 gap-4">
+
+            {{-- Mobile menu trigger --}}
+            <button class="lg:hidden flex items-center justify-center w-10 h-10 text-charcoal-soft hover:text-charcoal hover:bg-charcoal/5 rounded-md transition-all duration-1000"
+>>>>>>> origin/main
                     @click="mobileMenu = true"
                     aria-label="Open menu"
                     aria-expanded="false"
                     :aria-expanded="mobileMenu.toString()"
                     aria-controls="mobile-menu">
+<<<<<<< HEAD
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" :class="{ 'rotate-90': mobileMenu }" class="transition-transform duration-200">
+=======
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" :class="{ 'rotate-90': mobileMenu }" class="transition-transform duration-1000">
+>>>>>>> origin/main
                     <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
                 </svg>
             </button>
 
             {{-- Logo --}}
+<<<<<<< HEAD
             <a href="{{ route('home') }}" class="group flex min-w-0 shrink-0 items-center" aria-label="Haarsingharr.pk — Jewelry For Every You">
                 <img src="{{ \App\Support\Branding::logoUrl() }}" alt="Haarsingharr.pk"
                      class="h-auto w-[142px] max-w-[42vw] object-contain sm:w-[168px] xl:w-[190px]"
@@ -51,12 +66,41 @@
                                     <a href="{{ route('categories.show', $category) }}" class="block p-3 rounded-lg hover:bg-ivory-alt transition-all duration-200 group">
                                         <div class="font-serif text-base text-charcoal group-hover:translate-x-1 transition-transform duration-200">{{ $category->name }}</div>
                                         <div class="text-xs text-muted mt-0.5 line-clamp-2 group-hover:translate-x-1 transition-transform duration-200">{{ $category->short_description }}</div>
+=======
+            <a href="{{ route('home') }}" class="flex items-center group flex-shrink-0" aria-label="{{ $brand['name'] ?? 'Haarsingharr' }} — Jewelry For Every You">
+                <img src="{{ $brand['logo'] ?? asset('images/logo.png') }}" alt="{{ $brand['name'] ?? 'Haarsingharr' }}"
+                     style="height: {{ $brand['logoHeight'] ?? 56 }}px; width: auto;"
+                     class="w-auto max-w-[220px] object-contain"
+                     loading="eager">
+            </a>
+
+            {{-- Desktop primary nav --}}
+            <nav class="hidden lg:flex items-center gap-6 md:gap-8 text-sm font-medium" x-data="{ open: null }" aria-label="Main navigation">
+                <a href="{{ route('shop.index') }}" class="relative overflow-hidden group hover:text-champagne transition-colors duration-1000 whitespace-nowrap">
+                    <span class="inline-block transition-transform duration-1000 group-hover:translate-x-1">Shop All</span>
+                </a>
+                {{-- Mega menu for categories --}}
+                <div class="relative" @mouseenter="open = 'categories'" @mouseleave="open = null">
+                    <a href="#" class="relative overflow-hidden group hover:text-champagne transition-colors duration-1000 whitespace-nowrap">
+                        <span class="inline-block transition-transform duration-1000 group-hover:translate-x-1">Categories</span>
+                    </a>
+                    @if (isset($categories) || (\App\Models\Category::cached()))
+                        @php $navCategories = \App\Models\Category::cached()->where('show_in_menu', true); @endphp
+                        <div x-show="open === 'categories'" x-transition:enter="transition ease-out duration-1000" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100"
+                             class="absolute top-full left-1/2 -translate-x-1/2 pt-2 w-[640px]">
+                            <div class="bg-porcelain rounded-2xl shadow-xl border border-charcoal/5 p-6 grid grid-cols-3 gap-4">
+                                @foreach ($navCategories as $category)
+                                    <a href="{{ route('categories.show', $category) }}" class="block p-3 rounded-lg hover:bg-ivory-alt transition-all duration-1000 group">
+                                        <div class="font-serif text-base text-charcoal group-hover:translate-x-1 transition-transform duration-1000">{{ $category->name }}</div>
+                                        <div class="text-xs text-muted mt-0.5 line-clamp-2 group-hover:translate-x-1 transition-transform duration-1000">{{ $category->short_description }}</div>
+>>>>>>> origin/main
                                     </a>
                                 @endforeach
                             </div>
                         </div>
                     @endif
                 </div>
+<<<<<<< HEAD
                 <a href="{{ route('shop.bridal') }}" class="relative overflow-hidden group hover:text-champagne transition-colors duration-200 whitespace-nowrap">
                     <span class="inline-block transition-transform duration-200 group-hover:translate-x-1">Bridal</span>
                 </a>
@@ -73,23 +117,49 @@
                     <span class="inline-block transition-transform duration-200 group-hover:translate-x-1">Sale</span>
                 </a>
                 @endif
+=======
+                <a href="{{ route('shop.bridal') }}" class="relative overflow-hidden group hover:text-champagne transition-colors duration-1000 whitespace-nowrap">
+                    <span class="inline-block transition-transform duration-1000 group-hover:translate-x-1">Bridal</span>
+                </a>
+                <a href="{{ route('shop.men') }}" class="relative overflow-hidden group hover:text-champagne transition-colors duration-1000 whitespace-nowrap">
+                    <span class="inline-block transition-transform duration-1000 group-hover:translate-x-1">Men</span>
+                </a>
+                <a href="{{ route('shop.best_sellers') }}" class="relative overflow-hidden group hover:text-champagne transition-colors duration-1000 whitespace-nowrap">
+                    <span class="inline-block transition-transform duration-1000 group-hover:translate-x-1">Bestsellers</span>
+                </a>
+                <a href="{{ route('shop.new_arrivals') }}" class="relative overflow-hidden group hover:text-champagne transition-colors duration-1000 whitespace-nowrap">
+                    <span class="inline-block transition-transform duration-1000 group-hover:translate-x-1">New In</span>
+                </a>
+                <a href="{{ route('shop.sale') }}" class="relative overflow-hidden group text-rose-deep hover:text-rose-deep/80 transition-colors duration-1000 whitespace-nowrap">
+                    <span class="inline-block transition-transform duration-1000 group-hover:translate-x-1">Sale</span>
+                </a>
+>>>>>>> origin/main
             </nav>
 
             {{-- Search & actions --}}
             <div class="flex items-center gap-3 md:gap-5">
                 {{-- Search trigger --}}
                 <button @click="searchOpen = true"
+<<<<<<< HEAD
                         class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#8b5b2c]/15 bg-white/70 text-charcoal-soft transition-colors hover:border-[#8b5b2c]/35 hover:bg-[#f7efe3] hover:text-charcoal"
+=======
+                        class="lg:hidden flex items-center justify-center w-10 h-10 text-charcoal-soft hover:text-charcoal hover:bg-charcoal/5 rounded-md transition-all duration-1000"
+>>>>>>> origin/main
                         aria-label="Search"
                         aria-expanded="false"
                         :aria-expanded="searchOpen.toString()"
                         aria-controls="search-overlay">
+<<<<<<< HEAD
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="transition-transform duration-200 hover:scale-110"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16" y2="16"/></svg>
+=======
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="transition-transform duration-1000 hover:scale-110"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16" y2="16"/></svg>
+>>>>>>> origin/main
                 </button>
 
                 {{-- Account --}}
                 @auth
                     <a href="{{ auth()->user()->isStaff() ? route('admin.dashboard') : route('account.dashboard') }}"
+<<<<<<< HEAD
                        class="hidden xl:flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#8b5b2c]/15 bg-white/70 text-charcoal-soft transition-colors hover:border-[#8b5b2c]/35 hover:bg-[#f7efe3] hover:text-charcoal"
                        aria-label="Account">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="transition-transform duration-200 hover:scale-110"><circle cx="12" cy="8" r="4"/><path d="M4 22a8 8 0 0 1 16 0"/></svg>
@@ -99,15 +169,32 @@
                        class="hidden xl:flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#8b5b2c]/15 bg-white/70 text-charcoal-soft transition-colors hover:border-[#8b5b2c]/35 hover:bg-[#f7efe3] hover:text-charcoal"
                        aria-label="Login">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="transition-transform duration-200 hover:scale-110"><circle cx="12" cy="8" r="4"/><path d="M4 22a8 8 0 0 1 16 0"/></svg>
+=======
+                       class="hidden lg:flex items-center justify-center w-10 h-10 text-charcoal-soft hover:text-charcoal hover:bg-charcoal/5 rounded-md transition-all duration-1000"
+                       aria-label="Account">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="transition-transform duration-1000 hover:scale-110"><circle cx="12" cy="8" r="4"/><path d="M4 22a8 8 0 0 1 16 0"/></svg>
+                    </a>
+                @else
+                    <a href="{{ route('login') }}"
+                       class="hidden lg:flex items-center justify-center w-10 h-10 text-charcoal-soft hover:text-charcoal hover:bg-charcoal/5 rounded-md transition-all duration-1000"
+                       aria-label="Login">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="transition-transform duration-1000 hover:scale-110"><circle cx="12" cy="8" r="4"/><path d="M4 22a8 8 0 0 1 16 0"/></svg>
+>>>>>>> origin/main
                     </a>
                 @endauth
 
                 {{-- Wishlist --}}
                 @if (config('app.features.wishlist'))
                     <a href="{{ route('account.wishlist.index') }}"
+<<<<<<< HEAD
                        class="hidden xl:flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#8b5b2c]/15 bg-white/70 text-charcoal-soft transition-colors hover:border-[#8b5b2c]/35 hover:bg-[#f7efe3] hover:text-charcoal relative"
                        aria-label="Wishlist">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="transition-transform duration-200 hover:scale-110"><path d="M12 21s-7-4.5-9.5-9.5C0.5 8 3 4 6.5 4 9 4 11 5.5 12 7c1-1.5 3-3 5.5-3C21 4 23.5 8 21.5 11.5 19 16.5 12 21 12 21z"/></svg>
+=======
+                       class="hidden lg:flex items-center justify-center w-10 h-10 text-charcoal-soft hover:text-charcoal hover:bg-charcoal/5 rounded-md transition-all duration-1000 relative"
+                       aria-label="Wishlist">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="transition-transform duration-1000 hover:scale-110"><path d="M12 21s-7-4.5-9.5-9.5C0.5 8 3 4 6.5 4 9 4 11 5.5 12 7c1-1.5 3-3 5.5-3C21 4 23.5 8 21.5 11.5 19 16.5 12 21 12 21z"/></svg>
+>>>>>>> origin/main
                     </a>
                 @endif
 
@@ -116,12 +203,21 @@
                     $cartCount = app(\App\Services\CartService::class)->current()?->itemCount() ?? 0;
                 @endphp
                 <a href="{{ route('cart.index') }}"
+<<<<<<< HEAD
                    class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#8b5b2c]/20 bg-[#f4eadb] text-charcoal transition-colors hover:bg-[#ead8bd] xl:h-10 xl:w-auto xl:gap-2 xl:rounded-full xl:px-4"
                    aria-label="Shopping cart">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="xl:hidden"><path d="M3 5l3 .5 1.5 11a2 2 0 0 0 2 1.7h9a2 2 0 0 0 2-1.7L22 8H6"/><circle cx="9" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg>
                     <span class="hidden xl:inline-flex items-center gap-1.5">Cart</span>
                     @if ($cartCount > 0)
                         <span class="animate-badge-pop absolute -top-1.5 -right-1.5 bg-champagne text-charcoal text-[10px] font-semibold rounded-full w-5 h-5 flex items-center justify-center">{{ $cartCount }}</span>
+=======
+                   class="flex items-center justify-center w-10 h-10 lg:w-auto lg:h-auto lg:px-4 lg:py-2 relative text-charcoal-soft hover:text-charcoal hover:bg-charcoal/5 rounded-md transition-all duration-1000"
+                   aria-label="Shopping cart">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="lg:hidden transition-transform duration-1000 hover:scale-110"><path d="M3 5l3 .5 1.5 11a2 2 0 0 0 2 1.7h9a2 2 0 0 0 2-1.7L22 8H6"/><circle cx="9" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg>
+                    <span class="hidden lg:inline-flex items-center gap-1.5 transition-transform duration-1000 hover:translate-x-1">Cart</span>
+                    @if ($cartCount > 0)
+                        <span class="absolute -top-1.5 -right-1.5 bg-champagne text-charcoal text-[10px] font-semibold rounded-full w-5 h-5 flex items-center justify-center transition-transform duration-1000 hover:scale-110">{{ $cartCount }}</span>
+>>>>>>> origin/main
                     @endif
                 </a>
             </div>
@@ -129,7 +225,11 @@
     </div>
 
     {{-- Mobile menu drawer --}}
+<<<<<<< HEAD
     <div x-show="mobileMenu" x-cloak id="mobile-menu" role="dialog" aria-modal="true" aria-labelledby="mobile-menu-title" class="xl:hidden">
+=======
+    <div x-show="mobileMenu" x-cloak id="mobile-menu" role="dialog" aria-modal="true" aria-labelledby="mobile-menu-title" class="lg:hidden">
+>>>>>>> origin/main
         <div class="fixed inset-0 z-[var(--z-fixed)]">
             <div class="absolute inset-0 bg-charcoal/50 backdrop-blur-sm transition-opacity duration-300"
                  @click="mobileMenu = false"
@@ -158,6 +258,7 @@
                     </button>
                 </div>
                 <nav class="p-5 space-y-0" aria-label="Mobile navigation">
+<<<<<<< HEAD
                     @php
                         $mobileMenuModel = \App\Models\NavigationMenu::forLocation('mobile')
                             ?: \App\Models\NavigationMenu::forLocation('main');
@@ -167,13 +268,20 @@
                         @include('layouts.partials.menu-links', ['items' => $mobileMenuItems, 'variant' => 'mobile'])
                     @else
                     <a href="{{ route('shop.index') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-200 hover:translate-x-2 hover:text-champagne">
+=======
+                    <a href="{{ route('shop.index') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-1000 hover:translate-x-2 hover:text-champagne">
+>>>>>>> origin/main
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                         <span>Shop All</span>
                     </a>
 
                     <div x-data="{ catOpen: false }">
                         <button @click="catOpen = !catOpen"
+<<<<<<< HEAD
                                 class="w-full flex items-center justify-between py-3 border-b border-charcoal/5 text-left text-base font-medium transition-all duration-200 hover:translate-x-2 hover:text-champagne"
+=======
+                                class="w-full flex items-center justify-between py-3 border-b border-charcoal/5 text-left text-base font-medium transition-all duration-1000 hover:translate-x-2 hover:text-champagne"
+>>>>>>> origin/main
                                 aria-expanded="false" :aria-expanded="catOpen.toString()" aria-controls="mobile-categories">
                             <span class="flex items-center gap-3">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
@@ -200,6 +308,7 @@
                         </div>
                     </div>
 
+<<<<<<< HEAD
                     <a href="{{ route('shop.bridal') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-200 hover:translate-x-2 hover:text-champagne">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
                         <span>Bridal</span>
@@ -221,10 +330,34 @@
                         <span>Sale</span>
                     </a>
                         <a href="{{ route('shop.budget') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-200 hover:translate-x-2 hover:text-champagne">
+=======
+                    <a href="{{ route('shop.bridal') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-1000 hover:translate-x-2 hover:text-champagne">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                        <span>Bridal</span>
+                    </a>
+                        <a href="{{ route('shop.men') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-1000 hover:translate-x-2 hover:text-champagne">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><circle cx="12" cy="8" r="4"/><path d="M20 22v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
+                        <span>Men</span>
+                    </a>
+                        <a href="{{ route('shop.best_sellers') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-1000 hover:translate-x-2 hover:text-champagne">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <span>Bestsellers</span>
+                    </a>
+                        <a href="{{ route('shop.new_arrivals') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-1000 hover:translate-x-2 hover:text-champagne">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.49 8.49l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.49-8.49l2.83-2.83"/></svg>
+                        <span>New In</span>
+                    </a>
+                        <a href="{{ route('shop.sale') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 text-rose-deep transition-all duration-1000 hover:translate-x-2 hover:text-rose-deep/80">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                        <span>Sale</span>
+                    </a>
+                        <a href="{{ route('shop.budget') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-1000 hover:translate-x-2 hover:text-champagne">
+>>>>>>> origin/main
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                         <span>Shop by Budget</span>
                     </a>
 
+<<<<<<< HEAD
                         <a href="{{ route('about') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-200 hover:translate-x-2 hover:text-champagne">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                         <span>About</span>
@@ -241,21 +374,50 @@
                         <span>{{ auth()->user()->isStaff() ? 'Admin Dashboard' : 'My Account' }}</span>
                     </a>
                             <a href="{{ route('account.orders.index') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-200 hover:translate-x-2 hover:text-champagne">
+=======
+                        <a href="{{ route('about') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-1000 hover:translate-x-2 hover:text-champagne">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        <span>About</span>
+                    </a>
+                        <a href="{{ route('contact') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-1000 hover:translate-x-2 hover:text-champagne">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <span>Contact</span>
+                    </a>
+
+                        @auth
+                            <a href="{{ auth()->user()->isStaff() ? route('admin.dashboard') : route('account.dashboard') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-1000 hover:translate-x-2 hover:text-champagne">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <span>{{ auth()->user()->isStaff() ? 'Admin Dashboard' : 'My Account' }}</span>
+                    </a>
+                            <a href="{{ route('account.orders.index') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-1000 hover:translate-x-2 hover:text-champagne">
+>>>>>>> origin/main
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                         <span>My Orders</span>
                     </a>
                             @if (config('app.features.wishlist'))
+<<<<<<< HEAD
                                 <a href="{{ route('account.wishlist.index') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-200 hover:translate-x-2 hover:text-champagne">
+=======
+                                <a href="{{ route('account.wishlist.index') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-1000 hover:translate-x-2 hover:text-champagne">
+>>>>>>> origin/main
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><path d="M12 21s-7-4.5-9.5-9.5C0.5 8 3 4 6.5 4 9 4 11 5.5 12 7c1-1.5 3-3 5.5-3C21 4 23.5 8 21.5 11.5 19 16.5 12 21 12 21z"/></svg>
                         <span>Wishlist</span>
                     </a>
                             @endif
                         @else
+<<<<<<< HEAD
                             <a href="{{ route('login') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-200 hover:translate-x-2 hover:text-champagne">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
                         <span>Login</span>
                     </a>
                             <a href="{{ route('register') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-200 hover:translate-x-2 hover:text-champagne">
+=======
+                            <a href="{{ route('login') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-1000 hover:translate-x-2 hover:text-champagne">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                        <span>Login</span>
+                    </a>
+                            <a href="{{ route('register') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-1000 hover:translate-x-2 hover:text-champagne">
+>>>>>>> origin/main
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
                         <span>Register</span>
                     </a>
@@ -264,7 +426,11 @@
                         @php
                             $cartCount = app(\App\Services\CartService::class)->current()?->itemCount() ?? 0;
                         @endphp
+<<<<<<< HEAD
                         <a href="{{ route('cart.index') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-200 hover:translate-x-2 hover:text-champagne">
+=======
+                        <a href="{{ route('cart.index') }}" class="flex items-center gap-3 py-3 border-b border-charcoal/5 transition-all duration-1000 hover:translate-x-2 hover:text-champagne">
+>>>>>>> origin/main
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="flex-shrink-0"><path d="M3 5l3 .5 1.5 11a2 2 0 0 0 2 1.7h9a2 2 0 0 0 2-1.7L22 8H6"/><circle cx="9" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg>
                             <span>Cart</span>
                             @if ($cartCount > 0)

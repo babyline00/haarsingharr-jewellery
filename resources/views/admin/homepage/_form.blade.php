@@ -30,7 +30,11 @@
                     </div>
                     <div>
                         <label for="content">Content (HTML allowed)</label>
+<<<<<<< HEAD
                         <textarea id="content" name="content" rows="8" class="font-mono text-xs">{{ old('content', $section?->content) }}</textarea>
+=======
+                        <textarea id="content" name="content" rows="8" class="ckeditor font-mono text-xs">{{ old('content', $section?->content) }}</textarea>
+>>>>>>> origin/main
                     </div>
                 </div>
             </div>
@@ -38,8 +42,12 @@
             <div class="card p-5">
                 <h2 class="font-serif text-lg mb-1">Configuration</h2>
                 <p class="text-xs text-muted mb-3">Optional JSON payload consumed by the section view.</p>
+<<<<<<< HEAD
                 <p class="mb-3 rounded-lg bg-ivory-alt p-3 text-xs text-charcoal-soft">For a homepage Reels section, set the key to <code>trending_reels</code> and add an <code>items</code> list. Each item needs a hosted MP4 URL; poster, title and views are optional. Publish or unpublish this section to show or hide it.</p>
                 <textarea id="configuration" name="configuration" rows="8" class="font-mono text-xs" placeholder='{"items":[{"video":"https://cdn.example.com/reel.mp4","poster":"/storage/reel-cover.jpg","title":"Bridal details","views":"1.2k"}]}'>{{ $configuration }}</textarea>
+=======
+                <textarea id="configuration" name="configuration" rows="6" class="font-mono text-xs" placeholder='{"limit": 8, "background": "#fff"}'>{{ $configuration }}</textarea>
+>>>>>>> origin/main
                 @error('configuration') <p class="text-xs text-danger">{{ $message }}</p> @enderror
             </div>
         </div>

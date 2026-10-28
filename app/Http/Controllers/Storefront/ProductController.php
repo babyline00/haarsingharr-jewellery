@@ -40,7 +40,7 @@ class ProductController extends Controller
                 $q->when($sort === 'newest', fn ($q) => $q->latest());
                 $q->when($sort === 'popular', fn ($q) => $q->orderByDesc('view_count'));
             }, fn ($q) => $q->latest())
-            ->with(['images', 'variants'])
+            ->with(['images', 'variants'])->withCount('wishlistItems')
             ->paginate(24);
 
         $categories = Category::active()->root()->ordered()->get();
@@ -58,7 +58,11 @@ class ProductController extends Controller
     public function show(Product $product): View
     {
         abort_if($product->status !== ProductStatus::Active, 404);
+<<<<<<< HEAD
         $product->load(['images', 'variants.images', 'tags', 'approvedReviews' => fn ($q) => $q->latest()->limit(10)]);
+=======
+        $product->load(['images', 'variants.images', 'videos', 'tags', 'approvedReviews' => fn ($q) => $q->latest()->limit(10)]);
+>>>>>>> origin/main
         $product->recordView();
 
         // Track recently viewed products in session
@@ -70,7 +74,11 @@ class ProductController extends Controller
 
         $recentlyViewedProducts = Product::active()
             ->whereIn('id', array_slice($recentlyViewed, 1, 4))
+<<<<<<< HEAD
             ->with(['images', 'variants'])
+=======
+            ->with(['images', 'variants'])->withCount('wishlistItems')
+>>>>>>> origin/main
             ->get();
 
         return view('storefront.product.show', [
@@ -85,7 +93,7 @@ class ProductController extends Controller
     {
         $products = Product::active()->bestSellers()
             ->search($request->input('q'))
-            ->with(['images', 'variants'])
+            ->with(['images', 'variants'])->withCount('wishlistItems')
             ->paginate(24);
         return view('storefront.shop.index', [
             'products' => $products,
@@ -100,7 +108,7 @@ class ProductController extends Controller
     {
         $products = Product::active()->newArrivals()
             ->search($request->input('q'))
-            ->with(['images', 'variants'])
+            ->with(['images', 'variants'])->withCount('wishlistItems')
             ->paginate(24);
         return view('storefront.shop.index', [
             'products' => $products,
@@ -117,7 +125,7 @@ class ProductController extends Controller
             ->whereNotNull('sale_price')
             ->whereColumn('sale_price', '<', 'regular_price')
             ->search($request->input('q'))
-            ->with(['images', 'variants'])
+            ->with(['images', 'variants'])->withCount('wishlistItems')
             ->paginate(24);
         return view('storefront.shop.index', [
             'products' => $products,
@@ -132,7 +140,7 @@ class ProductController extends Controller
     {
         $products = Product::active()->bridal()
             ->search($request->input('q'))
-            ->with(['images', 'variants'])
+            ->with(['images', 'variants'])->withCount('wishlistItems')
             ->paginate(24);
         return view('storefront.shop.index', [
             'products' => $products,
@@ -147,7 +155,7 @@ class ProductController extends Controller
     {
         $products = Product::active()->men()
             ->search($request->input('q'))
-            ->with(['images', 'variants'])
+            ->with(['images', 'variants'])->withCount('wishlistItems')
             ->paginate(24);
         return view('storefront.shop.index', [
             'products' => $products,
@@ -169,7 +177,7 @@ class ProductController extends Controller
 
         [$min, $max] = $ranges[$range] ?? [0, 9999999];
         $products = Product::active()->inBudget($min, $max)
-            ->with(['images', 'variants'])->paginate(24);
+            ->with(['images', 'variants'])->withCount('wishlistItems')->paginate(24);
 
         return view('storefront.shop.index', [
             'products' => $products,

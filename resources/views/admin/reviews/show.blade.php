@@ -44,7 +44,11 @@
                 @can('reviews.update')
                 <form action="{{ route('admin.reviews.update', $review) }}" method="post">
                     @csrf @method('PUT')
+<<<<<<< HEAD
                     <textarea name="admin_response" rows="4" placeholder="Public response visible under the review">{{ old('admin_response', $review->admin_response) }}</textarea>
+=======
+                    <textarea name="admin_response" rows="4" class="ckeditor" placeholder="Public response visible under the review">{{ old('admin_response', $review->admin_response) }}</textarea>
+>>>>>>> origin/main
                     @error('admin_response') <p class="text-xs text-danger">{{ $message }}</p> @enderror
                     <label class="flex items-center gap-2 text-sm mt-3">
                         <input type="checkbox" name="is_featured" value="1" @checked(old('is_featured', $review->is_featured))>

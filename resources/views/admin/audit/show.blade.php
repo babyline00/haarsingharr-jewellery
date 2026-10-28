@@ -84,6 +84,7 @@
                     Detailed before/after payloads require the <span class="font-mono text-xs">audit.view_sensitive</span> permission.
                 </div>
             @endcan
+<<<<<<< HEAD
 
             {{-- Related activity (per-record activity tab) --}}
             <div class="card p-5">
@@ -117,6 +118,8 @@
                     </div>
                 </div>
             </div>
+=======
+>>>>>>> origin/main
         </div>
     </div>
 @endsection

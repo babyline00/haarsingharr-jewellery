@@ -46,6 +46,7 @@
         </x-slot:meta>
     </x-admin.header>
 
+<<<<<<< HEAD
     <div class="grid lg:grid-cols-3 gap-5">
         <div class="lg:col-span-2 space-y-5">
             {{-- Items + fulfilment --}}
@@ -58,6 +59,40 @@
                         </x-admin.button>
                     @endif
                 </x-slot:actions>
+=======
+        {{-- Items --}}
+        <div class="lg:col-span-2 card overflow-hidden">
+            <div class="p-5 border-b border-charcoal/5">
+                <h2 class="font-serif text-lg">Items</h2>
+            </div>
+            <div class="divide-y divide-charcoal/5">
+                @foreach ($order->items as $item)
+                    <div class="p-4 flex gap-3 items-center">
+                        <div class="w-14 h-14 bg-ivory-alt rounded-md overflow-hidden flex-shrink-0">
+                            @if ($item->product_image) <img src="{{ \App\Support\Media::url($item->product_image) }}" alt="" class="w-full h-full object-cover"> @endif
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-medium text-sm">{{ $item->product_name }}</div>
+                            @if ($item->variant_title) <div class="text-xs text-muted">{{ $item->variant_title }}</div> @endif
+                            <div class="text-xs text-muted">SKU: {{ $item->sku ?? '—' }} • Qty: {{ $item->quantity }}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-medium text-sm">Rs. {{ number_format($item->line_total) }}</div>
+                            <div class="text-xs text-muted">Rs. {{ number_format($item->unit_price) }} each</div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            <div class="p-5 border-t border-charcoal/5 space-y-2 text-sm">
+                <div class="flex justify-between"><span class="text-muted">Subtotal</span><span>Rs. {{ number_format($order->subtotal) }}</span></div>
+                @if ($order->discount_total > 0)
+                    <div class="flex justify-between text-success"><span class="text-muted">Discount {{ $order->coupon_code ? '('.$order->coupon_code.')' : '' }}</span><span>-Rs. {{ number_format($order->discount_total) }}</span></div>
+                @endif
+                <div class="flex justify-between"><span class="text-muted">Shipping</span><span>Rs. {{ number_format($order->shipping_total) }}</span></div>
+                <div class="flex justify-between font-serif text-lg pt-2 border-t border-charcoal/5"><span>Total</span><span>Rs. {{ number_format($order->grand_total) }}</span></div>
+            </div>
+        </div>
+>>>>>>> origin/main
 
                 <x-admin.table caption="Order items">
                     <thead>

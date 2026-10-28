@@ -22,11 +22,17 @@ class UserController extends Controller
             ->when($request->input('type'), fn ($q, $type) => $q->where('type', $type))
             ->when($request->input('status'), fn ($q, $status) => $q->where('status', $status))
             ->when($request->input('q'), function ($q, $term) {
+<<<<<<< HEAD
                 $q->where(function ($matches) use ($term) {
                     $matches->where('email', 'like', "%{$term}%")
                         ->orWhere('phone', 'like', "%{$term}%")
                         ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$term}%"]);
                 });
+=======
+                $q->where('email', 'like', "%{$term}%")
+                  ->orWhere('phone', 'like', "%{$term}%")
+                  ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$term}%"]);
+>>>>>>> origin/main
             })
             ->latest()
             ->paginate(20);
@@ -47,6 +53,7 @@ class UserController extends Controller
 
     public function edit(User $user): View
     {
+<<<<<<< HEAD
         $actor = auth()->user();
         abort_unless($actor && ($actor->isSuperAdmin() || (! $user->isSuperAdmin() && $user->type !== UserType::Admin)), 403);
 
@@ -65,14 +72,22 @@ class UserController extends Controller
             'user'  => $user->load('roles'),
             'roles' => $roles,
             'canManageRoles' => $user->id !== $actor->id && ($actor->isSuperAdmin() || $actor->can('roles.update')),
+=======
+        return view('admin.users.edit', [
+            'user'  => $user->load('roles'),
+            'roles' => Role::orderBy('sort_order')->get(),
+>>>>>>> origin/main
         ]);
     }
 
     public function update(Request $request, User $user)
     {
+<<<<<<< HEAD
         $actor = $request->user();
         abort_unless($actor && ($actor->isSuperAdmin() || (! $user->isSuperAdmin() && $user->type !== UserType::Admin)), 403);
 
+=======
+>>>>>>> origin/main
         $validated = $request->validate([
             'first_name' => 'required|string|max:60',
             'last_name'  => 'required|string|max:60',
@@ -85,6 +100,7 @@ class UserController extends Controller
             'roles.*'    => 'exists:roles,id',
         ]);
 
+<<<<<<< HEAD
         if ($validated['type'] === UserType::Admin->value && ! $actor->isSuperAdmin()) {
             abort(403, 'Only a super administrator can promote an account to administrator.');
         }
@@ -111,22 +127,34 @@ class UserController extends Controller
             }
         }
 
+=======
+>>>>>>> origin/main
         $user->update([
             'first_name' => $validated['first_name'],
             'last_name'  => $validated['last_name'],
             'email'      => $validated['email'],
             'phone'      => $validated['phone'] ?? null,
+<<<<<<< HEAD
             'type'       => $user->id === $actor->id ? $user->type : UserType::from($validated['type']),
             'status'     => $user->id === $actor->id ? $user->status : UserStatus::from($validated['status']),
+=======
+            'type'       => UserType::from($validated['type']),
+            'status'     => UserStatus::from($validated['status']),
+>>>>>>> origin/main
         ]);
 
         if (! empty($validated['password'])) {
             $user->update(['password' => $validated['password']]);
         }
 
+<<<<<<< HEAD
         if ($canManageRoles) {
             $user->syncRoles($names);
         }
+=======
+        $names = Role::whereIn('id', $validated['roles'] ?? [])->pluck('name')->all();
+        $user->syncRoles($names);
+>>>>>>> origin/main
 
         $this->audit->record('users.update', $user);
 
@@ -135,11 +163,17 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+<<<<<<< HEAD
         $actor = auth()->user();
         if ($user->id === $actor?->id) {
             return back()->with('error', 'You cannot delete your own account.');
         }
         abort_unless($actor && ($actor->isSuperAdmin() || (! $user->isSuperAdmin() && $user->type !== UserType::Admin)), 403);
+=======
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'You cannot delete your own account.');
+        }
+>>>>>>> origin/main
 
         $this->audit->record('users.delete', $user);
         $user->delete();

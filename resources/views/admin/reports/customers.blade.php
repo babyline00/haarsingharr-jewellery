@@ -11,6 +11,7 @@
     </div>
 
     @include('admin.reports._tabs')
+<<<<<<< HEAD
     @include('admin.reports._period', ['type' => 'customers', 'compare' => $compare, 'compareFrom' => $compareFrom, 'compareTo' => $compareTo])
 
     @include('admin.reports._stats', ['stats' => [
@@ -30,6 +31,28 @@
             />
         </div>
     @endunless
+=======
+    @include('admin.reports._period', ['type' => 'customers'])
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="card p-4 md:p-5">
+            <div class="text-xs uppercase tracking-widest text-muted">Total Customers</div>
+            <div class="font-serif text-2xl md:text-3xl mt-1.5">{{ number_format($summary['total']) }}</div>
+        </div>
+        <div class="card p-4 md:p-5">
+            <div class="text-xs uppercase tracking-widest text-muted">New (Period)</div>
+            <div class="font-serif text-2xl md:text-3xl mt-1.5 text-success">{{ number_format($summary['new']) }}</div>
+        </div>
+        <div class="card p-4 md:p-5">
+            <div class="text-xs uppercase tracking-widest text-muted">With Orders</div>
+            <div class="font-serif text-2xl md:text-3xl mt-1.5">{{ number_format($summary['with_orders']) }}</div>
+        </div>
+        <div class="card p-4 md:p-5">
+            <div class="text-xs uppercase tracking-widest text-muted">Marketing Consent</div>
+            <div class="font-serif text-2xl md:text-3xl mt-1.5">{{ number_format($summary['marketing']) }}</div>
+        </div>
+    </div>
+>>>>>>> origin/main
 
     <div class="grid lg:grid-cols-3 gap-6">
         {{-- Daily signups --}}

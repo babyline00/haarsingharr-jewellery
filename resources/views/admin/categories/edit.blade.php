@@ -27,7 +27,11 @@
                         </div>
                         <div>
                             <label for="description">Description</label>
+<<<<<<< HEAD
                             <textarea id="description" name="description" rows="5">{{ old('description', $category->description) }}</textarea>
+=======
+                            <textarea id="description" name="description" rows="5" class="ckeditor">{{ old('description', $category->description) }}</textarea>
+>>>>>>> origin/main
                         </div>
                         <div>
                             <label for="banner_image">Banner image</label>
@@ -39,8 +43,11 @@
                             @error('banner_image_file') <p class="text-xs text-danger">{{ $message }}</p> @enderror
                             <div class="mt-4">
                                 <label for="icon">Icon</label>
+<<<<<<< HEAD
                             <div class="mt-4">
                                 <label for="icon">Icon</label>
+=======
+>>>>>>> origin/main
                                 @if ($category->icon)
                                     <div class="mb-2"><img src="{{ \App\Support\Media::url($category->icon) }}" alt="" class="h-8 w-8 rounded border border-charcoal/10 object-cover"></div>
                                 @endif
@@ -101,14 +108,25 @@
 
                 <button type="submit" class="btn-gold w-full">Save Changes</button>
                 @can('categories.delete')
+<<<<<<< HEAD
                 <button type="button" class="btn-ghost w-full text-danger" @click="$dispatch('open-confirm', 'confirm-category-{{ $category->id }}')">Delete Category</button>
+=======
+                <form action="{{ route('admin.categories.destroy', $category) }}" method="post" onsubmit="return confirm('Delete this category?')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn-ghost w-full text-danger">Delete Category</button>
+                </form>
+>>>>>>> origin/main
                 @endcan
             </aside>
         </div>
     </form>
+<<<<<<< HEAD
     @can('categories.delete')
         <x-admin.confirm :action="route('admin.categories.destroy', $category)" name="category-{{ $category->id }}" title="Delete this category?" :message="$category->name . ' and its category settings will be permanently removed.'" label="Delete category" :show-trigger="false" />
     @endcan
+=======
+>>>>>>> origin/main
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -122,7 +140,11 @@
                 const file = input.files[0];
                 if (file.size > 5 * 1024 * 1024) {
                     try {
+<<<<<<< HEAD
                         const compressed = await ImageCompressor.compress(file, { maxSizeMB: 8 });
+=======
+                        const compressed = await ImageCompressor.compress(file, { maxSizeMB: 4 });
+>>>>>>> origin/main
                         if (compressed.size < file.size) {
                             const dt = new DataTransfer();
                             dt.items.add(compressed);

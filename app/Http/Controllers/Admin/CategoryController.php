@@ -7,7 +7,10 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Services\AuditService;
 use App\Support\ImageCompressor;
+<<<<<<< HEAD
 use Illuminate\Http\RedirectResponse;
+=======
+>>>>>>> origin/main
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -71,15 +74,23 @@ class CategoryController extends Controller
                 $errorCode = $_FILES[$field]['error'];
                 if ($errorCode !== UPLOAD_ERR_OK) {
                     $errorMessages = [
+<<<<<<< HEAD
                         UPLOAD_ERR_INI_SIZE => 'File exceeds server upload limit ('.ini_get('upload_max_filesize').'). Try a smaller file or contact your host.',
+=======
+                        UPLOAD_ERR_INI_SIZE => 'File exceeds server upload limit (' . ini_get('upload_max_filesize') . '). Try a smaller file or contact your host.',
+>>>>>>> origin/main
                         UPLOAD_ERR_FORM_SIZE => 'File exceeds form upload limit.',
                         UPLOAD_ERR_PARTIAL => 'File was only partially uploaded. Please try again.',
                         UPLOAD_ERR_NO_TMP_DIR => 'Server temporary directory is missing. Contact your host.',
                         UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk. Check permissions.',
                         UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the upload.',
                     ];
+<<<<<<< HEAD
 
                     return back()->withErrors([$field => $errorMessages[$errorCode] ?? 'Upload failed (error code: '.$errorCode.').'])->withInput();
+=======
+                    return back()->withErrors([$field => $errorMessages[$errorCode] ?? 'Upload failed (error code: ' . $errorCode . ').'])->withInput();
+>>>>>>> origin/main
                 }
             }
         }
@@ -102,9 +113,12 @@ class CategoryController extends Controller
             'seo_description' => 'nullable|string|max:500',
         ]);
 
+<<<<<<< HEAD
         $validated['show_in_menu'] = $request->boolean('show_in_menu');
         $validated['show_on_homepage'] = $request->boolean('show_on_homepage');
 
+=======
+>>>>>>> origin/main
         if ($request->hasFile('banner_image_file')) {
             $validated['banner_image'] = ImageCompressor::store($request->file('banner_image_file'), 'categories');
         }
@@ -143,15 +157,23 @@ class CategoryController extends Controller
                 $errorCode = $_FILES[$field]['error'];
                 if ($errorCode !== UPLOAD_ERR_OK) {
                     $errorMessages = [
+<<<<<<< HEAD
                         UPLOAD_ERR_INI_SIZE => 'File exceeds server upload limit ('.ini_get('upload_max_filesize').'). Try a smaller file or contact your host.',
+=======
+                        UPLOAD_ERR_INI_SIZE => 'File exceeds server upload limit (' . ini_get('upload_max_filesize') . '). Try a smaller file or contact your host.',
+>>>>>>> origin/main
                         UPLOAD_ERR_FORM_SIZE => 'File exceeds form upload limit.',
                         UPLOAD_ERR_PARTIAL => 'File was only partially uploaded. Please try again.',
                         UPLOAD_ERR_NO_TMP_DIR => 'Server temporary directory is missing. Contact your host.',
                         UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk. Check permissions.',
                         UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the upload.',
                     ];
+<<<<<<< HEAD
 
                     return back()->withErrors([$field => $errorMessages[$errorCode] ?? 'Upload failed (error code: '.$errorCode.').'])->withInput();
+=======
+                    return back()->withErrors([$field => $errorMessages[$errorCode] ?? 'Upload failed (error code: ' . $errorCode . ').'])->withInput();
+>>>>>>> origin/main
                 }
             }
         }
@@ -173,9 +195,12 @@ class CategoryController extends Controller
             'seo_description' => 'nullable|string|max:500',
         ]);
 
+<<<<<<< HEAD
         $validated['show_in_menu'] = $request->boolean('show_in_menu');
         $validated['show_on_homepage'] = $request->boolean('show_on_homepage');
 
+=======
+>>>>>>> origin/main
         if ($request->hasFile('banner_image_file')) {
             $validated['banner_image'] = ImageCompressor::store($request->file('banner_image_file'), 'categories');
         } elseif (empty($validated['banner_image']) && $category->banner_image) {

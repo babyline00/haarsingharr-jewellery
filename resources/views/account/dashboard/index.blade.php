@@ -16,7 +16,7 @@
                 </form>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-4 mb-8">
+            <div class="grid md:grid-cols-4 gap-4 mb-8">
                 <a href="{{ route('account.orders.index') }}" class="card p-5 hover:shadow-md transition-shadow">
                     <div class="text-xs uppercase tracking-widest text-muted">Orders</div>
                     <div class="font-serif text-2xl mt-1">{{ auth()->user()->orders()->count() }}</div>
@@ -28,6 +28,10 @@
                 <a href="{{ route('account.addresses.index') }}" class="card p-5 hover:shadow-md transition-shadow">
                     <div class="text-xs uppercase tracking-widest text-muted">Addresses</div>
                     <div class="font-serif text-2xl mt-1">{{ auth()->user()->addresses()->count() }}</div>
+                </a>
+                <a href="{{ route('account.notifications.index') }}" class="card p-5 hover:shadow-md transition-shadow">
+                    <div class="text-xs uppercase tracking-widest text-muted">Notifications</div>
+                    <div class="font-serif text-2xl mt-1">{{ auth()->user()->unreadNotifications()->count() }}</div>
                 </a>
             </div>
 

@@ -68,11 +68,15 @@
                             <td class="p-3 text-xs text-muted">{{ $user->created_at?->format('M j, Y') }}</td>
                             <td class="p-3 text-right whitespace-nowrap">
                                 <a href="{{ route('admin.users.show', $user) }}" class="text-xs text-champagne-dark hover:underline">View</a>
+<<<<<<< HEAD
                                 @if (auth()->user()->isSuperAdmin() || (! $user->isSuperAdmin() && $user->type->value !== 'admin'))
                                     <a href="{{ route('admin.users.edit', $user) }}" class="text-xs text-champagne-dark hover:underline ml-2">Edit</a>
                                 @else
                                     <span class="text-xs text-muted ml-2">Protected</span>
                                 @endif
+=======
+                                <a href="{{ route('admin.users.edit', $user) }}" class="text-xs text-champagne-dark hover:underline ml-2">Edit</a>
+>>>>>>> origin/main
                             </td>
                         </tr>
                     @endforeach

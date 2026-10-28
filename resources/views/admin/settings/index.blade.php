@@ -12,16 +12,21 @@
         'social'    => 'Social Profiles',
         'shipping'  => 'Shipping',
         'orders'    => 'Orders',
+<<<<<<< HEAD
         'checkout'  => 'Checkout Rules',
         'email'     => 'Email / From',
         'notifications' => 'Notifications',
         'homepage'  => 'Homepage',
         'legal'     => 'Legal Pages',
         'system'    => 'System',
+=======
+        'marketing' => 'Marketing & Gift Popup',
+>>>>>>> origin/main
     ];
 @endphp
 
 @section('content')
+<<<<<<< HEAD
     <x-admin.header title="Store Settings" subtitle="Brand, tax, inventory and review preferences.">
         <x-slot:actions>
             <x-admin.button :href="route('admin.settings.payments')" variant="outline" size="sm" icon="credit-card">
@@ -87,4 +92,35 @@
             </form>
         @endcan
     </div>
+=======
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="font-serif text-2xl md:text-3xl">Store Settings</h1>
+            <p class="text-sm text-muted mt-1">Brand, tax, inventory and review preferences.</p>
+        </div>
+        <a href="{{ route('admin.settings.payments') }}" class="btn-outline text-sm">Payment Settings</a>
+    </div>
+
+    @can('settings.update')
+    <form action="{{ route('admin.settings.update') }}" method="post" enctype="multipart/form-data">
+        @csrf
+        <div class="grid lg:grid-cols-2 gap-6">
+            @foreach ($groups as $module => $fields)
+                <div id="settings-{{ $module }}" class="card p-5 scroll-mt-24 {{ in_array($module, ['general'], true) ? 'lg:col-span-2' : '' }}">
+                    <h2 class="font-serif text-lg mb-4">{{ $titles[$module] ?? ucfirst($module) }}</h2>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        @include('admin.settings._fields', ['module' => $module, 'fields' => $fields])
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        <div class="mt-6 flex justify-end">
+            <button type="submit" class="btn-gold">Save Settings</button>
+        </div>
+    </form>
+    @else
+        <p class="text-sm text-muted">You do not have permission to change store settings.</p>
+    @endcan
+>>>>>>> origin/main
 @endsection

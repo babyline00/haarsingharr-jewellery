@@ -11,11 +11,20 @@
     </div>
 
     @include('admin.reports._tabs')
+<<<<<<< HEAD
     @include('admin.reports._period', ['type' => 'staff-activity', 'compare' => $compare, 'compareFrom' => $compareFrom, 'compareTo' => $compareTo])
 
     @include('admin.reports._stats', ['stats' => [
         ['label' => 'Audit Events', 'value' => number_format($total), 'key' => 'total'],
     ], 'deltas' => $deltas])
+=======
+    @include('admin.reports._period', ['type' => 'staff-activity'])
+
+    <div class="card p-4 md:p-5 mb-6 inline-flex flex-col">
+        <div class="text-xs uppercase tracking-widest text-muted">Audit Events</div>
+        <div class="font-serif text-2xl md:text-3xl mt-1.5">{{ number_format($total) }}</div>
+    </div>
+>>>>>>> origin/main
 
     <div class="grid lg:grid-cols-2 gap-6 mb-6">
         {{-- By actor --}}

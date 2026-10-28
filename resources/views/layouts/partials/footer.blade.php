@@ -5,7 +5,11 @@
             {{-- Brand & description --}}
             <div class="col-span-2 md:col-span-1">
                 <div class="mb-3">
+<<<<<<< HEAD
                     <img src="{{ \App\Support\Branding::logoUrl() }}" alt="Haarsingharr.pk" class="h-10 max-w-full rounded bg-white/95 px-2 py-1 object-contain">
+=======
+                    <img src="{{ $brand['logo'] ?? asset('images/logo.png') }}" alt="{{ $brand['name'] ?? 'Haarsingharr' }}" style="height: {{ min($brand['logoHeight'] ?? 56, 56) }}px; width: auto;" class="w-auto brightness-0 invert">
+>>>>>>> origin/main
                 </div>
                 <p class="text-ivory/70 text-sm leading-relaxed mb-4">
                     Jewelry • For Every You. Hand-crafted 22k gold and diamond jewellery for the

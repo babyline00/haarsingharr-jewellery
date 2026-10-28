@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Exports\ReportExport;
 use App\Http\Controllers\Controller;
+<<<<<<< HEAD
 use App\Mail\ReportEmailMail;
 use App\Models\AuditLog;
 use App\Models\Coupon;
@@ -26,10 +27,23 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+=======
+use App\Models\AuditLog;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Payment;
+use App\Models\ProductVariant;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
+>>>>>>> origin/main
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
+<<<<<<< HEAD
     /** Report slugs manageable through the shared export/email endpoints. */
     public const TYPES = [
         'sales', 'inventory', 'customers', 'staff-activity',
@@ -38,6 +52,8 @@ class ReportController extends Controller
 
     public function __construct(private readonly AuditService $audit) {}
 
+=======
+>>>>>>> origin/main
     /**
      * Resolve the reporting window from the request (defaults to this month).
      *
@@ -61,6 +77,7 @@ class ReportController extends Controller
         return [$from, $to];
     }
 
+<<<<<<< HEAD
     /**
      * Previous window of identical length, immediately before the current one —
      * used by the "compare" toggle.
@@ -140,6 +157,27 @@ class ReportController extends Controller
             'average'  => (float) Order::whereBetween('created_at', [$f, $t])->avg('grand_total'),
         ];
         $current = $summary($from, $to);
+=======
+    public function sales(Request $request): View
+    {
+        [$from, $to] = $this->period($request);
+
+        $base = Order::whereBetween('created_at', [$from, $to]);
+
+        $summary = [
+            'orders'      => (clone $base)->count(),
+            'revenue'     => (float) (clone $base)->sum('grand_total'),
+            'paid'        => (float) (clone $base)->sum('paid_amount'),
+            'refunded'    => (float) (clone $base)->sum('refunded_amount'),
+            'average'     => (float) (clone $base)->avg('grand_total'),
+        ];
+
+        $daily = (clone $base)
+            ->select(DB::raw('date(created_at) as day'), DB::raw('count(*) as orders'), DB::raw('sum(grand_total) as revenue'))
+            ->groupBy('day')
+            ->orderBy('day')
+            ->get();
+>>>>>>> origin/main
 
         $topProducts = OrderItem::query()
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
@@ -154,7 +192,11 @@ class ReportController extends Controller
             ->limit(10)
             ->get();
 
+<<<<<<< HEAD
         $byStatus = Order::whereBetween('created_at', [$from, $to])
+=======
+        $byStatus = (clone $base)
+>>>>>>> origin/main
             ->select('status', DB::raw('count(*) as total'))
             ->groupBy('status')
             ->get();
@@ -164,6 +206,7 @@ class ReportController extends Controller
             ->groupBy('provider')
             ->get();
 
+<<<<<<< HEAD
         $series = $this->dailyRevenue($from, $to);
         $previousSeries = $compare ? $this->dailyRevenue($cFrom, $cTo) : null;
 
@@ -185,6 +228,15 @@ class ReportController extends Controller
             'topProducts'  => $topProducts,
             'byStatus'     => $byStatus,
             'byProvider'   => $byProvider,
+=======
+        return view('admin.reports.sales', [
+            'from' => $from, 'to' => $to,
+            'summary' => $summary,
+            'daily' => $daily,
+            'topProducts' => $topProducts,
+            'byStatus' => $byStatus,
+            'byProvider' => $byProvider,
+>>>>>>> origin/main
         ]);
     }
 
@@ -197,7 +249,11 @@ class ReportController extends Controller
         $summary = [
             'variants'   => (clone $variants)->count(),
             'units'      => (int) (clone $variants)->sum('stock_quantity'),
+<<<<<<< HEAD
             'value'      => (float) (clone $variants)->sum(DB::raw('stock_quantity * COALESCE(cost_price, 0)')),
+=======
+            'value'      => (float) (clone $variants)->sum(DB::raw('stock_quantity * cost_price')),
+>>>>>>> origin/main
             'low_stock'  => (clone $variants)->whereColumn('stock_quantity', '<=', 'COALESCE(low_stock_threshold, 5)')->whereColumn('stock_quantity', '>', 'reserved_stock')->count(),
             'out_stock'  => (clone $variants)->whereColumn('stock_quantity', '<=', 'reserved_stock')->count(),
         ];
@@ -225,8 +281,11 @@ class ReportController extends Controller
     public function customers(Request $request): View
     {
         [$from, $to] = $this->period($request);
+<<<<<<< HEAD
         [$cFrom, $cTo] = $this->compareWindow($from, $to);
         $compare = $request->boolean('compare');
+=======
+>>>>>>> origin/main
 
         $newCustomers = User::customers()->whereBetween('created_at', [$from, $to])->count();
 
@@ -251,6 +310,7 @@ class ReportController extends Controller
             'marketing'    => User::customers()->where('marketing_consent', true)->count(),
         ];
 
+<<<<<<< HEAD
         $summaryFor = fn (Carbon $f, Carbon $t) => [
             'new' => (float) User::customers()->whereBetween('created_at', [$f, $t])->count(),
         ];
@@ -262,6 +322,12 @@ class ReportController extends Controller
             'summary'     => $summary,
             'deltas'      => $compare ? $this->deltas(['new' => $newCustomers], $summaryFor($cFrom, $cTo)) : [],
             'daily'        => $daily,
+=======
+        return view('admin.reports.customers', [
+            'from' => $from, 'to' => $to,
+            'summary' => $summary,
+            'daily' => $daily,
+>>>>>>> origin/main
             'topCustomers' => $topCustomers,
         ]);
     }
@@ -269,11 +335,16 @@ class ReportController extends Controller
     public function staffActivity(Request $request): View
     {
         [$from, $to] = $this->period($request);
+<<<<<<< HEAD
         [$cFrom, $cTo] = $this->compareWindow($from, $to);
         $compare = $request->boolean('compare');
 
         $logs = AuditLog::whereBetween('created_at', [$from, $to]);
         $total = (clone $logs)->count();
+=======
+
+        $logs = AuditLog::whereBetween('created_at', [$from, $to]);
+>>>>>>> origin/main
 
         $byActor = (clone $logs)
             ->select('actor_id', 'actor_email', DB::raw('count(*) as total'))
@@ -291,6 +362,7 @@ class ReportController extends Controller
 
         $recent = AuditLog::with('actor')->latest()->limit(50)->get();
 
+<<<<<<< HEAD
         $previous = AuditLog::whereBetween('created_at', [$cFrom, $cTo])->count();
 
         return view('admin.reports.staff-activity', [
@@ -299,12 +371,18 @@ class ReportController extends Controller
             'compareFrom' => $cFrom, 'compareTo' => $cTo,
             'total'   => $total,
             'deltas'  => $compare ? $this->deltas(['total' => $total], ['total' => $previous]) : [],
+=======
+        return view('admin.reports.staff-activity', [
+            'from' => $from, 'to' => $to,
+            'total' => (clone $logs)->count(),
+>>>>>>> origin/main
             'byActor' => $byActor,
             'byAction' => $byAction,
             'recent' => $recent,
         ]);
     }
 
+<<<<<<< HEAD
     // -----------------------------------------------------------------------
     // Phase 6 reports
     // -----------------------------------------------------------------------
@@ -982,5 +1060,82 @@ class ReportController extends Controller
         ]);
 
         return back()->with('success', "Report queued for {$user->email}.");
+=======
+    public function export(Request $request, string $type): StreamedResponse
+    {
+        [$from, $to] = $this->period($request);
+
+        $filename = "{$type}-report-{$from->format('Ymd')}-{$to->format('Ymd')}.csv";
+
+        return response()->streamDownload(function () use ($type, $from, $to) {
+            $out = fopen('php://output', 'w');
+
+            if ($type === 'sales') {
+                fputcsv($out, ['Order', 'Date', 'Status', 'Payment Status', 'Grand Total', 'Paid', 'Refunded']);
+                Order::whereBetween('created_at', [$from, $to])->orderBy('created_at')
+                    ->chunk(200, function ($orders) use ($out) {
+                        foreach ($orders as $order) {
+                            fputcsv($out, [
+                                $order->number,
+                                $order->created_at?->toDateTimeString(),
+                                is_object($order->status) ? $order->status->value : $order->status,
+                                is_object($order->payment_status) ? $order->payment_status->value : $order->payment_status,
+                                $order->grand_total,
+                                $order->paid_amount,
+                                $order->refunded_amount,
+                            ]);
+                        }
+                    });
+            } elseif ($type === 'inventory') {
+                fputcsv($out, ['SKU', 'Product', 'On Hand', 'Reserved', 'Available', 'Cost', 'Threshold']);
+                ProductVariant::with('product')->chunk(200, function ($variants) use ($out) {
+                    foreach ($variants as $variant) {
+                        fputcsv($out, [
+                            $variant->sku,
+                            $variant->product?->name,
+                            $variant->stock_quantity,
+                            $variant->reserved_stock,
+                            $variant->stock_quantity - $variant->reserved_stock,
+                            $variant->cost_price,
+                            $variant->low_stock_threshold,
+                        ]);
+                    }
+                });
+            } elseif ($type === 'customers') {
+                fputcsv($out, ['Name', 'Email', 'Phone', 'Orders', 'Joined']);
+                User::customers()->withCount('orders')->chunk(200, function ($users) use ($out) {
+                    foreach ($users as $user) {
+                        fputcsv($out, [
+                            $user->name,
+                            $user->email,
+                            $user->phone,
+                            $user->orders_count,
+                            $user->created_at?->toDateTimeString(),
+                        ]);
+                    }
+                });
+            } elseif ($type === 'staff-activity') {
+                fputcsv($out, ['When', 'Actor', 'Action', 'Module', 'Target', 'Outcome', 'IP']);
+                AuditLog::whereBetween('created_at', [$from, $to])->orderBy('created_at')
+                    ->chunk(200, function ($logs) use ($out) {
+                        foreach ($logs as $log) {
+                            fputcsv($out, [
+                                $log->created_at?->toDateTimeString(),
+                                $log->actor_email,
+                                $log->action,
+                                $log->module,
+                                class_basename((string) $log->target_type).($log->target_id ? '#'.$log->target_id : ''),
+                                $log->outcome,
+                                $log->ip_address,
+                            ]);
+                        }
+                    });
+            } else {
+                fputcsv($out, ['Unsupported report type']);
+            }
+
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv']);
+>>>>>>> origin/main
     }
 }

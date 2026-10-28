@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+<<<<<<< HEAD
 use App\Mail\PlainNoticeMail;
+=======
+>>>>>>> origin/main
 use App\Models\Redirect;
 use App\Models\StoreSetting;
 use App\Services\AuditService;
@@ -27,10 +30,14 @@ class SettingsController extends Controller
 
     public function update(Request $request)
     {
+<<<<<<< HEAD
         $request->validate([
             'settings' => 'array',
             'logo_file' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:5120',
         ]);
+=======
+        $request->validate(['settings' => 'array']);
+>>>>>>> origin/main
 
         $inputs = $request->input('settings', []);
         $saved = 0;
@@ -45,7 +52,28 @@ class SettingsController extends Controller
             }
 
             foreach ($fields as $key => $field) {
+<<<<<<< HEAD
                 if ($request->hasFile('logo_file') && $module === 'branding' && $key === 'store_logo_url') {
+=======
+                if (($field['type'] ?? 'text') === 'file') {
+                    $inputName = "settings.{$module}.{$key}";
+
+                    if (! $request->hasFile($inputName)) {
+                        continue;
+                    }
+
+                    $request->validate([
+                        $inputName => 'file|image|mimes:jpg,jpeg,png,webp,gif|max:5120',
+                    ]);
+
+                    $path = ImageCompressor::store(
+                        $request->file($inputName),
+                        $module === 'branding' ? 'branding' : 'marketing',
+                    );
+
+                    StoreSetting::set($field['target'] ?? $key, $path, $module);
+                    $saved++;
+>>>>>>> origin/main
                     continue;
                 }
 
@@ -64,6 +92,7 @@ class SettingsController extends Controller
             }
         }
 
+<<<<<<< HEAD
         if ($request->hasFile('logo_file')) {
             $oldLogo = StoreSetting::get('store_logo_url');
             $newLogo = ImageCompressor::store($request->file('logo_file'), 'branding');
@@ -81,12 +110,15 @@ class SettingsController extends Controller
             $saved++;
         }
 
+=======
+>>>>>>> origin/main
         $this->audit->record('settings.update', StoreSetting::class, null, ['updated' => $saved]);
 
         return back()->with('success', 'Store settings saved.');
     }
 
     // --------------------------------------------------------------------------
+<<<<<<< HEAD
     // Email / SMTP test send
     // --------------------------------------------------------------------------
     public function emailTest(Request $request)
@@ -105,6 +137,8 @@ class SettingsController extends Controller
     }
 
     // --------------------------------------------------------------------------
+=======
+>>>>>>> origin/main
     // SEO
     // --------------------------------------------------------------------------
     public function seoIndex(Request $request): View
@@ -190,10 +224,55 @@ class SettingsController extends Controller
             ],
             'branding' => [
                 'store_logo_url'    => ['label' => 'Logo URL', 'type' => 'text', 'default' => '/images/logo.png'],
+<<<<<<< HEAD
                 'store_favicon_url' => ['label' => 'Favicon URL', 'type' => 'text', 'default' => '/images/favicon.ico'],
                 'store_description' => ['label' => 'Store description (SEO)', 'type' => 'textarea', 'default' => ''],
                 'primary_color'     => ['label' => 'Primary brand colour (hex)', 'type' => 'text', 'default' => '#C8A968'],
             ],
+=======
+                'store_logo_file'   => ['label' => 'Or upload logo', 'type' => 'file', 'target' => 'store_logo_url', 'preview' => 'store_logo_url'],
+                'store_logo_height' => ['label' => 'Logo height (px)', 'type' => 'number', 'default' => 56],
+                'store_favicon_url' => ['label' => 'Favicon URL', 'type' => 'text', 'default' => '/images/favicon.ico'],
+                'store_favicon_file'=> ['label' => 'Or upload favicon', 'type' => 'file', 'target' => 'store_favicon_url', 'preview' => 'store_favicon_url'],
+                'store_description' => ['label' => 'Store description (SEO)', 'type' => 'textarea', 'default' => ''],
+                'primary_color'     => ['label' => 'Primary brand colour (hex)', 'type' => 'text', 'default' => '#C8A968'],
+            ],
+            'marketing' => [
+                'gift_popup_enabled'   => ['label' => 'Enable gift popup', 'type' => 'boolean', 'default' => false, 'help' => 'Shows once per browser session on the homepage.'],
+                'gift_popup_mode'      => [
+                    'label'   => 'Popup experience',
+                    'type'    => 'select',
+                    'default' => 'scratch',
+                    'options' => ['scratch' => 'Scratch card', 'spin' => 'Spin wheel', 'both' => 'Let the customer choose'],
+                ],
+                'gift_popup_title'     => ['label' => 'Popup title', 'type' => 'text', 'default' => 'Scratch & Win'],
+                'gift_popup_subtitle'  => ['label' => 'Popup subtitle', 'type' => 'text', 'default' => 'Scratch the card or spin the wheel to reveal your free gift.'],
+                'gift_popup_image_url' => ['label' => 'Popup banner URL', 'type' => 'text', 'default' => ''],
+                'gift_popup_image_file'=> ['label' => 'Or upload popup banner', 'type' => 'file', 'target' => 'gift_popup_image_url', 'preview' => 'gift_popup_image_url'],
+                'gift_popup_prizes'    => [
+                    'label'   => 'Prizes (one per line)',
+                    'type'    => 'textarea',
+                    'default' => "10% OFF|percentage|10|70\nFree shipping|free_shipping|0|30\nRs. 500 OFF|fixed|500|10",
+                    'help'    => 'Format: Label|type|value|weight. Type is percentage, fixed or free_shipping. Weight is relative (higher = more likely).',
+                ],
+                'gift_popup_prize'     => ['label' => 'Fallback prize label', 'type' => 'text', 'default' => '10% OFF your next order', 'help' => 'Used when the prize list above is empty.'],
+                'gift_unique_coupons'  => ['label' => 'Issue a unique single-use coupon per claim', 'type' => 'boolean', 'default' => true, 'help' => 'Recommended. Disable only to show one shared coupon code instead.'],
+                'gift_coupon_prefix'   => ['label' => 'Coupon code prefix', 'type' => 'text', 'default' => 'GIFT', 'help' => 'Letters and numbers only, e.g. GIFT.'],
+                'gift_coupon_type'     => [
+                    'label'   => 'Default coupon type',
+                    'type'    => 'select',
+                    'default' => 'percentage',
+                    'options' => ['percentage' => 'Percentage off', 'fixed' => 'Fixed amount off', 'free_shipping' => 'Free shipping'],
+                ],
+                'gift_coupon_value'    => ['label' => 'Default coupon value', 'type' => 'number', 'default' => 10],
+                'gift_coupon_min_order'=> ['label' => 'Minimum order value', 'type' => 'number', 'default' => 0],
+                'gift_coupon_expiry_days' => ['label' => 'Coupon expiry (days)', 'type' => 'number', 'default' => 30],
+                'gift_popup_coupon'    => ['label' => 'Fallback shared coupon code', 'type' => 'text', 'default' => 'WELCOME10', 'help' => 'Only used when unique coupons are disabled.'],
+                'gift_popup_button'    => ['label' => 'Claim button text', 'type' => 'text', 'default' => 'Claim my gift'],
+                'gift_popup_delay'     => ['label' => 'Show after (seconds)', 'type' => 'number', 'default' => 4],
+                'gift_popup_terms'     => ['label' => 'Terms / small print', 'type' => 'textarea', 'default' => ''],
+            ],
+>>>>>>> origin/main
             'tax' => [
                 'tax_enabled'      => ['label' => 'Enable tax', 'type' => 'boolean', 'default' => config('storefront.tax.enabled')],
                 'tax_inclusive'    => ['label' => 'Prices include tax', 'type' => 'boolean', 'default' => config('storefront.tax.inclusive')],
@@ -226,6 +305,7 @@ class SettingsController extends Controller
                 'allow_guest_checkout' => ['label' => 'Allow guest checkout', 'type' => 'boolean', 'default' => true],
                 'auto_cancel_minutes'  => ['label' => 'Auto-cancel unpaid orders after (minutes)', 'type' => 'number', 'default' => 60],
             ],
+<<<<<<< HEAD
             'checkout' => [
                 'cod_max_order_value' => [
                     'label' => 'COD maximum order value (Rs.)', 'type' => 'number', 'default' => 200000,
@@ -257,6 +337,8 @@ class SettingsController extends Controller
             'system' => [
                 'audit_retention_days' => ['label' => 'Audit log retention (days)', 'type' => 'number', 'default' => 365],
             ],
+=======
+>>>>>>> origin/main
         ];
     }
 
@@ -288,9 +370,18 @@ class SettingsController extends Controller
                 $groups[$module][] = [
                     'key'   => $key,
                     'label' => $field['label'] ?? $key,
+<<<<<<< HEAD
                     'type'  => $field['type'] ?? 'text',
                     'value' => $setting?->value ?? $setting?->data ?? ($field['default'] ?? null),
                     'help'  => $field['help'] ?? null,
+=======
+                    'type'    => $field['type'] ?? 'text',
+                    'value'   => $setting?->value ?? $setting?->data ?? ($field['default'] ?? null),
+                    'target'  => $field['target'] ?? $key,
+                    'preview' => $field['preview'] ?? null,
+                    'options' => $field['options'] ?? [],
+                    'help'    => $field['help'] ?? null,
+>>>>>>> origin/main
                 ];
             }
         }

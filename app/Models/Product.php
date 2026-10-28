@@ -103,7 +103,16 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class)->orderBy('sort_order');
     }
 
+<<<<<<< HEAD
     public function defaultVariant(): HasOne
+=======
+    public function videos(): HasMany
+    {
+        return $this->hasMany(ProductVideo::class)->orderByDesc('is_primary')->orderBy('sort_order');
+    }
+
+    public function defaultVariant(): HasMany
+>>>>>>> origin/main
     {
         return $this->hasOne(ProductVariant::class)
             ->where('is_default', true)
@@ -151,6 +160,11 @@ class Product extends Model
     public function approvedReviews(): HasMany
     {
         return $this->reviews()->where('is_approved', true)->latest();
+    }
+
+    public function wishlistItems(): HasMany
+    {
+        return $this->hasMany(WishlistItem::class);
     }
 
     public function questions(): HasMany
@@ -348,6 +362,7 @@ class Product extends Model
 
     public function availableStock(): int
     {
+<<<<<<< HEAD
         // Stock lives on variants. A product may have variants even if the
         // historical has_variants flag was never set by an older admin flow.
         $variants = $this->relationLoaded('variants')
@@ -355,6 +370,9 @@ class Product extends Model
             : $this->variants()->get();
 
         return $variants->sum(fn ($variant) => $variant->availableStock());
+=======
+        return $this->variants->sum(fn ($v) => $v->availableStock());
+>>>>>>> origin/main
     }
 
     public function inStock(): bool

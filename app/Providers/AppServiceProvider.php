@@ -4,7 +4,10 @@ namespace App\Providers;
 
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+<<<<<<< HEAD
 use Illuminate\Pagination\Paginator;
+=======
+>>>>>>> origin/main
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\View;
@@ -20,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureRateLimiting();
+<<<<<<< HEAD
 
         // One pagination language for the whole admin (and storefront).
         Paginator::defaultView('pagination.admin');
@@ -27,6 +31,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Sidebar badge counts for the admin shell.
         View::composer('admin.layout', \App\Http\View\Composers\AdminNavigationComposer::class);
+=======
+        $this->shareBranding();
+>>>>>>> origin/main
 
         // Register the strong_password rule.
         Validator::extend('strong_password', function ($attribute, $value) {
@@ -65,6 +72,35 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * Make branding available to the storefront and admin layouts without
+     * every controller having to pass it through.
+     */
+    protected function shareBranding(): void
+    {
+        try {
+            $brand = [
+                'name'       => \App\Models\StoreSetting::get('store_name', config('app.name')),
+                'logo'       => \App\Support\Brand::logoUrl(),
+                'logoHeight' => \App\Support\Brand::logoHeight(),
+                'favicon'    => \App\Support\Brand::faviconUrl(),
+            ];
+        } catch (\Throwable $e) {
+            // The settings table may not exist yet during installation.
+            $brand = [
+                'name'       => config('app.name'),
+                'logo'       => asset('images/logo.png'),
+                'logoHeight' => 56,
+                'favicon'    => asset('images/favicon.ico'),
+            ];
+        }
+
+        View::share('brand', $brand);
+    }
+
+    /**
+>>>>>>> origin/main
      * Named rate limiters referenced by the `throttle:<name>` route middleware.
      */
     protected function configureRateLimiting(): void
@@ -89,5 +125,11 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('review', fn (Request $request) => Limit::perMinutes(60, 5)
             ->by($request->user()?->id ?: $request->ip()));
+<<<<<<< HEAD
+=======
+
+        RateLimiter::for('gift', fn (Request $request) => Limit::perMinute(12)
+            ->by($request->user()?->id ?: $request->ip()));
+>>>>>>> origin/main
     }
 }

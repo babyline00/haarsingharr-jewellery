@@ -11,6 +11,7 @@
     --color-charcoal-soft: #3A3530;
     --color-charcoal-muted: #5C5650;
     --color-muted: #6F6A63;
+<<<<<<< HEAD
 
     /* Champagne brand family */
     --color-champagne: #C8A968;
@@ -19,6 +20,16 @@
     --color-champagne-light: #E8DCC8;
     --color-champagne-pale: #F5F0E8;
 
+=======
+    
+    /* Champagne brand family */
+    --color-champagne: #C8A968;
+    --color-champagne-dark: #A8854A;
+    --color-champagne-deep: #7A5F2E;
+    --color-champagne-light: #E8DCC8;
+    --color-champagne-pale: #F5F0E8;
+    
+>>>>>>> origin/main
     /* Accent colors */
     --color-rose: #B47B5A;
     --color-rose-deep: #8C4A35;
@@ -26,7 +37,11 @@
     --color-plum: #3E2B33;
     --color-sage: #6B8E6B;
     --color-sage-light: #E8F0E8;
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> origin/main
     /* Status colors */
     --color-success: #3F8E5C;
     --color-success-light: #E8F4EB;
@@ -36,7 +51,11 @@
     --color-warning-light: #FDF5E6;
     --color-info: #3A7BC8;
     --color-info-light: #E8F0FA;
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> origin/main
     /* Draft/archived */
     --color-draft: #9CA3AF;
     --color-draft-light: #F3F4F6;
@@ -482,6 +501,7 @@
     /* Alpine: hide elements until the framework initialises (prevents FOUC) */
     [x-cloak] { display: none !important; }
 
+<<<<<<< HEAD
     /* Scroll-reveal (paired with the x-reveal Alpine directive in app.js).
        `reveal-init` is only ever added by JS, so no-JS visitors keep content visible. */
     .reveal-init {
@@ -547,6 +567,8 @@
     @keyframes check-draw {
         to { stroke-dashoffset: 0; }
     }
+=======
+>>>>>>> origin/main
 }
 
 @layer utilities {

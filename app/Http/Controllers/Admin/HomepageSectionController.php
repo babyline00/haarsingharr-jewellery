@@ -16,6 +16,7 @@ class HomepageSectionController extends Controller
 
     public function index(Request $request): View
     {
+<<<<<<< HEAD
         $sections = HomepageSection::orderBy('sort_order')
             ->orderBy('id')
             ->paginate(30);
@@ -28,6 +29,11 @@ class HomepageSectionController extends Controller
                 'total'     => HomepageSection::count(),
             ],
         ]);
+=======
+        $sections = HomepageSection::orderBy('sort_order')->paginate(30);
+
+        return view('admin.homepage.index', compact('sections'));
+>>>>>>> origin/main
     }
 
     public function create(): View
@@ -74,6 +80,7 @@ class HomepageSectionController extends Controller
         return redirect()->route('admin.homepage-sections.index')->with('success', 'Homepage section deleted.');
     }
 
+<<<<<<< HEAD
     // --------------------------------------------------------------------------
     // Bulk, duplicate & ordering
     // --------------------------------------------------------------------------
@@ -186,6 +193,8 @@ class HomepageSectionController extends Controller
         return $key;
     }
 
+=======
+>>>>>>> origin/main
     private function validateSection(Request $request): array
     {
         return $request->validate([

@@ -20,7 +20,11 @@
                 </div>
                 <div>
                     <label for="answer">Answer *</label>
+<<<<<<< HEAD
                     <textarea id="answer" name="answer" rows="6" required>{{ old('answer', $faq->answer) }}</textarea>
+=======
+                    <textarea id="answer" name="answer" rows="6" required class="ckeditor">{{ old('answer', $faq->answer) }}</textarea>
+>>>>>>> origin/main
                     @error('answer') <p class="text-xs text-danger">{{ $message }}</p> @enderror
                 </div>
             </div>
@@ -42,12 +46,22 @@
                 </div>
                 <button type="submit" class="btn-gold w-full">Save Changes</button>
                 @can('faqs.delete')
+<<<<<<< HEAD
                 <button type="button" class="btn-ghost w-full text-danger" @click="$dispatch('open-confirm', 'confirm-faq-{{ $faq->id }}')">Delete FAQ</button>
+=======
+                <form action="{{ route('admin.faqs.destroy', $faq) }}" method="post" onsubmit="return confirm('Delete this FAQ?')">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="btn-ghost w-full text-danger">Delete FAQ</button>
+                </form>
+>>>>>>> origin/main
                 @endcan
             </aside>
         </div>
     </form>
+<<<<<<< HEAD
     @can('faqs.delete')
         <x-admin.confirm :action="route('admin.faqs.destroy', $faq)" name="faq-{{ $faq->id }}" title="Delete this FAQ?" :message="$faq->question" label="Delete FAQ" :show-trigger="false" />
     @endcan
+=======
+>>>>>>> origin/main
 @endsection

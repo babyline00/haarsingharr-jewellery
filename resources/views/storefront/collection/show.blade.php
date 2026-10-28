@@ -7,7 +7,11 @@
         <div class="container-haars">
 
             {{-- Header --}}
+<<<<<<< HEAD
             <div class="mb-8 md:mb-10 max-w-3xl" x-reveal>
+=======
+            <div class="mb-8 md:mb-10 max-w-3xl">
+>>>>>>> origin/main
                 <p class="text-champagne-deep text-xs font-semibold tracking-[0.3em] uppercase mb-2">Collection</p>
                 <h1 class="font-serif text-3xl md:text-4xl lg:text-5xl">{{ $collection->name }}</h1>
                 @if ($collection->description)
@@ -18,7 +22,11 @@
 
             {{-- Products --}}
             @if ($products->isNotEmpty())
+<<<<<<< HEAD
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 xl:gap-8" x-reveal="80">
+=======
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 xl:gap-8">
+>>>>>>> origin/main
                     @foreach ($products as $product)
                         @include('storefront.product.card', ['product' => $product])
                     @endforeach

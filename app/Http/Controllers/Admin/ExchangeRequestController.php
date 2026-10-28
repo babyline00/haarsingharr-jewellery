@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+<<<<<<< HEAD
 use App\Models\AuditLog;
 use App\Models\ExchangeRequest;
 use App\Models\Order;
 use App\Models\ProductVariant;
+=======
+use App\Models\ExchangeRequest;
+>>>>>>> origin/main
 use App\Services\AuditService;
 use App\Services\InventoryService;
 use Illuminate\Database\Eloquent\Builder;
@@ -27,6 +31,7 @@ class ExchangeRequestController extends Controller
 
     public function index(Request $request): View
     {
+<<<<<<< HEAD
         $exchanges = $this->filteredQuery($request)
             ->with(['order', 'orderItem', 'requestedVariant'])
             ->latest()
@@ -44,12 +49,28 @@ class ExchangeRequestController extends Controller
                 'awaiting_receipt' => ExchangeRequest::where('status', 'approved')->whereNull('received_at')->count(),
                 'completed' => ExchangeRequest::where('status', 'completed')->count(),
             ],
+=======
+        $exchanges = ExchangeRequest::with(['order', 'orderItem', 'requestedVariant'])
+            ->when($request->input('status'), fn ($q, $s) => $q->where('status', $s))
+            ->when($request->input('type'), fn ($q, $t) => $q->where('type', $t))
+            ->when($request->input('q'), function ($q, $term) {
+                $q->where('number', 'like', "%{$term}%")
+                  ->orWhereHas('order', fn ($q) => $q->where('number', 'like', "%{$term}%"));
+            })
+            ->latest()
+            ->paginate(20);
+
+        return view('admin.exchanges.index', [
+            'exchanges' => $exchanges,
+            'filters'   => $request->only(['status', 'type', 'q']),
+>>>>>>> origin/main
         ]);
     }
 
     public function show(ExchangeRequest $exchange): View
     {
         $exchange->load(['order.items', 'orderItem', 'requestedVariant.product', 'refund']);
+<<<<<<< HEAD
 
         return view('admin.exchanges.show', [
             'exchange' => $exchange,
@@ -120,10 +141,25 @@ class ExchangeRequestController extends Controller
         }
 
         $previous = $exchange->only(['status', 'admin_notes', 'refund_amount', 'return_label_url']);
+=======
+        return view('admin.exchanges.show', compact('exchange'));
+    }
+
+    public function update(Request $request, ExchangeRequest $exchange)
+    {
+        $validated = $request->validate([
+            'status'         => 'required|in:pending,reviewing,approved,rejected,completed,cancelled',
+            'admin_notes'    => 'nullable|string|max:2000',
+            'refund_amount'  => 'nullable|numeric|min:0',
+        ]);
+
+        $previous = $exchange->only(['status', 'admin_notes', 'refund_amount']);
+>>>>>>> origin/main
         $exchange->update($validated);
         $this->audit->record('exchanges.update', $exchange, $previous, $validated);
 
         return back()->with('success', 'Exchange request updated.');
+<<<<<<< HEAD
     }
 
     public function receive(Request $request, ExchangeRequest $exchange): RedirectResponse
@@ -265,5 +301,7 @@ class ExchangeRequestController extends Controller
             ->when($filters['type'] ?? null, fn ($q, $type) => $q->where('type', $type))
             ->when($filters['date_from'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '>=', $date))
             ->when($filters['date_to'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '<=', $date));
+=======
+>>>>>>> origin/main
     }
 }

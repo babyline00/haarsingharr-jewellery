@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+<<<<<<< HEAD
 use App\Models\Order;
 use App\Models\Shipment;
 use App\Models\ShippingRate;
 use App\Models\ShippingZone;
+=======
+use App\Models\Shipment;
+>>>>>>> origin/main
 use App\Models\StoreSetting;
 use App\Services\AuditService;
 use App\Services\ShipmentService;
@@ -31,13 +35,20 @@ class ShippingController extends Controller
         foreach ($this->schema() as $key => $field) {
             $setting = StoreSetting::where('key', $key)->first();
             $settings[$key] = [
+<<<<<<< HEAD
                 'key' => $key,
                 'label' => $field['label'],
                 'type' => $field['type'],
+=======
+                'key'   => $key,
+                'label' => $field['label'],
+                'type'  => $field['type'],
+>>>>>>> origin/main
                 'value' => $setting?->value ?? ($field['default'] ?? null),
             ];
         }
 
+<<<<<<< HEAD
         $filters = $request->only(['q', 'status', 'courier', 'date_from', 'date_to']);
 
         $shipments = $this->filteredShipments($request)
@@ -73,6 +84,16 @@ class ShippingController extends Controller
     }
 
     public function store(Request $request): RedirectResponse
+=======
+        $shipments = Shipment::with('order')
+            ->latest()
+            ->paginate(20);
+
+        return view('admin.shipping.index', compact('settings', 'shipments'));
+    }
+
+    public function store(Request $request)
+>>>>>>> origin/main
     {
         $request->validate(['shipping' => 'array']);
 
@@ -94,6 +115,7 @@ class ShippingController extends Controller
 
         $this->audit->record('shipping.update', StoreSetting::class);
 
+<<<<<<< HEAD
         return back()->with('success', 'Fallback shipping settings saved.');
     }
 
@@ -327,17 +349,29 @@ class ShippingController extends Controller
             ->unique()
             ->values()
             ->all();
+=======
+        return back()->with('success', 'Shipping settings saved.');
+>>>>>>> origin/main
     }
 
     private function schema(): array
     {
         return [
+<<<<<<< HEAD
             'default_method' => ['label' => 'Default shipping method', 'type' => 'text', 'default' => config('storefront.shipping.default_method')],
             'free_shipping_threshold' => ['label' => 'Free shipping over', 'type' => 'number', 'default' => config('storefront.shipping.free_shipping_threshold')],
             'flat_rate' => ['label' => 'Standard flat rate', 'type' => 'number', 'default' => config('storefront.shipping.flat_rate')],
             'express_rate' => ['label' => 'Express rate', 'type' => 'number', 'default' => config('storefront.shipping.express_rate')],
             'cod_eligible' => ['label' => 'Cash on delivery eligible', 'type' => 'boolean', 'default' => config('storefront.shipping.cod_eligible')],
             'handling_days' => ['label' => 'Handling days', 'type' => 'number', 'default' => config('storefront.shipping.handling_days')],
+=======
+            'default_method'          => ['label' => 'Default shipping method', 'type' => 'text', 'default' => config('storefront.shipping.default_method')],
+            'free_shipping_threshold' => ['label' => 'Free shipping over', 'type' => 'number', 'default' => config('storefront.shipping.free_shipping_threshold')],
+            'flat_rate'               => ['label' => 'Standard flat rate', 'type' => 'number', 'default' => config('storefront.shipping.flat_rate')],
+            'express_rate'            => ['label' => 'Express rate', 'type' => 'number', 'default' => config('storefront.shipping.express_rate')],
+            'cod_eligible'            => ['label' => 'Cash on delivery eligible', 'type' => 'boolean', 'default' => config('storefront.shipping.cod_eligible')],
+            'handling_days'           => ['label' => 'Handling days', 'type' => 'number', 'default' => config('storefront.shipping.handling_days')],
+>>>>>>> origin/main
         ];
     }
 }

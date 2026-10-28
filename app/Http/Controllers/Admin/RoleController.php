@@ -16,6 +16,7 @@ class RoleController extends Controller
 
     public function index(Request $request): View
     {
+<<<<<<< HEAD
         $search = $request->input('q');
 
         $roles = Role::with('permissions')->withCount(['permissions', 'users'])
@@ -37,10 +38,17 @@ class RoleController extends Controller
             $role->setAttribute('can_clone', $actor->isSuperAdmin()
                 || $role->permissions->every(fn ($permission) => in_array($permission->name, $availablePermissions, true)));
         });
+=======
+        $roles = Role::withCount(['permissions', 'users'])
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->paginate(20);
+>>>>>>> origin/main
 
         return view('admin.roles.index', compact('roles'));
     }
 
+<<<<<<< HEAD
     /**
      * Permission matrix: every role as a column, every permission as a row,
      * grouped by module. Saves re-sync every submitted role in one POST.
@@ -172,6 +180,8 @@ class RoleController extends Controller
         return redirect()->route('admin.roles.edit', $copy)->with('success', 'Role cloned — review and adjust its permissions.');
     }
 
+=======
+>>>>>>> origin/main
     public function create(): View
     {
         return view('admin.roles.create', [
@@ -205,8 +215,11 @@ class RoleController extends Controller
 
     public function edit(Role $role): View
     {
+<<<<<<< HEAD
         abort_unless($role->slug !== 'super-admin' || auth()->user()->isSuperAdmin(), 403);
 
+=======
+>>>>>>> origin/main
         return view('admin.roles.edit', [
             'role'   => $role->load('permissions'),
             'groups' => $this->permissionGroups(),
@@ -215,6 +228,7 @@ class RoleController extends Controller
 
     public function update(Request $request, Role $role)
     {
+<<<<<<< HEAD
         abort_unless($role->slug !== 'super-admin' || auth()->user()->isSuperAdmin(), 403);
 
         // Guard: the signed-in super-admin cannot edit their own role's
@@ -223,6 +237,8 @@ class RoleController extends Controller
             return back()->with('error', 'You cannot remove permissions from your own super-admin role.');
         }
 
+=======
+>>>>>>> origin/main
         $validated = $this->validateRole($request, $role);
 
         $role->update([
@@ -256,7 +272,12 @@ class RoleController extends Controller
     private function validateRole(Request $request, ?Role $role = null): array
     {
         $slug = $request->input('slug');
+<<<<<<< HEAD
         $validated = $request->validate([
+=======
+
+        return $request->validate([
+>>>>>>> origin/main
             'slug'        => ['required', 'string', 'max:60', 'regex:/^[a-z0-9\-]+$/', Rule::unique('roles', 'slug')->ignore($role?->id)],
             'title'       => 'nullable|string|max:120',
             'description' => 'nullable|string|max:500',
@@ -264,25 +285,33 @@ class RoleController extends Controller
             'permissions' => 'array',
             'permissions.*' => 'exists:permissions,id',
         ]);
+<<<<<<< HEAD
 
         $this->permissionsForRole($role, Permission::whereIn('id', $validated['permissions'] ?? [])->pluck('name')->all());
 
         return $validated;
+=======
+>>>>>>> origin/main
     }
 
     private function permissionGroups()
     {
+<<<<<<< HEAD
         $permissions = Permission::orderBy('module')->orderBy('action')->get();
         if (! auth()->user()->isSuperAdmin()) {
             $manageable = auth()->user()->getAllPermissions()->pluck('name')->all();
             $permissions = $permissions->whereIn('name', $manageable);
         }
         return $permissions->groupBy('module');
+=======
+        return Permission::orderBy('module')->orderBy('action')->get()->groupBy('module');
+>>>>>>> origin/main
     }
 
     private function syncPermissions(Role $role, array $permissionIds): void
     {
         $names = Permission::whereIn('id', $permissionIds)->pluck('name')->all();
+<<<<<<< HEAD
         $role->syncPermissions($this->permissionsForRole($role, $names));
     }
 
@@ -312,5 +341,8 @@ class RoleController extends Controller
 
         $manageable = auth()->user()->getAllPermissions()->pluck('name')->all();
         return $permissions->whereIn('name', $manageable)->pluck('id')->all();
+=======
+        $role->syncPermissions($names);
+>>>>>>> origin/main
     }
 }

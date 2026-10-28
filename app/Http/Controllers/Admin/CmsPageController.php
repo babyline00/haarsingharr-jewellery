@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CmsPage;
+<<<<<<< HEAD
 use App\Models\CmsPageRevision;
+=======
+>>>>>>> origin/main
 use App\Services\AuditService;
 use App\Support\ImageCompressor;
 use Illuminate\Http\Request;
@@ -88,8 +91,11 @@ class CmsPageController extends Controller
             $validated['published_at'] = $page->published_at ?? now();
         }
 
+<<<<<<< HEAD
         // Snapshot the PRE-update state so the change itself is reversible.
         $this->recordRevision($page, auth()->id());
+=======
+>>>>>>> origin/main
         $page->update($validated);
         $this->audit->record('cms.update', $page);
 
@@ -103,6 +109,7 @@ class CmsPageController extends Controller
         return redirect()->route('admin.pages.index')->with('success', 'Page archived.');
     }
 
+<<<<<<< HEAD
     // --------------------------------------------------------------------------
     // Revisions & preview
     // --------------------------------------------------------------------------
@@ -164,6 +171,8 @@ class CmsPageController extends Controller
         ]);
     }
 
+=======
+>>>>>>> origin/main
     private function validatePage(Request $request, ?CmsPage $page = null): array
     {
         // Check for PHP upload errors directly from $_FILES

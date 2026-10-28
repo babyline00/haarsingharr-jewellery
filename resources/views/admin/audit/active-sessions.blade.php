@@ -55,9 +55,12 @@
                                 @else
                                     <span class="badge bg-emerald-100 text-emerald-800 ml-2">Active</span>
                                 @endif
+<<<<<<< HEAD
                                 @can('audit.view')
                                     <x-admin.confirm :action="route('admin.sessions.revoke', $session)" method="POST" title="Revoke this session?" message="The device using this session will be signed out." label="Revoke session" />
                                 @endcan
+=======
+>>>>>>> origin/main
                             </td>
                         </tr>
                     @endforeach

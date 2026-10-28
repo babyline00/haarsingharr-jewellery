@@ -8,7 +8,10 @@ use App\Services\AuditService;
 use App\Support\ImageCompressor;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+<<<<<<< HEAD
 use Illuminate\Support\Facades\DB;
+=======
+>>>>>>> origin/main
 use Illuminate\View\View;
 
 class BannerController extends Controller
@@ -18,12 +21,15 @@ class BannerController extends Controller
     public function index(Request $request): View
     {
         $banners = Banner::when($request->input('location'), fn ($q, $l) => $q->where('location', $l))
+<<<<<<< HEAD
             ->when($request->input('q'), function ($q, $term) {
                 $q->where(function ($sub) use ($term) {
                     $sub->where('name', 'like', "%{$term}%")
                         ->orWhere('heading', 'like', "%{$term}%");
                 });
             })
+=======
+>>>>>>> origin/main
             ->orderBy('location')
             ->orderBy('sort_order')
             ->paginate(20);
@@ -31,6 +37,7 @@ class BannerController extends Controller
         return view('admin.banners.index', [
             'banners'   => $banners,
             'locations' => $this->locations(),
+<<<<<<< HEAD
             'filters'   => $request->only(['location', 'q']),
             'stats'     => [
                 'published'  => Banner::where('is_published', true)->count(),
@@ -39,6 +46,9 @@ class BannerController extends Controller
                 'impressions' => (int) Banner::sum('impressions'),
                 'clicks'     => (int) Banner::sum('clicks'),
             ],
+=======
+            'filters'   => $request->only(['location']),
+>>>>>>> origin/main
         ]);
     }
 
@@ -122,6 +132,7 @@ class BannerController extends Controller
         return redirect()->route('admin.banners.index')->with('success', 'Banner deleted.');
     }
 
+<<<<<<< HEAD
     // --------------------------------------------------------------------------
     // Bulk & ordering
     // --------------------------------------------------------------------------
@@ -192,6 +203,8 @@ class BannerController extends Controller
         return $this->move($banner, 'up');
     }
 
+=======
+>>>>>>> origin/main
     public function uploadImage(Request $request, Banner $banner): RedirectResponse
     {
         // Check for PHP upload errors directly from $_FILES
@@ -259,7 +272,10 @@ class BannerController extends Controller
             'heading'      => 'nullable|string|max:200',
             'subheading'   => 'nullable|string|max:300',
             'sort_order'   => 'sometimes|integer|min:0',
+<<<<<<< HEAD
             'alt_text'     => 'nullable|string|max:300',
+=======
+>>>>>>> origin/main
             'is_published' => 'sometimes|boolean',
             'starts_at'    => 'nullable|date',
             'ends_at'      => 'nullable|date|after_or_equal:starts_at',

@@ -34,11 +34,19 @@ class SecureHeaders
         // requires 'unsafe-eval'; without it every interactive component on the
         // storefront and admin panel silently fails.
         $csp = "default-src 'self'; ".
+<<<<<<< HEAD
                 "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com; ".
                 "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; ".
                 "font-src 'self' https://fonts.gstatic.com data:; ".
                 "img-src 'self' data: https: http: blob:; ".
                 "connect-src 'self' https://api.stripe.com; ".
+=======
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://cdn.ckeditor.com; ".
+                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; ".
+                "font-src 'self' https://fonts.gstatic.com data:; ".
+                "img-src 'self' data: https: http: blob:; ".
+                "connect-src 'self' https://api.stripe.com https://cdn.ckeditor.com; ".
+>>>>>>> origin/main
                 "frame-src 'self' https://js.stripe.com; ".
                 "object-src 'none'; ".
                 "base-uri 'self'; ".

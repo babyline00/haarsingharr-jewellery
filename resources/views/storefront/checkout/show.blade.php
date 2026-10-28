@@ -46,9 +46,15 @@
                         @if ($user && $user->addresses->isNotEmpty())
                             <div class="mb-4 space-y-2">
                                 @foreach ($user->addresses as $address)
+<<<<<<< HEAD
                                     <label class="block rounded-lg border border-charcoal/10 p-4 cursor-pointer transition-colors hover:border-champagne">
                                         <input type="radio" name="address_id" value="{{ $address->id }}" class="sr-only peer" onchange="fetch('{{ route('account.addresses.fill', $address->id) }}').then(r => r.json()).then(d => fillShipping(d))" @checked(old('address_id') == $address->id)>
                                         <div class="-m-4 rounded-lg border border-transparent p-4 transition-colors peer-checked:border-champagne peer-checked:bg-ivory-alt/30 peer-focus-visible:ring-2 peer-focus-visible:ring-champagne">
+=======
+                                    <label class="block p-4 border border-charcoal/10 rounded-lg cursor-pointer hover:border-champagne transition-colors">
+                                        <input type="radio" name="address_id" value="{{ $address->id }}" class="hidden peer" onchange="fetch('{{ route('account.addresses.fill', $address->id) }}').then(r => r.json()).then(d => fillShipping(d))">
+                                        <div class="peer-checked:border-champagne peer-checked:bg-ivory-alt/30 -m-4 p-4 rounded-lg">
+>>>>>>> origin/main
                                             <div class="font-medium text-sm">{{ $address->fullName() }}</div>
                                             <div class="text-xs text-muted mt-1">{{ $address->fullAddress() }}</div>
                                             <div class="text-xs text-muted">{{ $address->fullPhone() }}</div>
@@ -152,8 +158,13 @@
                         <legend class="font-serif text-xl mb-4">Shipping Method</legend>
                         <div class="space-y-2">
                             <label class="block p-4 border border-charcoal/10 rounded-lg cursor-pointer hover:border-champagne transition-colors">
+<<<<<<< HEAD
                                 <input type="radio" name="shipping_method" value="standard" @checked(old('shipping_method', 'standard') === 'standard') required class="sr-only peer">
                                 <div class="flex items-center justify-between rounded-md border border-transparent p-2 transition-colors peer-checked:border-champagne peer-checked:bg-ivory-alt/40 peer-focus-visible:ring-2 peer-focus-visible:ring-champagne">
+=======
+                                <input type="radio" name="shipping_method" value="standard" @checked(old('shipping_method', 'standard') === 'standard') required class="hidden peer">
+                                <div class="peer-checked:border-champagne flex items-center justify-between">
+>>>>>>> origin/main
                                     <div>
                                         <div class="font-medium">Standard delivery</div>
                                         <div class="text-xs text-muted">2–4 business days, TCS / Leopards</div>
@@ -162,8 +173,13 @@
                                 </div>
                             </label>
                             <label class="block p-4 border border-charcoal/10 rounded-lg cursor-pointer hover:border-champagne transition-colors">
+<<<<<<< HEAD
                                 <input type="radio" name="shipping_method" value="express" @checked(old('shipping_method') === 'express') class="sr-only peer">
                                 <div class="flex items-center justify-between rounded-md border border-transparent p-2 transition-colors peer-checked:border-champagne peer-checked:bg-ivory-alt/40 peer-focus-visible:ring-2 peer-focus-visible:ring-champagne">
+=======
+                                <input type="radio" name="shipping_method" value="express" @checked(old('shipping_method') === 'express') class="hidden peer">
+                                <div class="peer-checked:border-champagne flex items-center justify-between">
+>>>>>>> origin/main
                                     <div>
                                         <div class="font-medium">Express delivery</div>
                                         <div class="text-xs text-muted">Next business day, before 6pm</div>
@@ -181,8 +197,13 @@
                         <div class="space-y-2">
                             @foreach ($gateways as $code => $gateway)
                                 <label class="block p-4 border border-charcoal/10 rounded-lg cursor-pointer hover:border-champagne transition-colors">
+<<<<<<< HEAD
                                     <input type="radio" name="payment_method" value="{{ $code }}" @checked(old('payment_method', 'cod') === $code) required class="sr-only peer">
                                     <div class="flex items-center gap-3 rounded-md border border-transparent p-2 transition-colors peer-checked:border-champagne peer-checked:bg-ivory-alt/40 peer-focus-visible:ring-2 peer-focus-visible:ring-champagne">
+=======
+                                    <input type="radio" name="payment_method" value="{{ $code }}" @checked(old('payment_method', 'cod') === $code) required class="hidden peer">
+                                    <div class="peer-checked:border-champagne flex items-center gap-3">
+>>>>>>> origin/main
                                         <div>
                                             <div class="font-medium">{{ $gateway->label() }}</div>
                                             @if ($code === 'cod')

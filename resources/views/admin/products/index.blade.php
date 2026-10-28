@@ -100,6 +100,7 @@
         <span class="text-xs text-muted ml-auto">Select rows with the checkboxes, then apply an action.</span>
     </form>
 
+<<<<<<< HEAD
     <x-admin.card :padding="false">
         <x-admin.table caption="Products">
             <thead>
@@ -178,6 +179,65 @@
                                 @can('products.update')
                                     <a href="{{ route('admin.products.edit', $product) }}"
                                        class="text-xs font-medium text-champagne-dark hover:underline">Edit</a>
+=======
+    {{-- Table --}}
+    <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-ivory-alt/30 text-xs uppercase tracking-widest text-muted">
+                    <tr>
+                        <th class="text-left p-3">Product</th>
+                        <th class="text-left p-3">Category</th>
+                        <th class="text-right p-3">Price</th>
+                        <th class="text-right p-3">Stock</th>
+                        <th class="text-left p-3">Status</th>
+                        <th class="text-right p-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-charcoal/5">
+                    @foreach ($products as $product)
+                        <tr class="hover:bg-ivory-alt/30 transition-colors">
+                            <td class="p-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-ivory-alt rounded-md overflow-hidden flex-shrink-0">
+                                        @if ($path = $product->primaryImagePath())
+                                            <img src="{{ \App\Support\Media::url($path) }}" alt="" class="w-full h-full object-cover">
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <a href="{{ route('admin.products.edit', $product) }}" class="font-medium hover:text-champagne-dark transition-colors">{{ $product->name }}</a>
+                                        <div class="text-xs text-muted">SKU: {{ $product->sku ?? '—' }}</div>
+                                        @if ($product->videos_count > 0)
+                                            <div class="text-xs text-champagne-dark mt-0.5">{{ $product->videos_count }} video{{ $product->videos_count === 1 ? '' : 's' }}</div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-3 text-charcoal-soft">{{ $product->category?->name ?? '—' }}</td>
+                            <td class="p-3 text-right font-medium">Rs. {{ number_format($product->currentPrice()) }}</td>
+                            <td class="p-3 text-right">
+                                @php
+                                    $stock = $product->availableStock();
+                                    $threshold = $product->variants->min('low_stock_threshold') ?? 5;
+                                @endphp
+                                @if ($stock <= 0)
+                                    <span class="badge bg-rose-100 text-rose-800">Out of stock</span>
+                                @elseif ($stock <= $threshold)
+                                    <span class="badge bg-amber-100 text-amber-800">{{ $stock }} low</span>
+                                @else
+                                    <span class="badge bg-emerald-100 text-emerald-800">{{ $stock }}</span>
+                                @endif
+                            </td>
+                            <td class="p-3"><span class="badge {{ $product->status->color() }}">{{ $product->status->label() }}</span></td>
+                            <td class="p-3 text-right">
+                                <a href="{{ route('admin.products.edit', $product) }}" class="text-xs text-champagne-dark hover:underline">Edit</a>
+                                @can('products.delete')
+                                <form action="{{ route('admin.products.destroy', $product) }}" method="post" class="inline" onsubmit="return confirm('Archive this product?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="text-xs text-danger hover:underline ml-2">Archive</button>
+                                </form>
+>>>>>>> origin/main
                                 @endcan
 
                                 <a href="{{ route('products.show', $product->slug) }}" target="_blank" rel="noopener"

@@ -144,7 +144,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'orders.view', 'customers.view', 'customers.update',
             'products.view', 'reviews.view', 'reviews.moderate',
             'contacts.view', 'contacts.update',
+<<<<<<< HEAD
             'questions.view', 'questions.update', 'questions.answer',
+=======
+>>>>>>> origin/main
         ])->pluck('id');
         Role::where('slug', 'customer-support')->first()->permissions()->sync($supportPerms);
 

@@ -11,6 +11,7 @@
     </div>
 
     @include('admin.reports._tabs')
+<<<<<<< HEAD
     @include('admin.reports._period', ['type' => 'sales', 'compare' => $compare, 'compareFrom' => $compareFrom, 'compareTo' => $compareTo])
 
     @unless (empty($chart['labels']))
@@ -38,6 +39,33 @@
         ['label' => 'Refunded', 'value' => 'Rs. '.number_format($summary['refunded']), 'key' => 'refunded'],
         ['label' => 'Avg. Order Value', 'value' => 'Rs. '.number_format($summary['average']), 'key' => 'average'],
     ], 'deltas' => $deltas])
+=======
+    @include('admin.reports._period', ['type' => 'sales'])
+
+    {{-- Summary --}}
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        <div class="card p-4 md:p-5">
+            <div class="text-xs uppercase tracking-widest text-muted">Orders</div>
+            <div class="font-serif text-2xl md:text-3xl mt-1.5">{{ number_format($summary['orders']) }}</div>
+        </div>
+        <div class="card p-4 md:p-5">
+            <div class="text-xs uppercase tracking-widest text-muted">Revenue</div>
+            <div class="font-serif text-2xl md:text-3xl mt-1.5">Rs. {{ number_format($summary['revenue']) }}</div>
+        </div>
+        <div class="card p-4 md:p-5">
+            <div class="text-xs uppercase tracking-widest text-muted">Paid</div>
+            <div class="font-serif text-2xl md:text-3xl mt-1.5">Rs. {{ number_format($summary['paid']) }}</div>
+        </div>
+        <div class="card p-4 md:p-5">
+            <div class="text-xs uppercase tracking-widest text-muted">Refunded</div>
+            <div class="font-serif text-2xl md:text-3xl mt-1.5">Rs. {{ number_format($summary['refunded']) }}</div>
+        </div>
+        <div class="card p-4 md:p-5">
+            <div class="text-xs uppercase tracking-widest text-muted">Avg. Order Value</div>
+            <div class="font-serif text-2xl md:text-3xl mt-1.5">Rs. {{ number_format($summary['average']) }}</div>
+        </div>
+    </div>
+>>>>>>> origin/main
 
     <div class="grid lg:grid-cols-3 gap-6">
         {{-- Daily --}}
