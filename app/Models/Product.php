@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
@@ -18,7 +19,9 @@ use Spatie\Sluggable\SlugOptions;
 
 class Product extends Model
 {
-    use HasFactory, HasSlug, HasUuid, LogsActivity, SoftDeletes;
+    use HasFactory, HasSlug, HasUuid, LogsActivity, SoftDeletes {
+        HasUuid::getRouteKey insteadof HasSlug;
+    }
 
     protected $fillable = [
         'category_id', 'subcategory_id', 'name', 'slug', 'sku', 'barcode',
@@ -37,6 +40,7 @@ class Product extends Model
     protected function casts(): array
     {
         return [
+            'status'               => ProductStatus::class,
             'regular_price'        => 'decimal:2',
             'sale_price'           => 'decimal:2',
             'cost_price'           => 'decimal:2',
@@ -83,7 +87,7 @@ class Product extends Model
 
     public function images(): HasMany
     {
-        return $this->hasMany(ProductImage::class)->orderBy('sort_order');
+        return $this->hasMany(ProductImage::class)->orderByDesc('is_primary')->orderBy('sort_order');
     }
 
     public function primaryImage(): BelongsTo
@@ -99,15 +103,16 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class)->orderBy('sort_order');
     }
 
-    public function defaultVariant(): HasMany
+    public function defaultVariant(): HasOne
     {
-        return $this->hasMany(ProductVariant::class)
-            ->where('is_default', true)->orWhere('is_default', false)->oldest();
+        return $this->hasOne(ProductVariant::class)
+            ->where('is_default', true)
+            ->orderBy('sort_order');
     }
 
     public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(ProductTag::class);
+        return $this->belongsToMany(ProductTag::class, 'product_tag', 'product_id', 'product_tag_id');
     }
 
     public function collections(): BelongsToMany
@@ -247,7 +252,14 @@ class Product extends Model
     // --------------------------------------------------------------------------
     public function currentPrice(): float
     {
-        $variant = $this->variants()->where('is_default', true)->first();
+        $variants = $this->relationLoaded('variants')
+            ? $this->variants
+            : $this->variants()->get();
+
+        $variant = $variants->firstWhere('is_default', true)
+            ?? $variants->first(fn (ProductVariant $variant) => $variant->status === 'active')
+            ?? $variants->first();
+
         if ($variant) {
             return $variant->currentPrice();
         }
@@ -255,6 +267,61 @@ class Product extends Model
             return (float) $this->sale_price;
         }
         return (float) $this->regular_price ?: 0;
+    }
+
+    /**
+     * [min, max] sellable price across active variants. Useful for showing
+     * "From Rs. X" on product cards.
+     *
+     * @return array{0: ?float, 1: ?float}
+     */
+    public function priceRange(): array
+    {
+        $variants = $this->relationLoaded('variants')
+            ? $this->variants
+            : $this->variants()->get();
+
+        $prices = $variants
+            ->filter(fn (ProductVariant $variant) => $variant->status === 'active')
+            ->map(fn (ProductVariant $variant) => $variant->currentPrice())
+            ->sort()
+            ->values();
+
+        if ($prices->isEmpty()) {
+            return [null, null];
+        }
+
+        return [$prices->first(), $prices->last()];
+    }
+
+    /**
+     * Attribute names that drive variant selection, e.g. ['Size', 'Colour'].
+     * Falls back to the attribute keys found on the variants themselves when
+     * the flag was never populated by an older admin flow.
+     *
+     * @return \Illuminate\Support\Collection<int, string>
+     */
+    public function variantAttributeNames(): \Illuminate\Support\Collection
+    {
+        $declared = collect($this->variant_attributes ?? [])->filter()->values();
+
+        $variants = $this->relationLoaded('variants')
+            ? $this->variants
+            : $this->variants()->get();
+
+        $fromVariants = $variants
+            ->filter(fn (ProductVariant $variant) => is_array($variant->attributes))
+            ->flatMap(fn (ProductVariant $variant) => array_keys($variant->attributes))
+            ->map(fn ($name) => trim((string) $name))
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($declared->isEmpty()) {
+            return $fromVariants;
+        }
+
+        return $declared->merge($fromVariants)->unique()->values();
     }
 
     public function isOnSale(): bool
@@ -281,10 +348,13 @@ class Product extends Model
 
     public function availableStock(): int
     {
-        if (! $this->has_variants) {
-            return 0;
-        }
-        return $this->variants->sum(fn ($v) => $v->availableStock());
+        // Stock lives on variants. A product may have variants even if the
+        // historical has_variants flag was never set by an older admin flow.
+        $variants = $this->relationLoaded('variants')
+            ? $this->variants
+            : $this->variants()->get();
+
+        return $variants->sum(fn ($variant) => $variant->availableStock());
     }
 
     public function inStock(): bool

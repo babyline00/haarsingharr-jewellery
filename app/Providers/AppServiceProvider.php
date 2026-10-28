@@ -2,7 +2,12 @@
 
 namespace App\Providers;
 
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -14,6 +19,15 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->configureRateLimiting();
+
+        // One pagination language for the whole admin (and storefront).
+        Paginator::defaultView('pagination.admin');
+        Paginator::defaultSimpleView('pagination.admin');
+
+        // Sidebar badge counts for the admin shell.
+        View::composer('admin.layout', \App\Http\View\Composers\AdminNavigationComposer::class);
+
         // Register the strong_password rule.
         Validator::extend('strong_password', function ($attribute, $value) {
             return (new \App\Rules\StrongPassword())->passes($attribute, $value);
@@ -48,5 +62,32 @@ class AppServiceProvider extends ServiceProvider
         Validator::extend('international_phone', function ($attribute, $value) {
             return (bool) preg_match('/^\+?\d{6,15}$/', $value);
         });
+    }
+
+    /**
+     * Named rate limiters referenced by the `throttle:<name>` route middleware.
+     */
+    protected function configureRateLimiting(): void
+    {
+        RateLimiter::for('login', fn (Request $request) => Limit::perMinutes(15, 5)
+            ->by($request->input('email').'|'.$request->ip()));
+
+        RateLimiter::for('reset', fn (Request $request) => Limit::perMinutes(60, 3)
+            ->by($request->input('email').'|'.$request->ip()));
+
+        RateLimiter::for('register', fn (Request $request) => Limit::perMinutes(30, 3)
+            ->by($request->ip()));
+
+        RateLimiter::for('checkout', fn (Request $request) => Limit::perMinute(5)
+            ->by($request->user()?->id ?: $request->ip()));
+
+        RateLimiter::for('contact', fn (Request $request) => Limit::perMinutes(15, 5)
+            ->by($request->ip()));
+
+        RateLimiter::for('newsletter', fn (Request $request) => Limit::perMinutes(10, 3)
+            ->by($request->ip()));
+
+        RateLimiter::for('review', fn (Request $request) => Limit::perMinutes(60, 5)
+            ->by($request->user()?->id ?: $request->ip()));
     }
 }

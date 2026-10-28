@@ -5,12 +5,12 @@
 @section('content')
     <section class="py-12">
         <div class="container-haars max-w-5xl">
-            <div class="grid lg:grid-cols-2 gap-12">
+            <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
 
                 {{-- Contact info --}}
                 <div>
-                    <h1 class="font-serif text-3xl md:text-4xl mb-4">Get in Touch</h1>
-                    <p class="text-sm text-muted mb-8 leading-relaxed">
+                    <h1 class="font-serif text-3xl md:text-4xl lg:text-5xl mb-4">Get in Touch</h1>
+                    <p class="text-base text-muted mb-8 leading-relaxed">
                         For order enquiries, bespoke consultations, or simply to say hello — our
                         concierge team is here to help. We typically respond within 24 hours.
                     </p>
@@ -22,7 +22,7 @@
                             </div>
                             <div>
                                 <div class="text-xs uppercase tracking-widest text-muted">WhatsApp</div>
-                                <a href="https://wa.me/{{ preg_replace('/\D/', '', config('storefront.contact.whatsapp')) }}" target="_blank" class="hover:text-champagne-dark transition-colors">{{ config('storefront.contact.whatsapp') }}</a>
+                                <a href="https://wa.me/{{ preg_replace('/\D/', '', config('storefront.contact.whatsapp')) }}" target="_blank" rel="noopener" class="hover:text-champagne-dark transition-colors">{{ config('storefront.contact.whatsapp') }}</a>
                             </div>
                         </div>
                         <div class="flex items-start gap-3">
@@ -71,26 +71,27 @@
 
                 {{-- Contact form --}}
                 <div class="card p-6 md:p-8">
+                    <h2 class="font-serif text-xl mb-6">Send us a message</h2>
                     <form action="{{ route('contact.store') }}" method="post">
                         @csrf
                         <div class="grid sm:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label for="name">Name</label>
-                                <input type="text" id="name" name="name" required value="{{ old('name') }}">
+                                <input type="text" id="name" name="name" required value="{{ old('name') }}" class="text-sm">
                                 @error('name') <p class="text-xs text-danger">{{ $message }}</p> @enderror
                             </div>
                             <div>
                                 <label for="email">Email</label>
-                                <input type="email" id="email" name="email" required value="{{ old('email') }}">
+                                <input type="email" id="email" name="email" required value="{{ old('email') }}" class="text-sm">
                                 @error('email') <p class="text-xs text-danger">{{ $message }}</p> @enderror
                             </div>
                             <div>
                                 <label for="phone">Phone</label>
-                                <input type="tel" id="phone" name="phone" value="{{ old('phone') }}">
+                                <input type="tel" id="phone" name="phone" value="{{ old('phone') }}" class="text-sm">
                             </div>
                             <div>
                                 <label for="subject">Subject</label>
-                                <input type="text" id="subject" name="subject" value="{{ old('subject') }}">
+                                <input type="text" id="subject" name="subject" value="{{ old('subject') }}" class="text-sm">
                             </div>
                         </div>
 
@@ -107,7 +108,7 @@
 
                         <div class="mb-4">
                             <label for="message">Message</label>
-                            <textarea id="message" name="message" rows="6" required>{{ old('message') }}</textarea>
+                            <textarea id="message" name="message" rows="6" required class="text-sm">{{ old('message') }}</textarea>
                             @error('message') <p class="text-xs text-danger">{{ $message }}</p> @enderror
                         </div>
 

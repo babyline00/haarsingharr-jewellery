@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ProductRequest extends FormRequest
 {
@@ -13,9 +14,15 @@ class ProductRequest extends FormRequest
 
     public function rules(): array
     {
+        $skuRule = Rule::unique('products', 'sku');
+
+        if ($product = $this->route('product')) {
+            $skuRule->ignore($product);
+        }
+
         $rules = [
             'name'              => 'required|string|max:200',
-            'sku'               => 'nullable|string|max:60|unique:products,sku',
+            'sku'               => ['nullable', 'string', 'max:60', $skuRule],
             'barcode'           => 'nullable|string|max:60',
             'category_id'       => 'nullable|exists:categories,id',
             'subcategory_id'    => 'nullable|exists:categories,id',
@@ -37,12 +44,18 @@ class ProductRequest extends FormRequest
             'metal'             => 'nullable|string|max:60',
             'gemstone'          => 'nullable|string|max:60',
             'carat'             => 'nullable|numeric|min:0|max:999',
+            'size'              => 'nullable|string|max:40',
+            'colour'            => 'nullable|string|max:40',
             'dimensions'        => 'nullable|string|max:100',
             'material'          => 'nullable|string|max:100',
             'care_instructions'=> 'nullable|string|max:2000',
             'seo_title'          => 'nullable|string|max:200',
             'seo_description'   => 'nullable|string|max:500',
             'seo_image'         => 'nullable|string|max:300',
+            'canonical_url'      => 'nullable|string|max:300',
+            'images'             => 'sometimes|array|max:10',
+            'images.*'           => 'image|mimes:jpg,jpeg,png,webp,gif|max:5120',
+            'image_alt_text'     => 'nullable|string|max:200',
         ];
 
         // Cost price requires elevated permission

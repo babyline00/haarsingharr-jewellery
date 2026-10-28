@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Storefront\ProductSearchRequest;
+use App\Enums\ProductStatus;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Product;
@@ -21,12 +22,17 @@ class ProductController extends Controller
                 if ($cat) $q->where('category_id', $cat->id);
             })
             ->when($request->input('min'), function ($q, $min) {
-                $q->where('sale_price', '>=', $min)
-                    ->orWhere('regular_price', '>=', $min);
+                // Grouped so the OR cannot escape the other query constraints.
+                $q->where(function ($w) use ($min) {
+                    $w->where('sale_price', '>=', $min)
+                        ->orWhere('regular_price', '>=', $min);
+                });
             })
             ->when($request->input('max'), function ($q, $max) {
-                $q->where('sale_price', '<=', $max)
-                    ->orWhere('regular_price', '<=', $max);
+                $q->where(function ($w) use ($max) {
+                    $w->where('sale_price', '<=', $max)
+                        ->orWhere('regular_price', '<=', $max);
+                });
             })
             ->when($request->input('sort'), function ($q, $sort) {
                 $q->when($sort === 'price_asc', fn ($q) => $q->orderByRaw('COALESCE(sale_price, regular_price) ASC'));
@@ -45,19 +51,33 @@ class ProductController extends Controller
             'categories'  => $categories,
             'collections' => $collections,
             'filters'     => $request->only(['q', 'category', 'min', 'max', 'sort']),
+            'query'       => (string) $request->input('q'),
         ]);
     }
 
     public function show(Product $product): View
     {
-        abort_if($product->status !== 'active', 404);
+        abort_if($product->status !== ProductStatus::Active, 404);
         $product->load(['images', 'variants.images', 'tags', 'approvedReviews' => fn ($q) => $q->latest()->limit(10)]);
         $product->recordView();
+
+        // Track recently viewed products in session
+        $recentlyViewed = session()->get('recently_viewed', []);
+        $recentlyViewed = array_values(array_diff($recentlyViewed, [$product->id]));
+        array_unshift($recentlyViewed, $product->id);
+        $recentlyViewed = array_slice($recentlyViewed, 0, 8);
+        session()->put('recently_viewed', $recentlyViewed);
+
+        $recentlyViewedProducts = Product::active()
+            ->whereIn('id', array_slice($recentlyViewed, 1, 4))
+            ->with(['images', 'variants'])
+            ->get();
 
         return view('storefront.product.show', [
             'product'       => $product,
             'relatedProducts' => $product->relatedProducts()->active()->limit(4)->get(),
             'crossSells'    => $product->crossSells()->active()->limit(3)->get(),
+            'recentlyViewedProducts' => $recentlyViewedProducts,
         ]);
     }
 

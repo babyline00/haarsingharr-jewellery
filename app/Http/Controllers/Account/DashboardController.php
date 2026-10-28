@@ -10,6 +10,6 @@ class DashboardController extends Controller
 {
     public function index(Request $request): View
     {
-        return view('account.dashboardcontroller.index', ['user' => $request->user()]);
+        return view('account.dashboard.index', ['user' => $request->user()]);
     }
 }

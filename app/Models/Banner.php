@@ -12,10 +12,10 @@ class Banner extends Model
     use HasFactory, HasUuid;
 
     protected $fillable = [
-        'name', 'location', 'image', 'mobile_image',
+        'name', 'location', 'image', 'mobile_image', 'alt_text',
         'link_url', 'link_text', 'heading', 'subheading',
         'configuration', 'sort_order', 'is_published',
-        'starts_at', 'ends_at',
+        'starts_at', 'ends_at', 'impressions', 'clicks',
     ];
 
     protected function casts(): array
@@ -23,6 +23,8 @@ class Banner extends Model
         return [
             'is_published'   => 'boolean',
             'sort_order'     => 'integer',
+            'impressions'    => 'integer',
+            'clicks'         => 'integer',
             'starts_at'      => 'datetime',
             'ends_at'        => 'datetime',
             'configuration'  => 'array',
@@ -42,5 +44,27 @@ class Banner extends Model
     public function scopeAtLocation(Builder $q, string $location)
     {
         return $q->where('location', $location);
+    }
+
+    // --------------------------------------------------------------------------
+    // Tracking
+    // --------------------------------------------------------------------------
+    public function recordImpression(): void
+    {
+        $this->increment('impressions');
+    }
+
+    public function recordClick(): void
+    {
+        $this->increment('clicks');
+    }
+
+    public function clickThroughRate(): ?float
+    {
+        if ($this->impressions === 0) {
+            return null;
+        }
+
+        return round(($this->clicks / $this->impressions) * 100, 2);
     }
 }

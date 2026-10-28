@@ -3,32 +3,627 @@
 @section('title', 'Reset Password — Haarsingharr')
 
 @section('content')
-    <section class="py-16 md:py-24">
-        <div class="container-haars max-w-md">
-            <div class="text-center mb-8">
-                <h1 class="font-serif text-3xl">Reset Password</h1>
-                <p class="text-sm text-muted mt-2">Enter your email to receive a reset link.</p>
+    @php
+        $authBanner = \App\Models\Banner::atLocation('auth')->published()->first();
+        $authBgImage = $authBanner?->image ? \App\Support\Media::url($authBanner->image) : null;
+    @endphp
+    
+<style>
+    .haars-reset {
+        --gold: #b58a45;
+        --ink: #28231e;
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        background: #faf7f1;
+        color: var(--ink);
+    }
+
+    .haars-reset * {
+        box-sizing: border-box;
+    }
+
+    .haars-reset .ambient {
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+        filter: blur(2px);
+        z-index: -1;
+        animation: haars-float 9s ease-in-out infinite;
+    }
+
+    .haars-reset .ambient-one {
+        width: 360px;
+        height: 360px;
+        top: -150px;
+        right: -90px;
+        background: radial-gradient(circle, #ead8b7 0%, #ead8b700 70%);
+    }
+
+    .haars-reset .ambient-two {
+        width: 400px;
+        height: 400px;
+        bottom: -190px;
+        left: -150px;
+        background: radial-gradient(circle, #e8d5b8 0%, #e8d5b800 70%);
+        animation-delay: -4s;
+    }
+
+    .haars-reset .reset-layout {
+        display: grid;
+        grid-template-columns: 1fr 0.88fr;
+        max-width: 1080px;
+        margin: 0 auto;
+        min-height: 590px;
+        border: 1px solid #e9dfd0;
+        border-radius: 26px;
+        overflow: hidden;
+        background: #fffdf9;
+        box-shadow: 0 24px 80px rgba(76, 55, 30, 0.10);
+        animation: haars-enter .8s cubic-bezier(.2,.7,.2,1) both;
+    }
+
+    .haars-reset .brand-panel {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 590px;
+        padding: 44px;
+        overflow: hidden;
+        color: #fffaf0;
+        @if ($authBgImage)
+        background: url('{{ $authBgImage }}') center/cover no-repeat;
+        @else
+        background:
+            radial-gradient(ellipse at 80% 20%, #a8865038, transparent 45%),
+            linear-gradient(145deg, #29251f 0%, #403428 55%, #211d19 100%);
+        @endif
+    }
+
+    .haars-reset .brand-panel::before,
+    .haars-reset .brand-panel::after {
+        content: "";
+        position: absolute;
+        border: 1px solid #d6b77936;
+        border-radius: 50%;
+        width: 390px;
+        height: 390px;
+        right: -170px;
+        top: 110px;
+        pointer-events: none;
+        animation: haars-orbit 24s linear infinite;
+    }
+
+    .haars-reset .brand-panel::after {
+        width: 300px;
+        height: 300px;
+        right: -125px;
+        top: 155px;
+        animation-direction: reverse;
+        animation-duration: 18s;
+    }
+
+    .haars-reset .brand-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .haars-reset .brand-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        color: #e7cf9c;
+        font-size: 10px;
+        letter-spacing: .23em;
+        text-transform: uppercase;
+    }
+
+    .haars-reset .gold-line {
+        display: block;
+        width: 42px;
+        height: 1px;
+        background: #d3b274;
+    }
+
+    .haars-reset .brand-heading {
+        margin: 76px 0 20px;
+        max-width: 350px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(37px, 4vw, 53px);
+        line-height: 1.13;
+        font-weight: 400;
+        letter-spacing: -.035em;
+    }
+
+    .haars-reset .brand-heading em {
+        color: #dfc28b;
+        font-weight: 400;
+    }
+
+    .haars-reset .brand-description {
+        max-width: 320px;
+        color: #d1c7b8;
+        font-size: 13px;
+        line-height: 1.9;
+    }
+
+    .haars-reset .brand-footer {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-top: 25px;
+        border-top: 1px solid #ffffff20;
+        color: #e3d7c3;
+        font-size: 11px;
+        letter-spacing: .04em;
+    }
+
+    .haars-reset .brand-star {
+        color: #e2c48b;
+        font-size: 19px;
+    }
+
+    .haars-reset .form-panel {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 48px clamp(24px, 4.5vw, 62px);
+    }
+
+    .haars-reset .welcome-label {
+        margin-bottom: 12px;
+        color: var(--gold);
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: .2em;
+        text-transform: uppercase;
+    }
+
+    .haars-reset .form-heading {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(31px, 3vw, 40px);
+        font-weight: 400;
+        line-height: 1.2;
+        letter-spacing: -.035em;
+    }
+
+    .haars-reset .form-subtitle {
+        margin-top: 11px;
+        margin-bottom: 32px;
+        color: #898177;
+        font-size: 12px;
+        line-height: 1.8;
+    }
+
+    .haars-reset .field {
+        margin-bottom: 22px;
+    }
+
+    .haars-reset .field-label {
+        display: block;
+        margin-bottom: 9px;
+        color: #403a33;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .haars-reset .input-wrap {
+        position: relative;
+    }
+
+    .haars-reset .field-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        width: 17px;
+        height: 17px;
+        transform: translateY(-50%);
+        color: #a59a89;
+        pointer-events: none;
+        transition: color .25s ease;
+    }
+
+    .haars-reset .reset-input {
+        display: block;
+        width: 100%;
+        min-height: 49px;
+        padding: 13px 15px 13px 44px;
+        border: 1px solid #e7e0d6;
+        border-radius: 10px;
+        outline: none;
+        background: #fffefa;
+        color: #302b25;
+        font-family: inherit;
+        font-size: 13px;
+        transition: border-color .25s ease,
+                    box-shadow .25s ease,
+                    background .25s ease;
+    }
+
+    .haars-reset .reset-input::placeholder {
+        color: #b5ada2;
+    }
+
+    .haars-reset .reset-input:hover {
+        border-color: #cbb58f;
+    }
+
+    .haars-reset .reset-input:focus {
+        border-color: var(--gold);
+        background: #fff;
+        box-shadow: 0 0 0 4px #b58a4519;
+    }
+
+    .haars-reset .input-wrap:focus-within .field-icon {
+        color: var(--gold);
+    }
+
+    .haars-reset .password-input {
+        padding-right: 48px;
+    }
+
+    .haars-reset .toggle-password {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        display: grid;
+        width: 32px;
+        height: 32px;
+        place-items: center;
+        transform: translateY(-50%);
+        border: 0;
+        border-radius: 7px;
+        background: transparent;
+        color: #918677;
+        cursor: pointer;
+        transition: background .2s, color .2s;
+    }
+
+    .haars-reset .toggle-password:hover {
+        background: #f2ebdf;
+        color: #80602d;
+    }
+
+    .haars-reset .toggle-password svg {
+        width: 17px;
+        height: 17px;
+    }
+
+    .haars-reset .gold-link {
+        color: #967039;
+        font-size: 11px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color .2s;
+    }
+
+    .haars-reset .gold-link:hover {
+        color: #5d4120;
+        text-decoration: underline;
+        text-underline-offset: 4px;
+    }
+
+    .haars-reset .submit-button {
+        position: relative;
+        display: flex;
+        width: 100%;
+        min-height: 51px;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        overflow: hidden;
+        border: 1px solid #a98242;
+        border-radius: 10px;
+        background: linear-gradient(110deg, #967039, #c5a365 50%, #a27b3d);
+        background-size: 200% 100%;
+        color: #fffdf8;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .09em;
+        cursor: pointer;
+        box-shadow: 0 7px 18px #a9824228;
+        transition: transform .25s ease, box-shadow .25s ease,
+                    background-position .4s ease;
+    }
+
+    .haars-reset .submit-button::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        transform: translateX(-130%) skewX(-20deg);
+        background: linear-gradient(90deg, transparent, #ffffff3b, transparent);
+        transition: transform .65s ease;
+    }
+
+    .haars-reset .submit-button:hover {
+        transform: translateY(-2px);
+        background-position: 100% 0;
+        box-shadow: 0 12px 25px #a9824240;
+    }
+
+    .haars-reset .submit-button:hover::before {
+        transform: translateX(130%) skewX(-20deg);
+    }
+
+    .haars-reset .submit-button:active {
+        transform: translateY(0);
+    }
+
+    .haars-reset .submit-button span,
+    .haars-reset .submit-button svg {
+        position: relative;
+        z-index: 1;
+    }
+
+    .haars-reset .submit-button svg {
+        width: 16px;
+        height: 16px;
+        transition: transform .25s ease;
+    }
+
+    .haars-reset .submit-button:hover svg {
+        transform: translateX(4px);
+    }
+
+    .haars-reset .status-message {
+        margin-bottom: 22px;
+        padding: 12px 14px;
+        border: 1px solid #d9c7a1;
+        border-radius: 9px;
+        background: #f8f0e0;
+        color: #75582d;
+        font-size: 12px;
+        line-height: 1.6;
+        animation: haars-enter .4s ease both;
+    }
+
+    .haars-reset .error-message {
+        margin-top: 7px;
+        color: #bb4141;
+        font-size: 11px;
+    }
+
+    .haars-reset .signup-prompt {
+        margin-top: 27px;
+        color: #8b8277;
+        font-size: 11px;
+        line-height: 1.8;
+        text-align: center;
+    }
+
+    .haars-reset .signup-prompt a {
+        margin-left: 3px;
+    }
+
+    .haars-reset .secure-note {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        margin-top: 24px;
+        color: #a49a8d;
+        font-size: 10px;
+    }
+
+    .haars-reset .secure-note svg {
+        width: 14px;
+        height: 14px;
+        color: #9e875e;
+    }
+
+    @keyframes haars-enter {
+        from { opacity: 0; transform: translateY(18px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes haars-float {
+        0%, 100% { transform: translate(0, 0); }
+        50% { transform: translate(-18px, 22px); }
+    }
+
+    @keyframes haars-orbit {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 767px) {
+        .haars-reset {
+            padding: 28px 16px !important;
+        }
+
+        .haars-reset .reset-layout {
+            grid-template-columns: 1fr;
+            max-width: 440px;
+            min-height: auto;
+            border-radius: 20px;
+        }
+
+        .haars-reset .brand-panel {
+            min-height: auto;
+            padding: 25px 25px 27px;
+        }
+
+        .haars-reset .brand-heading {
+            margin: 32px 0 12px;
+            font-size: 35px;
+            max-width: 290px;
+        }
+
+        .haars-reset .brand-description {
+            max-width: 300px;
+            font-size: 12px;
+        }
+
+        .haars-reset .brand-footer {
+            margin-top: 26px;
+            padding-top: 17px;
+        }
+
+        .haars-reset .brand-panel::before {
+            right: -250px;
+            top: -60px;
+        }
+
+        .haars-reset .brand-panel::after {
+            right: -210px;
+            top: -10px;
+        }
+
+        .haars-reset .form-panel {
+            padding: 32px 25px 30px;
+        }
+
+        .haars-reset .form-subtitle {
+            margin-bottom: 25px;
+        }
+
+        .haars-reset .field {
+            margin-bottom: 19px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .haars-reset *,
+        .haars-reset *::before,
+        .haars-reset *::after {
+            animation-duration: .01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: .01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+</style>
+
+<section class="haars-reset py-12 md:py-20 px-4 md:px-6">
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+    <div class="reset-layout">
+
+        <!-- Luxury brand panel -->
+        <div class="brand-panel" @if ($authBgImage) style="background: url('{{ $authBgImage }}') center/cover no-repeat;" @endif>
+            @if ($authBgImage)
+                <div style="position: absolute; inset: 0; background: linear-gradient(145deg, rgba(41, 37, 31, 0.85) 0%, rgba(64, 52, 40, 0.75) 55%, rgba(33, 29, 25, 0.85) 100%); z-index: 0;"></div>
+            @endif
+            <div class="brand-content" style="position: relative; z-index: 1;">
+                <div class="brand-eyebrow">
+                    <span class="gold-line"></span>
+                    <span>HAARSINGHARR</span>
+                    <span class="gold-line"></span>
+                </div>
+
+                <h2 class="brand-heading">
+                    Reset your
+                    <em>password.</em>
+                </h2>
+
+                <p class="brand-description">
+                    Enter your email and we'll send you a link to
+                    reset your password.
+                </p>
             </div>
 
-            <div class="card p-6 md:p-8">
-                @if (session('status'))
-                    <div class="bg-success/10 border border-success/30 text-success px-4 py-3 rounded-md text-sm mb-4">{{ session('status') }}</div>
-                @endif
-
-                <form action="{{ route('password.email') }}" method="post">
-                    @csrf
-                    <div class="mb-4">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required value="{{ old('email') }}" autofocus>
-                        @error('email') <p class="text-xs text-danger mt-1">{{ $message }}</p> @enderror
-                    </div>
-                    <button type="submit" class="btn-gold w-full">Send Reset Link</button>
-                </form>
-
-                <div class="mt-6 text-center text-sm">
-                    <a href="{{ route('login') }}" class="text-champagne-dark hover:underline">Back to sign in</a>
-                </div>
+            <div class="brand-footer">
+                <span class="brand-star">✳</span>
+                <span>Secure password reset</span>
             </div>
         </div>
-    </section>
+
+        <!-- Reset password form -->
+        <div class="form-panel">
+            <div class="welcome-label">Password reset</div>
+
+            <h1 class="form-heading">Reset Password</h1>
+
+            <p class="form-subtitle">
+                Enter your email to receive a reset link.
+            </p>
+
+            @if (session('status'))
+                <div class="status-message" role="status">
+                    {{ session('status') }}
+                </div>
+            @endif
+
+            <form action="{{ route('password.email') }}" method="POST">
+                @csrf
+
+                <!-- Email -->
+                <div class="field">
+                    <label for="email" class="field-label">
+                        Email Address
+                    </label>
+
+                    <div class="input-wrap">
+                        <svg class="field-icon" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor"
+                             stroke-width="1.6" aria-hidden="true">
+                            <rect x="3" y="5" width="18" height="14"
+                                  rx="3"></rect>
+                            <path d="m4 7 8 6 8-6"></path>
+                        </svg>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            class="reset-input"
+                            placeholder="you@example.com"
+                            value="{{ old('email') }}"
+                            required
+                            autofocus
+                            autocomplete="email"
+                            aria-invalid="{{ $errors->has('email') ? 'true' : 'false' }}"
+                            aria-describedby="{{ $errors->has('email') ? 'email-error' : '' }}"
+                        >
+                    </div>
+
+                    @error('email')
+                        <p class="error-message" id="email-error">
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="submit-button">
+                    <span>Send Reset Link</span>
+
+                    <svg viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round"
+                         stroke-linejoin="round"
+                         aria-hidden="true">
+                        <path d="M5 12h14"></path>
+                        <path d="m13 6 6 6-6 6"></path>
+                    </svg>
+                </button>
+            </form>
+
+            <div class="signup-prompt">
+                Remember your password?
+                <a href="{{ route('login') }}" class="gold-link">
+                    Sign in
+                </a>
+            </div>
+
+            <div class="secure-note">
+                <svg viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.7"
+                     stroke-linecap="round"
+                     stroke-linejoin="round"
+                     aria-hidden="true">
+                    <rect x="4" y="10" width="16" height="11" rx="3"/>
+                    <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                </svg>
+                <span>Your account details are protected</span>
+            </div>
+        </div>
+    </div>
+</section>
+
 @endsection

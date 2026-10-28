@@ -49,18 +49,14 @@
     <link rel="manifest" href="{{ asset('site.webmanifest') }}">
     <meta name="msapplication-TileColor" content="#C8A968">
     <meta name="msapplication-TileImage" content="{{ asset('images/mstile-150x150.png') }}">
-    <meta name="theme-color" content="#1F1B16">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     @if (! app()->environment('production'))
         <link rel="preconnect" href="http://localhost:5173">
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @else
-        <link rel="stylesheet" href="{{ asset('build/app.css') }}">
-        <script src="{{ asset('build/app.js') }}" defer></script>
     @endif
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @stack('styles')
 </head>
@@ -77,9 +73,35 @@
             <div class="container-haars flex items-center justify-center gap-3">
                 <span class="font-medium tracking-wide">{{ $announcement->heading ?? 'Complimentary shipping & free returns within 7 days' }}</span>
                 @if ($link = $announcement->link_url ?? null)
-                    <a href="{{ $link }}" class="underline underline-offset-2 hover:text-champagne transition-colors">{{ $announcement->link_text ?? 'Learn more' }}</a>
+                    <a href="{{ route('banners.click', $announcement) }}" class="underline underline-offset-2 hover:text-champagne transition-colors">{{ $announcement->link_text ?? $announcement->heading ?? 'Details' }}</a>
                 @endif
                 <button @click="visible = false" class="ml-2 text-ivory/60 hover:text-ivory" aria-label="Dismiss announcement">×</button>
+            </div>
+        </div>
+    @endif
+
+    {{-- Staff impersonation banner (never renders for real customers) --}}
+    @if (session('impersonator_id') && auth()->check())
+        <div class="bg-champagne text-charcoal text-center text-xs md:text-sm py-2 px-4" role="status">
+            <div class="container-haars flex items-center justify-center gap-3">
+                <span class="font-medium">
+                    Viewing the store as
+                    <span class="font-semibold">{{ auth()->user()->name ?: auth()->user()->email }}</span>
+                    — staff session is saved.
+                </span>
+                <form action="{{ route('impersonation.exit') }}" method="post">
+                    @csrf
+                    <button type="submit" class="underline underline-offset-2 font-semibold hover:text-charcoal/80">Return to admin</button>
+                </form>
+            </div>
+        </div>
+    @endif
+
+    {{-- Homepage preview banner (staff only, ?preview=1) --}}
+    @if (! empty($isPreview))
+        <div class="bg-charcoal text-champagne text-center text-xs md:text-sm py-2 px-4" role="status">
+            <div class="container-haars flex items-center justify-center gap-3">
+                <span class="font-medium tracking-wide">Homepage preview — drafts and sections outside their schedule are included.</span>
             </div>
         </div>
     @endif
@@ -100,21 +122,21 @@
     <main id="main-content" class="flex-1">
         @if (session('success'))
             <div class="container-haars mt-4" x-data x-init="setTimeout(() => $el.remove(), 6000)">
-                <div class="bg-success/10 border border-success/30 text-success px-4 py-3 rounded-md text-sm">
+                <div class="animate-toast-in bg-success/10 border border-success/30 text-success px-4 py-3 rounded-md text-sm" role="status">
                     {{ session('success') }}
                 </div>
             </div>
         @endif
         @if (session('error'))
             <div class="container-haars mt-4">
-                <div class="bg-danger/10 border border-danger/30 text-danger px-4 py-3 rounded-md text-sm">
+                <div class="animate-toast-in bg-danger/10 border border-danger/30 text-danger px-4 py-3 rounded-md text-sm" role="alert">
                     {{ session('error') }}
                 </div>
             </div>
         @endif
         @if (session('status'))
             <div class="container-haars mt-4">
-                <div class="bg-champagne/10 border border-champagne/30 text-champagne-dark px-4 py-3 rounded-md text-sm">
+                <div class="animate-toast-in bg-champagne/10 border border-champagne/30 text-champagne-dark px-4 py-3 rounded-md text-sm" role="status">
                     {{ session('status') }}
                 </div>
             </div>
@@ -135,6 +157,25 @@
             </svg>
         </a>
     @endif
+
+    {{-- Back to top --}}
+    <button
+        type="button"
+        x-data="{ visible: false }"
+        x-init="const onScroll = () => { visible = window.scrollY > 600 }; window.addEventListener('scroll', onScroll, { passive: true }); onScroll()"
+        x-show="visible"
+        x-cloak
+        x-transition.opacity.duration.200ms
+        @click="const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' })"
+        class="fixed bottom-5 left-5 z-40 flex h-11 w-11 items-center justify-center rounded-full
+               border border-charcoal/10 bg-porcelain/95 text-charcoal-soft shadow-md
+               transition-colors hover:bg-ivory-alt hover:text-charcoal"
+        aria-label="Back to top"
+    >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
+        </svg>
+    </button>
 
     @stack('scripts')
 </body>

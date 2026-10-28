@@ -5,7 +5,7 @@
 @section('content')
     <section class="py-12">
         <div class="container-haars max-w-3xl">
-            <h1 class="font-serif text-3xl md:text-4xl mb-8">Frequently Asked Questions</h1>
+            <h1 class="font-serif text-3xl md:text-4xl lg:text-5xl mb-8">Frequently Asked Questions</h1>
 
             @foreach ($groupedFaqs as $category => $faqs)
                 <div class="mb-10" x-data="{ open: null }">
@@ -13,14 +13,14 @@
                     <div class="space-y-3">
                         @foreach ($faqs as $faq)
                             <div class="card overflow-hidden">
-                                <button @click="open === {{ $faq->id }} ? open = null : open = {{ $faq->id }}" class="w-full text-left p-4 flex items-center justify-between hover:bg-ivory-alt/30 transition-colors">
+                                <button type="button" @click="open === {{ $faq->id }} ? open = null : open = {{ $faq->id }}" :aria-expanded="(open === {{ $faq->id }}).toString()" aria-controls="faq-answer-{{ $faq->id }}" class="w-full text-left p-4 flex items-center justify-between hover:bg-ivory-alt/30 transition-colors">
                                     <span class="font-medium text-charcoal-soft text-sm">{{ $faq->question }}</span>
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted flex-shrink-0"
                                          x-show="open !== {{ $faq->id }}"><polyline points="6 9 12 15 18 9"/></svg>
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted flex-shrink-0"
                                          x-show="open === {{ $faq->id }}" x-cloak><polyline points="18 15 12 9 6 15"/></svg>
                                 </button>
-                                <div x-show="open === {{ $faq->id }}" x-collapse x-cloak class="px-4 pb-4 text-sm text-muted leading-relaxed">
+                                <div id="faq-answer-{{ $faq->id }}" x-show="open === {{ $faq->id }}" x-collapse x-cloak class="px-4 pb-4 text-sm text-muted leading-relaxed">
                                     {{ $faq->answer }}
                                 </div>
                             </div>

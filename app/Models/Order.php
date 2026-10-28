@@ -120,6 +120,11 @@ class Order extends Model
         return $this->hasMany(ExchangeRequest::class);
     }
 
+    public function notes(): HasMany
+    {
+        return $this->hasMany(OrderNote::class)->latest();
+    }
+
     public function inventoryMovements(): MorphMany
     {
         return $this->morphMany(InventoryMovement::class, 'reference');
@@ -152,7 +157,12 @@ class Order extends Model
             $inner->where('number', 'like', "%{$term}%")
                 ->orWhere('guest_email', 'like', "%{$term}%")
                 ->orWhere('guest_phone', 'like', "%{$term}%")
-                ->orWhere('tracking_number', 'like', "%{$term}%");
+                ->orWhere('tracking_number', 'like', "%{$term}%")
+                ->orWhereHas('user', function ($user) use ($term) {
+                    $user->where('email', 'like', "%{$term}%")
+                        ->orWhere('first_name', 'like', "%{$term}%")
+                        ->orWhere('last_name', 'like', "%{$term}%");
+                });
         });
     }
 

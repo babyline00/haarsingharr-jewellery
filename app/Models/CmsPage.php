@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\GeneratesSlug;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CmsPage extends Model
 {
-    use HasFactory, HasUuid, SoftDeletes;
+    use HasFactory, HasUuid, GeneratesSlug, SoftDeletes;
 
     protected $fillable = [
         'title', 'slug', 'template', 'content', 'sections',
@@ -30,9 +31,19 @@ class CmsPage extends Model
         ];
     }
 
-    public function sections(): HasMany
+    /**
+     * Structured page-builder blocks. Named `pageSections` (not `sections`)
+     * because the model also carries a `sections` JSON attribute, which would
+     * otherwise shadow this relationship when accessed as a property.
+     */
+    public function pageSections(): HasMany
     {
         return $this->hasMany(CmsSection::class);
+    }
+
+    public function revisions(): HasMany
+    {
+        return $this->hasMany(CmsPageRevision::class);
     }
 
     public function createdBy(): BelongsTo

@@ -21,12 +21,18 @@ class RequireMfa
             return $next($request);
         }
         if (! $user->hasMfaEnabled()) {
-            // Force enrollment after first login.
-            if (! $request->routeIs('admin.mfa.enroll') && ! $request->routeIs('admin.mfa.confirm') && ! $request->routeIs('logout')) {
+            if (! $request->routeIs('admin.mfa.enroll', 'admin.mfa.confirm', 'logout')) {
                 return redirect()->route('admin.mfa.enroll');
             }
+            return $next($request);
         }
-        // MFA confirmed → carry on.
+
+        if (! $request->session()->boolean('mfa_confirmed')) {
+            if (! $request->routeIs('admin.mfa.challenge', 'admin.mfa.verify', 'logout')) {
+                return redirect()->route('admin.mfa.challenge');
+            }
+        }
+
         return $next($request);
     }
 }

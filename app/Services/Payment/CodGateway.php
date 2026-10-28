@@ -2,7 +2,6 @@
 
 namespace App\Services\Payment;
 
-use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Models\Order;
 use App\Models\Payment;
@@ -27,7 +26,7 @@ class CodGateway implements PaymentGateway
 
     public function enabled(): bool
     {
-        return (bool) config('payments.gateways.cod.enabled', true);
+        return (bool) \App\Models\StoreSetting::get('payment.cod.enabled', config('payments.gateways.cod.enabled', true));
     }
 
     public function isRedirectFlow(): bool
@@ -42,7 +41,12 @@ class CodGateway implements PaymentGateway
 
     public function initiate(Payment $payment, Order $order): array
     {
-        $maxValue = (float) config('payments.gateways.cod.max_value', 200000);
+        // The admin-facing setting (Store Settings → Checkout Rules) wins;
+        // falls back to the environment default for fresh installs.
+        $maxValue = (float) \App\Models\StoreSetting::get(
+            'cod_max_order_value',
+            config('payments.gateways.cod.max_value', 200000),
+        );
         if ((float) $order->grand_total > $maxValue) {
             throw new \DomainException(
                 "Cash on Delivery is not available for orders over Rs. {$maxValue}."
@@ -111,16 +115,7 @@ class CodGateway implements PaymentGateway
      */
     public function markCollected(Payment $payment, Order $order): void
     {
-        $payment->update([
-            'status'        => 'captured',
-            'captured_at'   => now(),
-            'amount_captured' => $payment->amount,
-        ]);
-
-        $order->update([
-            'paid_amount'    => $order->grand_total,
-            'payment_status' => PaymentStatus::Paid,
-        ]);
+        $payment->markCaptured();
 
         $this->audit->record('payment.captured', $payment);
     }
@@ -128,23 +123,10 @@ class CodGateway implements PaymentGateway
     public function refund(Payment $payment, Refund $refund): Refund
     {
         // COD refunds are processed manually via bank transfer / EasyPaisa /
-        // JazzCash wallet by the Order Manager. We just mark it processed.
-        $refund->update([
-            'status'      => 'completed',
-            'processed_at'=> now(),
-            'provider_ref'=> 'manual_cod_refund',
-        ]);
+        // JazzCash wallet by the Order Manager. The refund model recomputes
+        // payment/order totals so retries cannot double-count.
+        $refund->update(['provider_ref' => 'manual_cod_refund']);
 
-        $payment->increment('amount_refunded', $refund->amount);
-        $order = $payment->order;
-        $order->increment('refunded_amount', $refund->amount);
-
-        if ((float) $order->refunded_amount >= (float) $order->grand_total) {
-            $order->update(['payment_status' => PaymentStatus::Refunded]);
-        } else {
-            $order->update(['payment_status' => PaymentStatus::PartiallyRefunded]);
-        }
-
-        return $refund;
+        return $refund->markCompleted();
     }
 }

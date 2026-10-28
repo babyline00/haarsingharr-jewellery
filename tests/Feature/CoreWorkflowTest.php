@@ -17,27 +17,8 @@ use Illuminate\Support\Facades\DB;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->seedRoles();
+    seedRoles();
 });
-
-// Helper: create a Super Admin role+user for tests.
-function seedRoles(): void
-{
-    $roles = [
-        ['super-admin', 'Super Admin'],
-        ['store-admin', 'Store Admin'],
-        ['product-manager', 'Product Manager'],
-        ['order-manager', 'Order Manager'],
-        ['customer-support', 'Customer Support'],
-        ['customer', 'Customer'],
-    ];
-    foreach ($roles as [$slug, $title]) {
-        \Spatie\Permission\Models\Role::firstOrCreate(
-            ['slug' => $slug, 'name' => $slug],
-            ['title' => $title, 'guard_name' => 'web', 'is_system' => true]
-        );
-    }
-}
 
 // ============================================================================
 // Authentication & Authorization Tests
@@ -210,6 +191,8 @@ test('duplicate checkout submissions return the same order', function () {
         'line_total'         => $variant->regular_price,
     ]);
 
+    $this->actingAs($customer);
+
     $checkoutService = app(CheckoutService::class);
     $key = \Illuminate\Support\Str::uuid()->toString();
 
@@ -261,6 +244,8 @@ test('duplicate webhook events do not create duplicate payments', function () {
         'unit_price'         => $variant->regular_price,
         'line_total'         => $variant->regular_price,
     ]);
+
+    $this->actingAs($customer);
 
     $checkoutService = app(CheckoutService::class);
     $order = $checkoutService->placeOrder([
@@ -375,7 +360,7 @@ test('order cannot transition from delivered to pending', function () {
 
 test('order number format is human-readable', function () {
     $number = Order::nextOrderNumber();
-    expect($number)->toStartWith('AU-')
+    expect($number)->toStartWith('HS-')
         ->and(strlen($number))->toBeLessThanOrEqual(16);
 });
 
@@ -411,6 +396,8 @@ test('product manager cannot access staff management', function () {
 });
 
 test('customer support cannot view cost prices', function () {
+    $this->seedRolesAndPermissions();
+
     $support = User::factory()->staff()->create();
     $support->assignRole('customer-support');
 
@@ -419,3 +406,73 @@ test('customer support cannot view cost prices', function () {
     // Cost price column should not appear — checked at the policy layer
     expect($support->can('products.adjust_cost'))->toBeFalse();
 });
+
+// ============================================================================
+// Phase 0 regression tests
+// ============================================================================
+
+test('cash on delivery over the provider limit is rejected without creating an order', function () {
+    $variant = ProductVariant::factory()->create([
+        'regular_price'  => 250000,
+        'sale_price'     => null,
+        'stock_quantity' => 5,
+        'safety_stock'   => 0,
+    ]);
+
+    $customer = User::factory()->create();
+    $customer->assignRole('customer');
+
+    $cart = Cart::factory()->create(['user_id' => $customer->id]);
+    $cart->items()->create([
+        'product_id'         => $variant->product_id,
+        'product_variant_id' => $variant->id,
+        'quantity'           => 1,
+        'unit_price'         => 250000,
+        'line_total'         => 250000,
+    ]);
+
+    $response = $this->actingAs($customer)->post('/checkout', [
+        'email'                => $customer->email,
+        'phone_country'        => '+92',
+        'phone'                => '3001234567',
+        'shipping_first_name'  => 'Phase',
+        'shipping_last_name'   => 'Zero',
+        'shipping_address_1'   => '1 Test Road',
+        'shipping_city'        => 'Lahore',
+        'shipping_province'    => 'punjab',
+        'shipping_country'     => 'PK',
+        'shipping_postal_code' => '54000',
+        'shipping_method'      => 'standard',
+        'payment_method'       => 'cod',
+        'agree_terms'          => '1',
+    ]);
+
+    $response->assertSessionHasErrors('payment_method');
+    expect(Order::count())->toBe(0);
+});
+
+test('customer can cancel an order and the reserved stock is released', function () {
+    $variant = ProductVariant::factory()->create([
+        'stock_quantity' => 5,
+        'safety_stock'   => 0,
+    ]);
+
+    $customer = User::factory()->create();
+    $customer->assignRole('customer');
+
+    $order = Order::factory()->create([
+        'user_id' => $customer->id,
+        'status'  => OrderStatus::Pending,
+    ]);
+
+    app(InventoryService::class)->reserve($variant, 2, $order);
+    expect($variant->fresh()->reserved_stock)->toEqual(2);
+
+    $this->actingAs($customer)
+        ->post(route('account.orders.cancel', $order))
+        ->assertRedirect();
+
+    expect($order->fresh()->status)->toBe(OrderStatus::Cancelled)
+        ->and($variant->fresh()->reserved_stock)->toEqual(0);
+});
+

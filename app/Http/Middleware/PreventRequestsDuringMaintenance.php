@@ -2,26 +2,33 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance as FrameworkMaintenance;
 
-class PreventRequestsDuringMaintenance
+/**
+ * Maintenance gate with Haarsingharr extras layered on the framework's:
+ *
+ *  - the "artisan-down" secret path + bypass cookie (/{secret} grants access),
+ *  - an IP allowlist via MAINTENANCE_ALLOWED_IPS (comma-separated).
+ */
+class PreventRequestsDuringMaintenance extends FrameworkMaintenance
 {
-    public function handle(Request $request, Closure $next): Response
+    public function __construct(Application $app)
     {
-        if ($this->inMaintenance()) {
-            $allowedIps = explode(',', env('MAINTENANCE_ALLOWED_IPS', ''));
-            if (in_array($request->ip(), array_filter(array_map('trim', $allowedIps)), true)) {
-                return $next($request);
-            }
-            return response()->view('errors.503', [], 503);
-        }
-        return $next($request);
+        parent::__construct($app);
     }
 
-    private function inMaintenance(): bool
+    protected function inExceptArray($request)
     {
-        return file_exists(storage_path('framework/down'));
+        $allowedIps = array_filter(array_map(
+            'trim',
+            explode(',', (string) env('MAINTENANCE_ALLOWED_IPS', '')),
+        ));
+
+        if (in_array($request->ip(), $allowedIps, true)) {
+            return true;
+        }
+
+        return parent::inExceptArray($request);
     }
 }

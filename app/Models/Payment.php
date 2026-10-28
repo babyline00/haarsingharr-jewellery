@@ -54,18 +54,20 @@ class Payment extends Model
 
     public function markCaptured(): void
     {
+        if ($this->status === 'captured') {
+            return;
+        }
+
         $this->update([
             'status'          => 'captured',
             'captured_at'     => now(),
             'amount_captured' => $this->amount,
         ]);
-        $this->order->update([
-            'paid_amount'        => $this->order->paid_amount + $this->amount,
-            'payment_status'     => 'paid',
-        ]);
+
+        $this->syncOrderTotals();
     }
 
-    public function markFailed(string $reason = null): void
+    public function markFailed(?string $reason = null): void
     {
         $this->update([
             'status'    => 'failed',
@@ -75,6 +77,40 @@ class Payment extends Model
             'type'   => 'failed',
             'status' => 'failed',
             'note'   => $reason,
+        ]);
+    }
+
+    /**
+     * Recompute the order's paid amount from captured payments, while
+     * preserving refund-driven statuses.
+     */
+    public function syncOrderTotals(): void
+    {
+        $order = $this->order()->first();
+
+        if (! $order) {
+            return;
+        }
+
+        $captured = (float) $order->payments()
+            ->whereIn('status', ['captured', 'partially_refunded', 'refunded'])
+            ->sum('amount_captured');
+
+        $paid = min((float) $order->grand_total, $captured);
+        $refunded = (float) $order->refunded_amount;
+        $total = (float) $order->grand_total;
+
+        $status = match (true) {
+            $refunded > 0 && $refunded >= $total => 'refunded',
+            $refunded > 0 => 'partially_refunded',
+            $paid >= $total && $total > 0 => 'paid',
+            $paid > 0 => 'pending',
+            default => 'unpaid',
+        };
+
+        $order->update([
+            'paid_amount' => $paid,
+            'payment_status' => $status,
         ]);
     }
 

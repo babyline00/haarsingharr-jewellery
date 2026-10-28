@@ -29,10 +29,7 @@
                                 <div class="flex gap-2">
                                     <a href="{{ route('account.orders.show', $order->number) }}" class="text-champagne-dark hover:underline">View details</a>
                                     @if ($order->isCancellable())
-                                    <form action="{{ route('account.orders.cancel', $order) }}" method="post" onsubmit="return confirm('Cancel this order?')">
-                                        @csrf
-                                        <button class="text-danger hover:underline">Cancel</button>
-                                    </form>
+                                    <x-admin.confirm :action="route('account.orders.cancel', $order)" method="POST" title="Cancel this order?" message="This order will be cancelled and its reserved stock released." label="Cancel order" confirm-label="Cancel order" />
                                     @endif
                                 </div>
                             </div>

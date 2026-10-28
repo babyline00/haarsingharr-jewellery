@@ -8,7 +8,7 @@
             <h1 class="font-serif text-3xl mb-8">Your Profile</h1>
 
             <div class="card p-6 md:p-8">
-                <form action="{{ route('profile.update') }}" method="post">
+                <form action="{{ route('account.profile.update') }}" method="post">
                     @csrf
                     @method('PATCH')
 
@@ -71,6 +71,34 @@
                         @endif
                     </div>
                 </div>
+            </div>
+
+            <div class="card p-6 md:p-8 mt-6" id="password">
+                <h2 class="font-serif text-xl mb-4">Change Password</h2>
+                <form action="{{ route('account.password.update') }}" method="post" class="space-y-4">
+                    @csrf
+                    @method('PATCH')
+
+                    <div>
+                        <label for="current_password">Current password</label>
+                        <input type="password" id="current_password" name="current_password" required autocomplete="current-password">
+                        @error('current_password') <p class="text-xs text-danger mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label for="new_password">New password</label>
+                        <input type="password" id="new_password" name="password" required autocomplete="new-password">
+                        <p class="text-xs text-muted mt-1">At least 12 characters with uppercase, lowercase, a digit and a symbol.</p>
+                        @error('password') <p class="text-xs text-danger mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label for="password_confirmation">Confirm new password</label>
+                        <input type="password" id="password_confirmation" name="password_confirmation" required autocomplete="new-password">
+                    </div>
+
+                    <button type="submit" class="btn-gold">Update Password</button>
+                </form>
             </div>
         </div>
     </section>

@@ -1,28 +1,93 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 @theme {
+    /* Core brand colors */
     --color-ivory: #FBF8F2;
     --color-ivory-alt: #F4EEE2;
     --color-porcelain: #FFFFFF;
     --color-charcoal: #1F1B16;
     --color-charcoal-soft: #3A3530;
+    --color-charcoal-muted: #5C5650;
     --color-muted: #6F6A63;
+
+    /* Champagne brand family */
     --color-champagne: #C8A968;
-    --color-champagne-dark: #A8854A;
+    --color-champagne-dark: #8A6A33; /* 4.7:1 on ivory — WCAG AA small-text links */
+    --color-champagne-deep: #7A5F2E;
+    --color-champagne-light: #E8DCC8;
+    --color-champagne-pale: #F5F0E8;
+
+    /* Accent colors */
     --color-rose: #B47B5A;
+    --color-rose-deep: #8C4A35;
+    --color-rose-pale: #F5E8E3;
     --color-plum: #3E2B33;
+    --color-sage: #6B8E6B;
+    --color-sage-light: #E8F0E8;
+
+    /* Status colors */
     --color-success: #3F8E5C;
+    --color-success-light: #E8F4EB;
     --color-danger: #B23A48;
+    --color-danger-light: #FBE8EA;
     --color-warning: #D79C3F;
+    --color-warning-light: #FDF5E6;
+    --color-info: #3A7BC8;
+    --color-info-light: #E8F0FA;
+
+    /* Draft/archived */
+    --color-draft: #9CA3AF;
+    --color-draft-light: #F3F4F6;
+    --color-archived: #6B7280;
+    --color-archived-light: #F3F4F6;
 
     --font-serif: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
     --font-sans: 'Inter', 'Helvetica Neue', Arial, sans-serif;
 
+    /* Spacing scale */
+    --space-1: 0.25rem;  /* 4px */
+    --space-2: 0.5rem;   /* 8px */
+    --space-3: 0.75rem;  /* 12px */
+    --space-4: 1rem;     /* 16px */
+    --space-5: 1.25rem;  /* 20px */
+    --space-6: 1.5rem;   /* 24px */
+    --space-8: 2rem;     /* 32px */
+    --space-10: 2.5rem;  /* 40px */
+    --space-12: 3rem;    /* 48px */
+
+    /* Border radius */
+    --radius-sm: 0.375rem;   /* 6px */
+    --radius-md: 0.5rem;     /* 8px */
+    --radius-lg: 0.75rem;    /* 12px */
+    --radius-xl: 1rem;       /* 16px */
+    --radius-2xl: 1.5rem;    /* 24px */
     --radius-pill: 9999px;
+    --radius-full: 9999px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(31 27 22 / 0.05);
+    --shadow-base: 0 1px 3px 0 rgb(31 27 22 / 0.1), 0 1px 2px -1px rgb(31 27 22 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(31 27 22 / 0.1), 0 2px 4px -2px rgb(31 27 22 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(31 27 22 / 0.1), 0 4px 6px -4px rgb(31 27 22 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(31 27 22 / 0.1), 0 8px 10px -6px rgb(31 27 22 / 0.1);
+    --shadow-elegant: 0 8px 40px rgba(31, 27, 22, 0.08);
+    --shadow-glow: 0 0 0 1px var(--color-champagne);
+
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-base: 200ms ease;
+    --transition-slow: 300ms ease;
+
+    /* Z-index scale */
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-fixed: 300;
+    --z-modal-backdrop: 400;
+    --z-modal: 500;
+    --z-popover: 600;
+    --z-tooltip: 700;
 }
 
 @layer base {
@@ -32,7 +97,7 @@
         -moz-osx-font-smoothing: grayscale;
     }
     body {
-        @apply bg-ivory text-charcoal font-sans antialiased;
+        @apply bg-ivory-alt/30 text-charcoal font-sans antialiased;
         font-feature-settings: 'cv01', 'cv02', 'kern';
     }
     h1, h2, h3, h4, h5, h6 {
@@ -51,6 +116,18 @@
         background: var(--color-champagne);
         color: white;
     }
+
+    /* WCAG 2.2 — honour reduced-motion preferences: drop decorative movement */
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
     /* Form controls */
     input, select, textarea {
         @apply font-sans;
@@ -61,62 +138,414 @@
         @apply w-full bg-porcelain border border-charcoal/10 rounded-md
                px-4 py-2.5 text-charcoal placeholder-muted/60
                focus:border-champagne focus:ring-1 focus:ring-champagne
-               transition-colors duration-200;
+               focus:ring-offset-2 focus:ring-offset-porcelain
+               transition-colors duration-200
+               disabled:bg-ivory-alt disabled:cursor-not-allowed;
     }
     label {
         @apply block text-sm font-medium text-charcoal-soft mb-1.5;
     }
-    /* Button base */
-    .btn {
-        @apply inline-flex items-center justify-center gap-2 px-5 py-2.5
-               rounded-md font-sans font-medium tracking-wide transition-all duration-200
+    /* Select improvements */
+    select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236F6A63' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        padding-right: 2.5rem;
+    }
+    select:disabled {
+        background-color: var(--color-ivory-alt);
+        color: var(--color-muted);
+    }
+    /* File input */
+    input[type="file"] {
+        padding: 0;
+        background: transparent;
+        border: none;
+    }
+    input[type="file"]::file-selector-button {
+        @apply bg-ivory-alt text-charcoal-soft px-3 py-1.5 rounded-md text-sm font-medium
+               border border-charcoal/10 hover:bg-charcoal/5 transition-colors;
+    }
+    /* Checkbox & Radio */
+    input[type="checkbox"], input[type="radio"] {
+        @apply w-4 h-4 text-champagne border-charcoal/20 rounded
+               focus:ring-2 focus:ring-champagne focus:ring-offset-2
                disabled:opacity-50 disabled:cursor-not-allowed;
     }
+    input[type="radio"] {
+        @apply rounded-full;
+    }
+    /* Button base */
+    .btn,
+    .btn-primary,
+    .btn-gold,
+    .btn-outline,
+    .btn-ghost,
+    .btn-danger,
+    .btn-secondary {
+        @apply inline-flex items-center justify-center gap-2 px-5 py-2.5
+               rounded-md font-sans font-medium tracking-wide transition-all duration-200
+               disabled:opacity-50 disabled:cursor-not-allowed
+               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-champagne focus-visible:ring-offset-2;
+    }
     .btn-primary {
-        @apply btn bg-charcoal text-ivory hover:bg-plum hover:shadow-md;
+        @apply bg-charcoal text-ivory hover:bg-plum hover:shadow-md;
     }
     .btn-gold {
-        @apply btn bg-champagne text-charcoal hover:bg-champagne-dark hover:text-ivory hover:shadow-md;
+        @apply bg-champagne text-charcoal hover:bg-champagne-dark hover:text-ivory hover:shadow-md;
     }
+    .btn-gold:active { @apply scale-[0.98]; }
     .btn-outline {
-        @apply btn border border-charcoal/20 text-charcoal hover:border-charcoal hover:bg-ivory-alt;
+        @apply border border-charcoal/20 text-charcoal hover:border-charcoal hover:bg-ivory-alt;
     }
     .btn-ghost {
-        @apply btn text-charcoal-soft hover:bg-ivory-alt;
+        @apply text-charcoal-soft hover:bg-ivory-alt;
     }
     .btn-danger {
-        @apply btn bg-danger text-ivory hover:bg-danger/90;
+        @apply bg-danger text-ivory hover:bg-danger/90 hover:shadow-md;
+    }
+    .btn-secondary {
+        @apply bg-ivory-alt text-charcoal hover:bg-charcoal/5 hover:text-charcoal;
+    }
+    .btn-sm {
+        @apply px-3 py-1.5 text-sm gap-1.5;
+    }
+    .btn-lg {
+        @apply px-6 py-3 text-base gap-2;
+    }
+    .btn-icon {
+        @apply p-2.5;
     }
     /* Cards */
     .card {
         @apply bg-porcelain rounded-xl border border-charcoal/5 overflow-hidden
-               transition-all duration-300;
+               transition-all duration-300 shadow-sm;
     }
     .card-hover {
-        @apply hover:shadow-[0_8px_40px_rgba(31,27,22,0.08)] hover:-translate-y-0.5;
+        @apply hover:shadow-elegant hover:-translate-y-0.5;
+    }
+    .card-interactive {
+        @apply cursor-pointer hover:shadow-elegant hover:-translate-y-0.5 transition-all duration-300;
     }
     /* Badges */
     .badge {
         @apply inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full;
     }
-    /* Container */
-    .container-haars {
-        @apply max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8;
+    .badge-sm {
+        @apply px-1.5 py-0.25 text-[10px];
     }
-    /* Section spacing */
-    .section {
-        @apply py-14 md:py-20;
+    .badge-lg {
+        @apply px-3 py-1 text-sm;
     }
-    /* Champagne divider */
+    /* Badge variants */
+    .badge-success {
+        @apply bg-success-light text-success;
+    }
+    .badge-danger {
+        @apply bg-danger-light text-danger;
+    }
+    .badge-warning {
+        @apply bg-warning-light text-warning;
+    }
+    .badge-info {
+        @apply bg-info-light text-info;
+    }
+    .badge-draft {
+        @apply bg-draft-light text-draft;
+    }
+    .badge-champagne {
+        @apply bg-champagne-pale text-champagne-dark;
+    }
+    .badge-rose {
+        @apply bg-rose-pale text-rose-deep;
+    }
+    .badge-plum {
+        @apply bg-[var(--color-plum)/10] text-plum;
+    }
+    .badge-charcoal {
+        @apply bg-charcoal/10 text-charcoal-soft;
+    }
+    /* Status dots */
+    .status-dot {
+        @apply inline-block w-2 h-2 rounded-full;
+    }
+    /* Table */
+    .table-container {
+        @apply overflow-x-auto;
+    }
+    .table {
+        @apply w-full text-sm;
+    }
+    .table thead {
+        @apply bg-ivory-alt/30 text-xs uppercase tracking-widest text-muted;
+    }
+    .table th {
+        @apply text-left p-3 font-medium;
+    }
+    .table td {
+        @apply p-3 align-middle;
+    }
+    .table tbody tr {
+        @apply transition-colors duration-150;
+    }
+    .table tbody tr:hover {
+        @apply bg-ivory-alt/30;
+    }
+    .table-divide {
+        @apply divide-y divide-charcoal/5;
+    }
+    /* Pagination */
+    .pagination {
+        @apply flex items-center justify-center gap-1;
+    }
+    .pagination a, .pagination span {
+        @apply inline-flex items-center justify-center min-w-[36px] h-9 px-3 text-sm font-medium rounded-md
+               text-charcoal-soft hover:bg-ivory-alt hover:text-charcoal transition-colors;
+    }
+    .pagination .current {
+        @apply bg-champagne text-charcoal font-semibold;
+    }
+    .pagination .ellipsis {
+        @apply text-muted cursor-default hover:bg-transparent;
+    }
+    /* Input groups */
+    .input-group {
+        @apply flex;
+    }
+    .input-group input {
+        @apply rounded-r-none;
+    }
+    .input-group .btn {
+        @apply rounded-l-none border-l-0;
+    }
+    /* Alerts */
+    .alert {
+        @apply px-4 py-3 rounded-lg text-sm border flex items-start gap-3;
+    }
+    .alert-success {
+        @apply bg-success-light border-success/30 text-success;
+    }
+    .alert-danger {
+        @apply bg-danger-light border-danger/30 text-danger;
+    }
+    .alert-warning {
+        @apply bg-warning-light border-warning/30 text-warning;
+    }
+    .alert-info {
+        @apply bg-info-light border-info/30 text-info;
+    }
+    /* Empty state */
+    .empty-state {
+        @apply text-center py-12 px-4;
+    }
+    .empty-state svg {
+        @apply w-16 h-16 mx-auto text-muted/50 mb-4;
+    }
+    .empty-state h3 {
+        @apply font-serif text-lg text-charcoal mb-1;
+    }
+    .empty-state p {
+        @apply text-sm text-muted mb-4;
+    }
+    /* Tooltip */
+    .tooltip {
+        @apply relative inline-block;
+    }
+    .tooltip .tooltip-text {
+        @apply invisible absolute z-50 px-3 py-2 text-xs font-medium text-ivory bg-charcoal rounded-md
+               opacity-0 transition-opacity duration-200 pointer-events-none whitespace-nowrap;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .tooltip .tooltip-text::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -4px;
+        border-width: 4px;
+        border-style: solid;
+        border-color: var(--color-charcoal) transparent transparent transparent;
+    }
+    .tooltip:hover .tooltip-text {
+        @apply visible opacity-100;
+    }
+    /* Modal */
+    .modal-backdrop {
+        @apply fixed inset-0 bg-charcoal/50 z-[var(--z-modal-backdrop)] transition-opacity;
+    }
+    .modal {
+        @apply fixed inset-0 z-[var(--z-modal)] flex items-center justify-center p-4;
+    }
+    .modal-content {
+        @apply bg-porcelain rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto;
+        animation: modal-in 0.2s ease-out;
+    }
+    @keyframes modal-in {
+        from { opacity: 0; transform: scale(0.95) translateY(10px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    /* Dropdown */
+    .dropdown {
+        @apply relative inline-block;
+    }
+    .dropdown-menu {
+        @apply absolute right-0 mt-2 w-56 bg-porcelain rounded-md shadow-xl border border-charcoal/5
+               py-1 z-[var(--z-dropdown)] opacity-0 invisible transform translate-y-1
+               transition-all duration-150;
+    }
+    .dropdown.open .dropdown-menu {
+        @apply opacity-100 visible translate-y-0;
+    }
+    .dropdown-item {
+        @apply block px-4 py-2 text-sm text-charcoal hover:bg-ivory-alt transition-colors;
+    }
+    .dropdown-divider {
+        @apply border-t border-charcoal/5 my-1;
+    }
+    /* Tabs */
+    .tabs {
+        @apply flex border-b border-charcoal/10;
+    }
+    .tab {
+        @apply px-4 py-3 text-sm font-medium text-muted border-b-2 border-transparent
+               hover:text-charcoal hover:border-champagne/50 transition-all duration-200;
+    }
+    .tab.active {
+        @apply text-champagne-dark border-champagne font-semibold;
+    }
+    /* Sidebar */
+    .sidebar-link {
+        @apply flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium
+               transition-all duration-200;
+    }
+    .sidebar-link:hover {
+        @apply bg-ivory-alt text-charcoal;
+    }
+    .sidebar-link.active {
+        @apply bg-champagne/15 text-champagne-dark font-semibold;
+    }
+    .sidebar-section-title {
+        @apply px-3 py-1 text-xs uppercase tracking-widest text-muted;
+    }
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        @apply bg-transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+        @apply bg-charcoal/10 rounded-full hover:bg-charcoal/20 transition-colors;
+    }
+    ::-webkit-scrollbar-corner {
+        @apply bg-transparent;
+    }
+    /* Loading spinner */
+    .spinner {
+        @apply inline-block w-5 h-5 border-2 border-charcoal/10 border-t-champagne rounded-full animate-spin;
+    }
+    .spinner-sm {
+        @apply w-4 h-4 border-[1.5px];
+    }
+    .spinner-lg {
+        @apply w-8 h-8 border-3;
+    }
+    /* Skeleton loader */
+    .skeleton {
+        @apply bg-ivory-alt animate-pulse rounded;
+    }
+    .skeleton-text {
+        @apply h-4 w-full animate-pulse bg-ivory-alt rounded mb-2;
+    }
+    .skeleton-text:last-child {
+        @apply w-3/4;
+    }
+    /* Avatar */
+    .avatar {
+        @apply inline-flex items-center justify-center rounded-full bg-champagne/15 text-champagne-dark font-medium font-sans;
+    }
+    .avatar-sm { @apply w-8 h-8 text-xs; }
+    .avatar-md { @apply w-10 h-10 text-sm; }
+    .avatar-lg { @apply w-12 h-12 text-base; }
+    .avatar-xl { @apply w-16 h-16 text-lg; }
+    /* Divider */
+    .divider {
+        @apply h-px bg-gradient-to-r from-transparent via-charcoal/10 to-transparent;
+    }
     .divider-gold {
         @apply h-px bg-gradient-to-r from-transparent via-champagne to-transparent;
     }
-    /* Truncate to 2 lines */
-    .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+    /* Alpine: hide elements until the framework initialises (prevents FOUC) */
+    [x-cloak] { display: none !important; }
+
+    /* Scroll-reveal (paired with the x-reveal Alpine directive in app.js).
+       `reveal-init` is only ever added by JS, so no-JS visitors keep content visible. */
+    .reveal-init {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    .reveal-in {
+        opacity: 1;
+        transform: none;
+        transition: opacity 600ms cubic-bezier(.2, .6, .2, 1),
+                    transform 600ms cubic-bezier(.2, .6, .2, 1);
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .reveal-init { opacity: 1; transform: none; }
+    }
+}
+
+@layer components {
+    /* Shared storefront and admin page gutter. Tailwind v4 does not define this
+       project-specific class, so without it sections stretch edge-to-edge. */
+    .container-haars {
+        width: min(100% - 2rem, 1440px);
+        margin-inline: auto;
+    }
+
+    @media (min-width: 640px) {
+        .container-haars { width: min(100% - 3rem, 1440px); }
+    }
+
+    /* Vertical rhythm for listing pages (shop, category, search, collection). */
+    .section {
+        @apply py-10 md:py-14;
+    }
+
+    /* Storefront flash toasts slide in instead of popping in. */
+    .animate-toast-in {
+        animation: toast-in 350ms cubic-bezier(.2, .7, .2, 1) both;
+    }
+    @keyframes toast-in {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cart badge pulse — draws the eye to the count after an add-to-cart reload. */
+    .animate-badge-pop {
+        animation: badge-pop 600ms cubic-bezier(.34, 1.56, .64, 1) both;
+    }
+    @keyframes badge-pop {
+        0% { transform: scale(0); }
+        60% { transform: scale(1.15); }
+        100% { transform: scale(1); }
+    }
+
+    /* Order-confirmation success cue: circle pops in, checkmark draws itself. */
+    .animate-success-pop {
+        animation: badge-pop 400ms cubic-bezier(.34, 1.56, .64, 1) both;
+    }
+    .animate-check-draw {
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        animation: check-draw 450ms ease-out 200ms forwards;
+    }
+    @keyframes check-draw {
+        to { stroke-dashoffset: 0; }
     }
 }
 

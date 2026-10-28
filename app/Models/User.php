@@ -27,7 +27,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'first_name', 'last_name', 'name', 'email', 'phone_country', 'phone',
         'username', 'password', 'avatar', 'type', 'status',
         'two_factor_secret', 'two_factor_recovery_codes',
-        'marketing_consent', 'last_login_ip',
+        'marketing_consent', 'last_login_ip', 'internal_notes', 'tags',
     ];
 
     protected $hidden = [
@@ -38,6 +38,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected function casts(): array
     {
         return [
+            'type'                      => UserType::class,
+            'status'                    => UserStatus::class,
             'email_verified_at'         => 'datetime',
             'phone_verified_at'         => 'datetime',
             'password_changed_at'       => 'datetime',
@@ -49,6 +51,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'data_export_requested_at'  => 'datetime',
             'data_deleted_at'           => 'datetime',
             'consent_log'               => 'array',
+            'tags'                      => 'array',
         ];
     }
 
@@ -177,7 +180,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function requiresMfa(): bool
     {
-        if (! config('app.features.mfa_required')) {
+        if (! config('app.features.mfa_required') || ! config('auth.auth.mfa.enabled')) {
             return false;
         }
         return $this->isStaff()
@@ -204,7 +207,7 @@ class User extends Authenticatable implements MustVerifyEmail
         ])->save();
     }
 
-    public function can(string $ability, $arguments = []): bool
+    public function can($ability, $arguments = []): bool
     {
         if ($this->isSuperAdmin()) {
             return true;

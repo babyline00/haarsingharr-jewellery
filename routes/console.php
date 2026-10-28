@@ -24,6 +24,20 @@ Schedule::command('haarsingharr:cleanup-reservations --all')
 Schedule::command('haarsingharr:newsletter-digest')
     ->dailyAt('09:00');
 
+Schedule::command('haarsingharr:weekly-report')
+    ->weeklyOn(1, '07:00');
+
+// Audit retention: prune daily at 03:00 per the system setting.
+Schedule::command('haarsingharr:prune-audit')
+    ->dailyAt('03:00');
+
+// Database + source backups (needs ext-zip on the host; skipped gracefully otherwise).
+Schedule::command('backup:clean')
+    ->dailyAt('02:15');
+
+Schedule::command('backup:run --disable-notifications')
+    ->dailyAt('02:30')->withoutOverlapping();
+
 Schedule::command('telescope:prune')
     ->daily()
     ->when(fn () => class_exists(\Laravel\Telescope\Telescope::class));

@@ -46,7 +46,7 @@ class SitemapController extends Controller
             $urls->push([
                 'loc'      => route('products.show', $prod),
                 'priority' => '0.9',
-                'images'   => $prod->images->map(fn ($img) => asset('storage/'.$img->path))->all(),
+                'images'   => $prod->images->map(fn ($img) => \App\Support\Media::url($img->path))->all(),
                 'lastmod'   => $prod->updated_at?->toDateString(),
             ]);
         }

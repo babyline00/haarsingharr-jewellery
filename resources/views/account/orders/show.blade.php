@@ -28,7 +28,7 @@
                         <div class="text-muted">Courier: <strong class="text-charcoal">{{ ucfirst($order->courier) }}</strong></div>
                         <div class="text-muted">Tracking number: <strong class="text-charcoal">{{ $order->tracking_number }}</strong></div>
                         @if ($order->trackUrl())
-                            <a href="{{ $order->trackUrl() }}" target="_blank" class="text-champagne-dark hover:underline mt-2 inline-block">Track on courier site →</a>
+                            <a href="{{ $order->trackUrl() }}" target="_blank" rel="noopener" class="text-champagne-dark hover:underline mt-2 inline-block">Track on courier site →</a>
                         @endif
                     </div>
                 </div>
@@ -40,7 +40,7 @@
                     @foreach ($order->items as $item)
                         <div class="p-5 flex gap-4">
                             <div class="w-16 h-16 bg-ivory-alt rounded-md overflow-hidden flex-shrink-0">
-                                @if ($item->product_image) <img src="{{ $item->product_image }}" alt="" class="w-full h-full object-cover"> @endif
+                                @if ($item->product_image) <img src="{{ \App\Support\Media::url($item->product_image) }}" alt="" class="w-full h-full object-cover"> @endif
                             </div>
                             <div class="flex-1">
                                 <div class="font-medium">{{ $item->product_name }}</div>

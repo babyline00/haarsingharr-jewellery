@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasUuid;
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ExchangeRequest extends Model
 {
-    use HasFactory, HasUuid, SoftDeletes;
+    use HasFactory, HasUuid, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'number', 'order_id', 'order_item_id',
@@ -18,6 +19,7 @@ class ExchangeRequest extends Model
         'customer_notes', 'admin_notes',
         'requested_variant_id', 'quantity',
         'refund_amount', 'refund_id',
+        'received_at', 'restocked_at', 'completed_at', 'return_label_url',
     ];
 
     protected function casts(): array
@@ -25,6 +27,9 @@ class ExchangeRequest extends Model
         return [
             'quantity'        => 'integer',
             'refund_amount'   => 'decimal:2',
+            'received_at'     => 'datetime',
+            'restocked_at'    => 'datetime',
+            'completed_at'    => 'datetime',
         ];
     }
 

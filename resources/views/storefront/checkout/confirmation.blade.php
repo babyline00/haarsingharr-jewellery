@@ -6,8 +6,8 @@
     <section class="py-16">
         <div class="container-haars max-w-3xl text-center">
 
-            <div class="w-20 h-20 mx-auto rounded-full bg-success/10 flex items-center justify-center mb-6">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-success"><polyline points="20 6 9 17 4 12"/></svg>
+            <div class="animate-success-pop w-20 h-20 mx-auto rounded-full bg-success/10 flex items-center justify-center mb-6">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="animate-check-draw text-success"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
 
             <h1 class="font-serif text-3xl md:text-4xl">Thank you for your order</h1>
@@ -47,7 +47,7 @@
                         <div class="flex justify-between items-center py-2 border-b border-charcoal/5 last:border-0">
                             <div class="flex items-center gap-3">
                                 @if ($item->product_image)
-                                    <img src="{{ $item->product_image }}" alt="" class="w-12 h-12 object-cover rounded">
+                                    <img src="{{ \App\Support\Media::url($item->product_image) }}" alt="" class="w-12 h-12 object-cover rounded">
                                 @endif
                                 <div>
                                     <div class="text-sm font-medium">{{ $item->product_name }}</div>
@@ -71,7 +71,7 @@
 
             <p class="text-xs text-muted mt-8">
                 For order enquiries, please contact us at <a href="mailto:{{ config('storefront.contact.email') }}" class="underline hover:text-champagne">{{ config('storefront.contact.email') }}</a>
-                or WhatsApp <a href="https://wa.me/{{ preg_replace('/\D/', '', config('storefront.notifications.whatsapp_number')) }}" target="_blank" class="underline hover:text-champagne">{{ config('storefront.notifications.whatsapp_number') }}</a>.
+                or WhatsApp <a href="https://wa.me/{{ preg_replace('/\D/', '', config('storefront.notifications.whatsapp_number')) }}" target="_blank" rel="noopener" class="underline hover:text-champagne">{{ config('storefront.notifications.whatsapp_number') }}</a>.
             </p>
         </div>
     </section>

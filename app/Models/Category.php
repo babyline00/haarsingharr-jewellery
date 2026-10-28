@@ -8,12 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 class Category extends Model
 {
-    use HasFactory, HasSlug, HasUuid, SoftDeletes;
+    use HasFactory, HasSlug, HasUuid, SoftDeletes {
+        HasUuid::getRouteKey insteadof HasSlug;
+    }
 
     protected $fillable = [
         'parent_id', 'name', 'slug', 'description', 'short_description',
@@ -85,6 +88,37 @@ class Category extends Model
     public function scopeShownInMenu($query)
     {
         return $query->where('show_in_menu', true)->active()->ordered();
+    }
+
+    public function scopeSearch($query, ?string $term)
+    {
+        if (! $term) {
+            return $query;
+        }
+
+        return $query->where(function ($sub) use ($term) {
+            $sub->where('name', 'like', "%{$term}%")
+                ->orWhere('short_description', 'like', "%{$term}%")
+                ->orWhere('description', 'like', "%{$term}%");
+        });
+    }
+
+    // --------------------------------------------------------------------------
+    // Cache helpers
+    // --------------------------------------------------------------------------
+    /**
+     * Active categories, memoised for a short while. Returns a Collection so
+     * callers can further filter in-memory (e.g. the navigation mega menu).
+     */
+    public static function cached(): Collection
+    {
+        return cache()->remember('storefront.categories', now()->addHour(), function () {
+            return static::query()
+                ->where('status', 'active')
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get();
+        });
     }
 
     // --------------------------------------------------------------------------

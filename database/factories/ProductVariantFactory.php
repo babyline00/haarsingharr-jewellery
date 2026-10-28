@@ -11,6 +11,7 @@ class ProductVariantFactory extends Factory
     public function definition(): array
     {
         return [
+            'product_id'       => \App\Models\Product::factory(),
             'sku'              => strtoupper($this->faker->unique()->bothify('V-####??')),
             'title'            => $this->faker->optional()->words(3, true),
             'attributes'       => ['Size' => $this->faker->randomElement(['14', '16', '18', '20'])],

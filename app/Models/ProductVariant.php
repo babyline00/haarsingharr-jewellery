@@ -22,7 +22,7 @@ class ProductVariant extends Model
         'sale_starts_at', 'sale_ends_at',
         'stock_quantity', 'reserved_stock', 'safety_stock',
         'low_stock_threshold', 'allow_backorder', 'is_default',
-        'status', 'weight_grams', 'dimensions', 'sort_order',
+        'status', 'weight_grams', 'dimensions',
     ];
 
     protected function casts(): array
@@ -41,7 +41,6 @@ class ProductVariant extends Model
             'low_stock_threshold'=> 'integer',
             'allow_backorder'    => 'boolean',
             'is_default'         => 'boolean',
-            'sort_order'         => 'integer',
         ];
     }
 
@@ -86,6 +85,11 @@ class ProductVariant extends Model
         return $q->where('status', 'active');
     }
 
+    public function scopeDefault(Builder $q)
+    {
+        return $q->where('is_default', true);
+    }
+
     public function scopeInStock(Builder $q)
     {
         return $q->whereColumn('stock_quantity', '>', 'reserved_stock');
@@ -93,9 +97,8 @@ class ProductVariant extends Model
 
     public function scopeLowStock(Builder $q)
     {
-        return $q->whereColumn('stock_quantity', '<=', 'reserved_stock')
-            ->whereNotNull('low_stock_threshold')
-            ->whereColumn('stock_quantity', '<=', 'low_stock_threshold');
+        return $q->whereNotNull('low_stock_threshold')
+            ->whereRaw('(stock_quantity - reserved_stock) <= low_stock_threshold');
     }
 
     // --------------------------------------------------------------------------
@@ -104,6 +107,36 @@ class ProductVariant extends Model
     public function availableStock(): int
     {
         return max(0, $this->stock_quantity - $this->reserved_stock - $this->safety_stock);
+    }
+
+    /**
+     * Whether the variant can be sold right now. Backorders count when the
+     * store-wide backorder setting allows them.
+     */
+    public function inStock(): bool
+    {
+        return $this->availableStock() > 0 || $this->backorderable();
+    }
+
+    public function backorderable(): bool
+    {
+        return (bool) $this->allow_backorder
+            && (bool) config('storefront.inventory.allow_backorders', false);
+    }
+
+    public function stockStatus(): string
+    {
+        $available = $this->availableStock();
+
+        if ($available <= 0) {
+            return 'out_of_stock';
+        }
+
+        if ($this->low_stock_threshold !== null && $available <= $this->low_stock_threshold) {
+            return 'low_stock';
+        }
+
+        return 'in_stock';
     }
 
     public function isOnSale(): bool
@@ -128,10 +161,40 @@ class ProductVariant extends Model
         return (float) $this->regular_price ?: 0;
     }
 
+    public function savingsPercentage(): ?float
+    {
+        if (! $this->isOnSale() || ! $this->regular_price) {
+            return null;
+        }
+        return round((1 - ($this->sale_price / $this->regular_price)) * 100, 1);
+    }
+
     public function hasStock(int $quantity): bool
     {
-        return $this->availableStock() >= $quantity
-            || ($this->allow_backorder && config('storefront.inventory.allow_backorders'));
+        return $this->availableStock() >= $quantity || $this->backorderable();
+    }
+
+    public function attributeValue(string $name): ?string
+    {
+        $value = data_get($this->attributes, $name);
+
+        return $value === null ? null : (string) $value;
+    }
+
+    public function displayLabel(): string
+    {
+        if (filled($this->title)) {
+            return $this->title;
+        }
+
+        $formatted = $this->formattedAttributes();
+
+        return $formatted !== '' ? $formatted : 'Default';
+    }
+
+    public function primaryImagePath(): ?string
+    {
+        return $this->images->first()?->path;
     }
 
     public function formattedAttributes(): string

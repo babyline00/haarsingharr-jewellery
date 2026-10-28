@@ -9,19 +9,37 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\StoreLocation;
-use App\Models\Testimonial;
+use App\Models\StoreSetting;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class HomeController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $sections = HomepageSection::published()->get();
+        $preview = (bool) $request->boolean('preview') && auth()->user()?->isStaff();
+
+        $sections = $preview
+            ? HomepageSection::orderBy('sort_order')->orderBy('id')->get()
+            : HomepageSection::published()->get();
+
+        $heroBanners = Banner::atLocation('hero')->published()->get();
+        $hero = $heroBanners->first();
+        $announcement = Banner::atLocation('announcement')->published()->first();
+
+        if (! $preview) {
+            $heroBanners->each->recordImpression();
+            $announcement?->recordImpression();
+        }
 
         $data = [
             'sections'         => $sections,
-            'heroBanner'       => Banner::atLocation('hero')->published()->first(),
-            'announcement'     => Banner::atLocation('announcement')->published()->first(),
+            'isPreview'        => $preview,
+            'heroBanner'       => $hero,
+            'heroBanners'      => $heroBanners,
+            'heroAutoplay'     => filter_var(StoreSetting::get('hero_autoplay', true), FILTER_VALIDATE_BOOLEAN),
+            'heroAutoplaySeconds' => max(3, min(15, (int) StoreSetting::get('hero_autoplay_seconds', 6))),
+            'announcement'     => $announcement,
             'featuredCategories' => Category::where('show_on_homepage', true)
                 ->active()->ordered()->limit(8)->get(),
             'bestSellers'      => Product::active()->bestSellers()

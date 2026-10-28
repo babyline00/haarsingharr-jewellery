@@ -102,12 +102,9 @@ class CartService
 
     public function addProduct(Product $product, int $quantity, array $metadata = []): Cart
     {
-        if (! $product->has_variants) {
-            $variant = $product->variants()->where('is_default', true)->first()
-                ?? $product->variants()->first();
-        } else {
-            $variant = $product->variants()->where('is_default', true)->first();
-        }
+        $variant = $product->variants()->where('is_default', true)->first()
+            ?? $product->variants()->active()->first()
+            ?? $product->variants()->first();
 
         if (! $variant) {
             throw new \App\Exceptions\InsufficientStockException(

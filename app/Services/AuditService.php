@@ -14,7 +14,7 @@ class AuditService
      * user (if any) is used. Sensitive properties (password, tokens) are
      * stripped automatically.
      */
-    public function record(string $action, Model|string $target = null,
+    public function record(string $action, Model|string|null $target = null,
         ?array $previous = null, ?array $after = null, ?string $module = null): ?AuditLog
     {
         if (! $target) {

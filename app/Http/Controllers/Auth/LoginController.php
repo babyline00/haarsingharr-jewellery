@@ -52,6 +52,10 @@ class LoginController extends Controller
             SecurityEvent::log('login.attempt', $user, 'failure',
                 ['email' => $validated['email'], 'reason' => 'invalid_credentials'],
                 'Failed login attempt for '.$validated['email']);
+
+            // Might trip the burst threshold (5 failures / 15 min).
+            app(\App\Services\FailedLoginAlert::class)->maybeAlert($validated['email']);
+
             throw ValidationException::withMessages([
                 'email' => 'These credentials do not match our records.',
             ]);
@@ -67,6 +71,7 @@ class LoginController extends Controller
 
         Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate(true);
+        $request->session()->forget('mfa_confirmed');
         $this->clearLoginAttempts($request);
         $user->touchLastLogin($request->ip());
         SecurityEvent::log('login.success', $user, 'success',

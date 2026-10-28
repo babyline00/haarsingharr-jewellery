@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__.'/../app/ZipArchivePolyfill.php';
+
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -36,9 +38,22 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->trustProxies(at: TrustProxies::class);
-        $middleware->trustHosts(at: '*');
-        $middleware->preventRequestsDuringMaintenance(PreventRequestsDuringMaintenance::class);
+        // Use the application's TrustProxies middleware (trusts all upstream
+        // proxies and reads the standard X-Forwarded-* headers). The default
+        // framework middleware is swapped out rather than configured with a
+        // literal class-name string.
+        $middleware->replace(
+            \Illuminate\Http\Middleware\TrustProxies::class,
+            TrustProxies::class,
+        );
+        $middleware->trustHosts(at: fn (): array => ['.*']);
+        $middleware->preventRequestsDuringMaintenance(
+            except: [],
+        );
+        $middleware->replace(
+            \Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance::class,
+            PreventRequestsDuringMaintenance::class,
+        );
         $middleware->redirectGuestsTo(fn (Request $r) => route('login'));
         $middleware->redirectUsersTo(fn (Request $r) => route('account.dashboard'));
         $middleware->trimStrings(except: [
@@ -46,11 +61,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'password',
             'password_confirmation',
         ]);
-        $middleware->convertEmptyStringsToNull(except: [
-            'description',
-            'notes',
-            'address',
-        ]);
+        // Note: Laravel 12's convertEmptyStringsToNull() only accepts skipWhen
+        // closures (unlike trimStrings(), which accepts field names).
+        $middleware->convertEmptyStringsToNull();
 
         $middleware->web(append: [
             \App\Http\Middleware\SecureHeaders::class,
@@ -68,7 +81,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->priority([
-            \Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance::class,
+            PreventRequestsDuringMaintenance::class,
             \Illuminate\Cookie\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,

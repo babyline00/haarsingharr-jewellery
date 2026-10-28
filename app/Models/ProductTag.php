@@ -14,7 +14,9 @@ use Spatie\Sluggable\SlugOptions;
 
 class ProductTag extends Model
 {
-    use HasFactory, HasSlug, HasUuid, SoftDeletes;
+    use HasFactory, HasSlug, HasUuid, SoftDeletes {
+        HasUuid::getRouteKey insteadof HasSlug;
+    }
 
     protected $fillable = ['name', 'slug', 'description'];
 
@@ -28,6 +30,6 @@ class ProductTag extends Model
 
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class);
+        return $this->belongsToMany(Product::class, 'product_tag', 'product_tag_id', 'product_id');
     }
 }

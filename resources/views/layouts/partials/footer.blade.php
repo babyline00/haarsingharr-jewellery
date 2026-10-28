@@ -5,7 +5,7 @@
             {{-- Brand & description --}}
             <div class="col-span-2 md:col-span-1">
                 <div class="mb-3">
-                    <img src="{{ asset('images/logo.png') }}" alt="Haarsingharr.pk" class="h-10 w-auto brightness-0 invert">
+                    <img src="{{ \App\Support\Branding::logoUrl() }}" alt="Haarsingharr.pk" class="h-10 max-w-full rounded bg-white/95 px-2 py-1 object-contain">
                 </div>
                 <p class="text-ivory/70 text-sm leading-relaxed mb-4">
                     Jewelry • For Every You. Hand-crafted 22k gold and diamond jewellery for the
@@ -28,13 +28,20 @@
             {{-- Shop --}}
             <div>
                 <h3 class="text-champagne text-xs font-semibold uppercase tracking-widest mb-4">Shop</h3>
+                @php
+                    $footerMenu = \App\Models\NavigationMenu::forLocation('footer');
+                @endphp
                 <ul class="space-y-2 text-sm text-ivory/70">
-                    <li><a href="{{ route('shop.index') }}" class="hover:text-ivory transition-colors">All Jewellery</a></li>
-                    <li><a href="{{ route('shop.bridal') }}" class="hover:text-ivory transition-colors">Bridal</a></li>
-                    <li><a href="{{ route('shop.men') }}" class="hover:text-ivory transition-colors">For Men</a></li>
-                    <li><a href="{{ route('shop.best_sellers') }}" class="hover:text-ivory transition-colors">Bestsellers</a></li>
-                    <li><a href="{{ route('shop.new_arrivals') }}" class="hover:text-ivory transition-colors">New Arrivals</a></li>
-                    <li><a href="{{ route('shop.sale') }}" class="hover:text-ivory transition-colors">Sale</a></li>
+                    @if ($footerMenu)
+                        @include('layouts.partials.menu-links', ['items' => $footerMenu->visibleItems(), 'variant' => 'footer'])
+                    @else
+                        <li><a href="{{ route('shop.index') }}" class="hover:text-ivory transition-colors">All Jewellery</a></li>
+                        <li><a href="{{ route('shop.bridal') }}" class="hover:text-ivory transition-colors">Bridal</a></li>
+                        <li><a href="{{ route('shop.men') }}" class="hover:text-ivory transition-colors">For Men</a></li>
+                        <li><a href="{{ route('shop.best_sellers') }}" class="hover:text-ivory transition-colors">Bestsellers</a></li>
+                        <li><a href="{{ route('shop.new_arrivals') }}" class="hover:text-ivory transition-colors">New Arrivals</a></li>
+                        <li><a href="{{ route('shop.sale') }}" class="hover:text-ivory transition-colors">Sale</a></li>
+                    @endif
                 </ul>
             </div>
 

@@ -72,30 +72,14 @@ return new class extends Migration
             $table->index('show_on_homepage');
         });
 
-        Schema::create('collection_product', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('collection_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
-            $table->unsignedInteger('sort_order')->default(0);
-            $table->timestamps();
-            $table->unique(['collection_id', 'product_id']);
-        });
-
         Schema::create('product_tags', function (Blueprint $table) {
             $table->id();
+            $table->string('uuid', 36)->unique();
             $table->string('name')->unique();
             $table->string('slug')->unique();
             $table->string('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
-        });
-
-        Schema::create('product_tag', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('product_tag_id')->constrained()->cascadeOnDelete();
-            $table->timestamps();
-            $table->unique(['product_id', 'product_tag_id']);
         });
 
         Schema::create('products', function (Blueprint $table) {
@@ -180,6 +164,23 @@ return new class extends Migration
             $table->index('created_at');
         });
 
+        Schema::create('collection_product', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('collection_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
+            $table->unsignedInteger('sort_order')->default(0);
+            $table->timestamps();
+            $table->unique(['collection_id', 'product_id']);
+        });
+
+        Schema::create('product_tag', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('product_tag_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
+            $table->unique(['product_id', 'product_tag_id']);
+        });
+
         Schema::create('product_variants', function (Blueprint $table) {
             $table->id();
             $table->string('uuid', 36)->unique();
@@ -243,6 +244,7 @@ return new class extends Migration
             $table->boolean('is_primary')->default(false);
             $table->json('metadata')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index(['product_id', 'sort_order']);
             $table->index(['product_id', 'is_primary']);
@@ -256,7 +258,7 @@ return new class extends Migration
                 ->default('related');
             $table->unsignedInteger('sort_order')->default(0);
             $table->timestamps();
-            $table->unique(['product_id', 'related_product_id', 'relation_type']);
+            $table->unique(['product_id', 'related_product_id', 'relation_type'], 'product_relations_unique');
         });
     }
 

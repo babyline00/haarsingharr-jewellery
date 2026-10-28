@@ -13,13 +13,16 @@ use Spatie\Sluggable\SlugOptions;
 
 class Collection extends Model
 {
-    use HasFactory, HasSlug, HasUuid, SoftDeletes;
+    use HasFactory, HasSlug, HasUuid, SoftDeletes {
+        HasUuid::getRouteKey insteadof HasSlug;
+    }
 
     protected $fillable = [
         'name', 'slug', 'description', 'banner_image',
         'type', 'rules', 'match_condition',
         'status', 'show_on_homepage', 'sort_order',
         'starts_at', 'ends_at',
+        'seo_title', 'seo_description', 'seo_image',
     ];
 
     protected function casts(): array
@@ -45,7 +48,8 @@ class Collection extends Model
     {
         return $this->belongsToMany(Product::class)
             ->withPivot('sort_order')
-            ->orderByPivot('sort_order');
+            ->orderByPivot('sort_order')
+            ->orderBy('products.id');
     }
 
     public function scopeActive(Builder $q)
@@ -72,5 +76,17 @@ class Collection extends Model
     public function scopeRuleBased(Builder $q)
     {
         return $q->where('type', 'rule_based');
+    }
+
+    public function scopeSearch(Builder $q, ?string $term)
+    {
+        if (! $term) {
+            return $q;
+        }
+
+        return $q->where(function (Builder $sub) use ($term) {
+            $sub->where('name', 'like', "%{$term}%")
+                ->orWhere('description', 'like', "%{$term}%");
+        });
     }
 }
